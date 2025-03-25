@@ -1,0 +1,129 @@
+{
+  "id": "SK-A-2099",
+  "thumbnail": "https://iiif.micr.io/OHDPD/full/!200,/0/default.webp",
+  "title": "Still Life with Asparagus",
+  "tiles": "https://i.micr.io/OHDPD/info.json",
+  "description": "This elegant still life by Adriaen Coorte (1697) depicts a simple bundle of white asparagus against a dark background. Coorte, a Dutch Golden Age painter, was known for his small, intimate still lifes of fruits, vegetables, and shells, characterized by their dramatic lighting and meticulous attention to detail.",
+  "pointsOfInterest": [
+    {
+      "id": "asparagus_bundle",
+      "order": 1,
+      "zoom": 1.8,
+      "center": {
+        "x": 0.4845163806552262,
+        "y": 0.6050522020880835
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "The Asparagus Bundle",
+      "description": "The main subject is a bundle of white asparagus, carefully arranged and bound with a simple cord. Coorte transforms this humble vegetable into a subject of artistic contemplation, elevating ordinary produce to the realm of fine art."
+    },
+    {
+      "id": "binding_cord",
+      "order": 2,
+      "zoom": 2.8,
+      "center": {
+        "x": 0.4440207608304332,
+        "y": 0.5586013440537622
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "The Binding Cord",
+      "description": "A simple orange-brown cord ties the asparagus together. This detail adds a touch of warm color to the composition and draws attention to the careful arrangement of the vegetables, emphasizing both their natural form and their status as a harvested commodity."
+    },
+    {
+      "id": "asparagus_tips",
+      "order": 3,
+      "zoom": 3,
+      "center": {
+        "x": 0.7572662906516261,
+        "y": 0.4061472458898356
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Asparagus Tips",
+      "description": "The delicate purple-tinged tips of the asparagus show Coorte's exceptional observational skills and technical mastery. The subtle color variations and detailed rendering of the tips demonstrate his ability to capture the most minute details of his subjects."
+    },
+    {
+      "id": "asparagus_texture",
+      "order": 4,
+      "zoom": 3,
+      "center": {
+        "x": 0.6917586703468139,
+        "y": 0.6133895355814233
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Texture and Brushwork",
+      "description": "Coorte's meticulous brushwork captures the unique texture of asparagus stalks, with their subtle ridges and smooth surfaces. The painter achieves a remarkable tactile quality through his precise application of paint and understanding of how light interacts with different surfaces."
+    },
+    {
+      "id": "light_and_shadow",
+      "order": 5,
+      "zoom": 2.5,
+      "center": {
+        "x": 0.529776191047642,
+        "y": 0.7408316332653306
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Light and Shadow",
+      "description": "The dramatic lighting illuminates the pale asparagus against the dark background, creating a striking chiaroscuro effect. This lighting technique not only highlights the three-dimensional form of the vegetables but also creates a sense of quiet drama in this deceptively simple composition."
+    },
+    {
+      "id": "stone_ledge",
+      "order": 6,
+      "zoom": 2.2,
+      "center": {
+        "x": 0.3475459018360735,
+        "y": 0.9826143045721829
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Stone Ledge",
+      "description": "The asparagus rests on what appears to be a stone ledge or table, rendered in muted brown tones. Coorte has captured the subtle cracks and irregularities in the stone surface, adding to the realistic quality of the painting."
+    },
+    {
+      "id": "signature_date",
+      "order": 7,
+      "zoom": 3,
+      "center": {
+        "x": 0.7918066722668906,
+        "y": 0.989760590423617
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Artist's Signature and Date",
+      "description": "The artist has signed and dated the work 'A. Coorte 1697' on the front face of the stone ledge. This signed and dated work helps establish the chronology of Coorte's artistic development during a period when he focused on creating these small-scale, precisely rendered still lifes."
+    },
+    {
+      "id": "negative_space",
+      "order": 8,
+      "zoom": 1.5,
+      "center": {
+        "x": 0.35469218768750754,
+        "y": 0.21915276611064438
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Dark Background",
+      "description": "The deep, almost black background is characteristic of Coorte's mature work. This stark setting eliminates distractions and focuses attention entirely on the subject, creating a sense of timelessness and quiet contemplation that distinguishes his work from more elaborate still life compositions of the period."
+    }
+  ]
+}

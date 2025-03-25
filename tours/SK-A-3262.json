@@ -1,0 +1,128 @@
+{
+  "id": "SK-A-3262",
+  "title": "Self-Portrait with Grey Felt Hat",
+  "tiles": "https://i.micr.io/vjYfT/info.json",
+  "description": "This striking self-portrait was painted by Vincent van Gogh in the winter of 1887-88 during his time in Paris. It demonstrates his evolving style and experimental approach to color, showcasing his signature expressive brushwork against a vibrant blue background. This work reveals van Gogh's intense self-examination and his mastery of complementary color contrasts.",
+  "pointsOfInterest": [
+    {
+      "id": "penetrating_gaze",
+      "order": 1,
+      "zoom": 3,
+      "center": {
+        "x": 0.47260590423616944,
+        "y": 0.45974438977559096
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 5000
+      },
+      "title": "Penetrating Gaze",
+      "description": "Van Gogh's intense green eyes directly engage the viewer, creating an immediate psychological connection. The artist often emphasized his eyes in self-portraits, using them as windows into his emotional state. Here, they appear alert and penetrating, set against the reddish tones of his face—a deliberate complementary color contrast that increases visual intensity."
+    },
+    {
+      "id": "grey_felt_hat",
+      "order": 2,
+      "zoom": 1.4,
+      "center": {
+        "x": 0.4976179047161886,
+        "y": 0.2584573382935317
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 5000
+      },
+      "title": "The Grey Felt Hat",
+      "description": "The grey felt hat was a fashionable accessory in Paris at the time and appears in several of van Gogh's self-portraits from this period. His brushstrokes follow the hat's cylindrical form, creating rhythm and dimension. The cool grey-blue tones contrast with the warmth of his hair and beard, exemplifying his growing understanding of color relationships."
+    },
+    {
+      "id": "red_beard",
+      "order": 3,
+      "zoom": 3,
+      "center": {
+        "x": 0.4833253330133205,
+        "y": 0.7348763950558022
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 4500
+      },
+      "title": "The Red Beard",
+      "description": "Van Gogh's distinctive red beard is rendered with short, separated brushstrokes in varying orange-red hues. This technique, influenced by Neo-Impressionism and Pointillism, creates vibration and energy. The fiery red-orange of his beard strategically contrasts with the blue background, maximizing visual impact through complementary colors."
+    },
+    {
+      "id": "blue_background",
+      "order": 4,
+      "zoom": 3.9,
+      "center": {
+        "x": 0.8656516260650424,
+        "y": 0.6777061082443296
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 4500
+      },
+      "title": "Dynamic Blue Background",
+      "description": "The energetic blue background is composed of diagonal brushstrokes that create a sense of movement and emotional turbulence. This technique, reminiscent of the artist's later expressive style, transforms the background from a passive element into an active component of the composition, reflecting van Gogh's inner state."
+    },
+    {
+      "id": "brushwork_technique",
+      "order": 5,
+      "zoom": 3.5,
+      "center": {
+        "x": 0.19628285131405254,
+        "y": 0.3716068642745709
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 5000
+      },
+      "title": "Expressive Brushwork",
+      "description": "A closer examination reveals van Gogh's distinctive brushwork technique. Short, directional strokes follow the contours of his face and clothing, creating texture and dimension. This technique, known as divisionism, uses separated strokes of pure color that optically blend in the viewer's eye, creating a vibrant, almost shimmering effect."
+    },
+    {
+      "id": "coat_details",
+      "order": 6,
+      "zoom": 2.8,
+      "center": {
+        "x": 0.812054482179287,
+        "y": 1.1076743069722788
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 4500
+      },
+      "title": "Patterned Coat",
+      "description": "Van Gogh's coat is rendered with complex, multicolored brushstrokes that suggest a textured fabric. Blues, greens, and browns intermingle to create visual depth. This detailed attention to his clothing demonstrates how van Gogh elevated even ordinary elements to subjects worthy of careful artistic consideration, transforming them through his unique color sensibility."
+    },
+    {
+      "id": "blue_neckerchief",
+      "order": 7,
+      "zoom": 3.2,
+      "center": {
+        "x": 0.4618864754590183,
+        "y": 0.9290171606864273
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 4500
+      },
+      "title": "Blue Neckerchief",
+      "description": "The bright blue neckerchief provides a focal point at the center of the composition. This vibrant accent draws the eye and connects the palette of the portrait with the background. Van Gogh was particularly attentive to how clothing could express personality; the jaunty neckerchief suggests the artist's aspirations to be seen as a proper Parisian painter."
+    },
+    {
+      "id": "ear_detail",
+      "order": 8,
+      "zoom": 4,
+      "center": {
+        "x": 0.7667946717868714,
+        "y": 0.5371624864994599
+      },
+      "duration": {
+        "transition": 3500,
+        "still": 5000
+      },
+      "title": "Intact Ear",
+      "description": "This portrait dates from van Gogh's time in Paris, before his infamous ear incident in Arles in December 1888. His left ear is visible and intact, a poignant detail considering the later self-mutilation that would become an iconic part of the artist's biography. This portrait thus captures van Gogh during a relatively stable period of artistic growth and experimentation."
+    }
+  ]
+}
