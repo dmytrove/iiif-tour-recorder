@@ -1,0 +1,129 @@
+{
+  "id": "SK-A-2344",
+  "thumbnail": "https://iiif.micr.io/QkOGy/full/!200,/0/default.webp",
+  "title": "The Milkmaid",
+  "tiles": "https://i.micr.io/QkOGy/info.json",
+  "description": "This masterpiece by Johannes Vermeer (c. 1660) depicts a domestic servant quietly pouring milk in a Dutch kitchen. Known for its brilliant use of light, color harmony, and intimate portrayal of everyday life, it exemplifies Vermeer's mastery of Dutch Golden Age painting techniques.",
+  "pointsOfInterest": [
+    {
+      "id": "milkmaid_portrait",
+      "order": 1,
+      "zoom": 2,
+      "center": {
+        "x": 0.5838402616596858,
+        "y": 0.2687582708769635
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "The Milkmaid Herself",
+      "description": "The subject is portrayed with dignified concentration, dressed in traditional servant attire with a white cap, yellow bodice, and blue apron. Vermeer elevates this ordinary domestic worker through careful attention to her focused expression and purposeful gesture."
+    },
+    {
+      "id": "pouring_milk",
+      "order": 2,
+      "zoom": 2.3,
+      "center": {
+        "x": 0.3457744797120421,
+        "y": 0.6013750016832461
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "The Pouring Milk",
+      "description": "The central action of pouring milk creates a moment of suspended time. Vermeer captures the stream of milk with remarkable precision, using thick white paint to convey its viscosity and movement, demonstrating his technical mastery in rendering light on liquid."
+    },
+    {
+      "id": "bread_basket",
+      "order": 3,
+      "zoom": 2,
+      "center": {
+        "x": 0.2866801366753928,
+        "y": 0.7735928013900523
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Bread and Basket",
+      "description": "The carefully arranged bread and wicker basket showcase Vermeer's skill in still-life. The crusty texture of the bread contrasts with the smooth ceramics and textiles, while their humble nature emphasizes the painting's celebration of simple domestic life."
+    },
+    {
+      "id": "window_light",
+      "order": 4,
+      "zoom": 2,
+      "center": {
+        "x": 0.25122353085340343,
+        "y": 0.23667848465706826
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Window and Natural Light",
+      "description": "Vermeer was renowned as a master of light. Here, natural light streams through the window, illuminating the scene with softness while creating subtle shadows. This northern light was prized by Dutch painters for its clear, diffused quality."
+    },
+    {
+      "id": "blue_tablecloth",
+      "order": 5,
+      "zoom": 2.2,
+      "center": {
+        "x": 0.3423976601099479,
+        "y": 0.8985351266675391
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Blue Tablecloth",
+      "description": "The blue tablecloth echoes the milkmaid's apron, creating visual harmony. Vermeer used expensive ultramarine blue (made from lapis lazuli) for these elements, showing the importance he placed on color quality even in depicting humble subjects."
+    },
+    {
+      "id": "ceramic_vessels",
+      "order": 6,
+      "zoom": 2.8,
+      "center": {
+        "x": 0.27992649747120435,
+        "y": 0.7009911799450261
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Ceramic Vessels",
+      "description": "The various earthenware vessels display Vermeer's attention to material qualities. The glazed blue pot, terracotta vessels, and the brass container each reflect light differently, demonstrating his understanding of how different surfaces interact with light."
+    },
+    {
+      "id": "foot_warmer",
+      "order": 7,
+      "zoom": 3.5,
+      "center": {
+        "x": 0.8503839095287948,
+        "y": 0.9816049094895283
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Foot Warmer",
+      "description": "In the lower right corner sits a foot warmer, a small box containing hot coals used to keep feet warm in cold Dutch winters. This humble object adds domestic authenticity to the scene while potentially symbolizing warmth and comfort in the household."
+    },
+    {
+      "id": "wall_details",
+      "order": 8,
+      "zoom": 2,
+      "center": {
+        "x": 0.7469406072198908,
+        "y": 0.11545068155235377
+      },
+      "duration": {
+        "transition": 4000,
+        "still": 5000
+      },
+      "title": "Wall Textures",
+      "description": "The subtly textured wall showcases Vermeer's skill in rendering surfaces. Small nail holes and imperfections create a sense of lived reality, while the soft, diffused light creates gentle shadows that add depth to the composition."
+    }
+  ]
+}
