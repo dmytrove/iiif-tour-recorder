@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenSeadragon Smooth Animation Capture (CCapture)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IIIF Tour Recorder</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@21.0.0/dist/tween.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
@@ -14,6 +15,7 @@
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
+<div id="status-overlay" class="hide-during-recording"></div>
 <div id="point-edit-modal" class="modal" style="display: none;">
   <div class="modal-content">
     <h3>Edit Point Properties</h3>
@@ -46,18 +48,49 @@
     </form>
   </div>
 </div>
-<div id="controls">
+
+<!-- Tour Edit Modal -->
+<div id="tour-edit-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>Edit Tour Information</h3>
+    <form id="tour-edit-form">
+      <div class="form-group">
+        <label for="tour-id">Tour ID:</label>
+        <input type="text" id="tour-id" placeholder="Enter tour ID">
+      </div>
+      <div class="form-group">
+        <label for="tour-title">Title:</label>
+        <input type="text" id="tour-title" placeholder="Enter tour title">
+      </div>
+      <div class="form-group">
+        <label for="tour-description">Description:</label>
+        <textarea id="tour-description" placeholder="Enter tour description"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="tour-tiles">IIIF Image URL:</label>
+        <input type="text" id="tour-tiles" placeholder="Enter IIIF URL">
+      </div>
+      <div class="form-buttons">
+        <button type="button" id="save-tour">Save</button>
+        <button type="button" id="cancel-tour-edit">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="controls" class="hide-during-recording">
   <div class="controls-header">
     <div class="tab-buttons">
-    <button class="tab-button active" data-tab="settings">Settings</button>
-    <button class="tab-button" data-tab="json">JSON</button>
-    <button class="tab-button" data-tab="table">Table</button>
-    <button class="tab-button" data-tab="tours">Tours</button>
+      <button class="tab-button active" data-tab="settings">Settings</button>
+      <button class="tab-button" data-tab="json">JSON</button>
+      <button class="tab-button" data-tab="table">Table</button>
+      <button class="tab-button" data-tab="tours">Tours</button>
     </div>
     <button id="collapse-controls" title="Collapse panel">◀</button>
   </div>
 
-  <div id="settings-tab" class="tab active">
+  <div id="settings-tab" class="tab active">    
+    <!-- Capture settings -->
     <fieldset>
       <legend>Capture Settings</legend>
       <div class="form-row">
@@ -112,10 +145,18 @@
               <span>Show description subtitles</span>
             </label>
           </div>
+          <div class="form-col">
+            <label class="checkbox-label">
+              <input type="checkbox" id="clean-dom" checked>
+              <span>Clean DOM before recording</span>
+            </label>
+            <span class="help-text">Hides UI elements during recording</span>
+          </div>
         </div>
       </div>
     </fieldset>
     
+    <!-- Performance Settings -->
     <fieldset>
       <legend>Performance & Quality</legend>
       <div class="checkbox-group">
@@ -153,26 +194,80 @@
       </div>
     </fieldset>
     
-    <div class="btn-group">
-      <button id="start" class="btn-primary">Start Recording</button>
-      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
-      <button id="preview" class="btn-secondary">Preview</button>
-    </div>
-    
+    <!-- Timeout Settings -->
     <fieldset>
-      <legend>Image Source</legend>
-      <div class="url-input-group">
-        <label for="iiif-url">IIIF Image URL:</label>
-        <div class="form-row">
-          <div class="form-col expand">
-            <input type="text" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+      <legend>Timeout Settings</legend>
+      <p class="help-text">Adjust timeouts to improve performance during recording</p>
+      
+      <div class="timeout-input">
+        <label for="tile-loading-timeout">Tile Loading Timeout (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Time to wait for tiles to load at each point. Increase for larger images.</span>
           </div>
-          <div class="form-col shrink">
-            <button id="apply-url" class="btn-accent">Apply</button>
+        </label>
+        <input type="number" id="tile-loading-timeout" value="1000" min="100" step="100">
+      </div>
+      
+      <div class="timeout-input">
+        <label for="transition-delay">Transition Delay (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Additional time to wait before starting each transition. Helps ensure smooth animations.</span>
           </div>
+        </label>
+        <input type="number" id="transition-delay" value="300" min="0" step="100">
+      </div>
+      
+      <div class="timeout-input">
+        <label for="pre-recording-delay">Pre-Recording Delay (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Time to wait before starting the recording. Allows the viewer to stabilize.</span>
+          </div>
+        </label>
+        <input type="number" id="pre-recording-delay" value="1000" min="0" step="100">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <label class="checkbox-label">
+            <input type="checkbox" id="use-dry-run" checked>
+            <span>Use dry run before recording</span>
+          </label>
+          <span class="help-text">Pre-caches tiles for better performance</span>
         </div>
       </div>
     </fieldset>
+    
+    <!-- Recording Controls -->
+    <div class="group-header">Recording Controls</div>
+    <div class="recording-controls">
+      <button id="dry-run" class="btn-dry-run">Run Dry Run</button>
+      <button id="preview" class="btn-secondary">Preview Animation</button>
+      <button id="clean-viewer" class="btn-clean">Clean UI</button>
+    </div>
+    
+    <div class="status-indicator" id="status-display" style="display: none;">
+      <span class="status-icon"></span>
+      <span id="status-text">Preparing...</span>
+    </div>
+    
+    <div class="progress-container" id="progress-container" style="display: none;">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="timer-display" id="timer-display" style="display: none;">00:00</div>
+    
+    <!-- Visible Stop button during recording -->
+    <div id="recording-stop-button" class="floating-stop-button" style="display: none;">
+      <button id="recording-stop" class="btn-danger">Stop Recording</button>
+    </div>
+    
+    <div class="btn-group" style="margin-top: 20px;">
+      <button id="start" class="btn-primary">Start Recording</button>
+      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
+    </div>
   </div>
 
   <div id="json-tab" class="tab">
@@ -211,15 +306,33 @@
     </div>
   </div>
   
-
-  
   <div id="tours-tab" class="tab">
+    <!-- Image Source - Moved from Settings tab -->
+    <fieldset>
+      <legend>Image Source</legend>
+      <div class="url-input-group">
+        <label for="iiif-url">IIIF Image URL:</label>
+        <div class="form-row">
+          <div class="form-col expand">
+            <input type="text" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+          </div>
+          <div class="form-col shrink">
+            <button id="apply-url" class="btn-accent">Apply</button>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
     <h3>Available Tours</h3>
     <div id="tour-selector" class="tour-selector"></div>
-    <h3>Current Tour Information</h3>
+    
+    <div class="group-header">Current Tour Information</div>
     <div id="tour-info"></div>
+    
     <div class="btn-group" style="margin-top: 10px;">
-      <button id="generate-srt" class="btn-secondary">Generate SRT Subtitles</button>
+      <button id="edit-tour" class="btn-primary">Edit Tour Information</button>
+      <button id="export-tour" class="btn-secondary">Export Tour</button>
+      <button id="generate-srt" class="btn-secondary">Generate SRT</button>
     </div>
   </div>
 </div>
@@ -236,7 +349,7 @@
 <script src="script.js"></script>
 
 <!-- Keyboard shortcuts help -->
-<div id="keyboard-shortcuts" style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.5); font-size: 12px; font-family: Arial, sans-serif;">
+<div id="keyboard-shortcuts" class="hide-during-recording" style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.5); font-size: 12px; font-family: Arial, sans-serif;">
   <div>Ctrl+Click: Add point at current location</div>
   <div>Shift+Click on point: Edit point properties</div>
   <div>Click and drag points: Reposition points</div>

@@ -18,13 +18,18 @@ export function smoothPanZoom(viewer, targetZoom, targetCenter, duration = 4000)
     y: targetCenter.y
   };
 
-  return new TWEEN.Tween(initial)
+  const tween = new TWEEN.Tween(initial)
     .to(target, duration)
     .easing(TWEEN.Easing.Cubic.InOut)
     .onUpdate(obj => {
       viewport.zoomTo(obj.zoom, null, true);
       viewport.panTo(new OpenSeadragon.Point(obj.x, obj.y), true);
     });
+    
+  // Auto-start the tween (this is the fix for the animation issue)
+  tween.start();
+  
+  return tween;
 }
 
 /**
