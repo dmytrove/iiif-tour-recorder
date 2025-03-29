@@ -15,12 +15,17 @@
   <!-- Custom CSS - we'll keep this for custom components -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-dark text-light">
+<body class="bg-black text-light overflow-hidden">
 <div id="viewer"></div>
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
 <div id="status-overlay" class="hide-during-recording"></div>
+
+<!-- Controls toggle button -->
+<button class="btn btn-sm btn-secondary position-fixed start-0 top-0 mt-2 ms-2 hide-during-recording" type="button" data-bs-toggle="offcanvas" data-bs-target="#controls" aria-controls="controls" id="show-controls">
+  <i class="bi bi-gear-fill"></i>
+</button>
 <!-- Point Edit Modal -->
 <div class="modal fade" id="point-edit-modal" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -33,11 +38,11 @@
         <form id="point-edit-form">
           <div class="mb-3">
             <label for="point-title" class="form-label">Title:</label>
-            <input type="text" class="form-control bg-dark text-light" id="point-title" placeholder="Enter title">
+            <input type="text" class="form-control form-control-dark" id="point-title" placeholder="Enter title">
           </div>
           <div class="mb-3">
             <label for="point-description" class="form-label">Description:</label>
-            <textarea class="form-control bg-dark text-light" id="point-description" placeholder="Enter description"></textarea>
+            <textarea class="form-control form-control-dark" id="point-description" placeholder="Enter description"></textarea>
           </div>
           <div class="mb-3">
             <label for="point-zoom" class="form-label">Zoom: <span id="zoom-value">1.0</span></label>
@@ -45,11 +50,11 @@
           </div>
           <div class="mb-3">
             <label for="point-duration-transition" class="form-label">Transition Duration (ms):</label>
-            <input type="number" class="form-control bg-dark text-light" id="point-duration-transition" min="100" step="100" value="1500">
+            <input type="number" class="form-control form-control-dark" id="point-duration-transition" min="100" step="100" value="1500">
           </div>
           <div class="mb-3">
             <label for="point-duration-still" class="form-label">Still Duration (ms):</label>
-            <input type="number" class="form-control bg-dark text-light" id="point-duration-still" min="100" step="100" value="1500">
+            <input type="number" class="form-control form-control-dark" id="point-duration-still" min="100" step="100" value="1500">
           </div>
           <input type="hidden" id="point-index">
         </form>
@@ -74,19 +79,19 @@
         <form id="tour-edit-form">
           <div class="mb-3">
             <label for="tour-id" class="form-label">Tour ID:</label>
-            <input type="text" class="form-control bg-dark text-light" id="tour-id" placeholder="Enter tour ID">
+            <input type="text" class="form-control form-control-dark" id="tour-id" placeholder="Enter tour ID">
           </div>
           <div class="mb-3">
             <label for="tour-title" class="form-label">Title:</label>
-            <input type="text" class="form-control bg-dark text-light" id="tour-title" placeholder="Enter tour title">
+            <input type="text" class="form-control form-control-dark" id="tour-title" placeholder="Enter tour title">
           </div>
           <div class="mb-3">
             <label for="tour-description" class="form-label">Description:</label>
-            <textarea class="form-control bg-dark text-light" id="tour-description" placeholder="Enter tour description"></textarea>
+            <textarea class="form-control form-control-dark" id="tour-description" placeholder="Enter tour description"></textarea>
           </div>
           <div class="mb-3">
             <label for="tour-tiles" class="form-label">IIIF Image URL:</label>
-            <input type="text" class="form-control bg-dark text-light" id="tour-tiles" placeholder="Enter IIIF URL">
+            <input type="text" class="form-control form-control-dark" id="tour-tiles" placeholder="Enter IIIF URL">
           </div>
         </form>
       </div>
@@ -98,8 +103,8 @@
   </div>
 </div>
 
-<div id="controls" class="hide-during-recording card bg-dark text-light border-secondary">
-  <div class="card-header d-flex justify-content-between align-items-center">
+<div id="controls" class="hide-during-recording offcanvas offcanvas-start text-bg-dark" tabindex="-1">
+  <div class="offcanvas-header d-flex justify-content-between align-items-center border-bottom border-secondary">
     <ul class="nav nav-tabs card-header-tabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="recording-tab-btn" data-bs-toggle="tab" data-bs-target="#recording-tab" type="button" role="tab" aria-controls="recording-tab" aria-selected="true" data-tab="recording">Recording</button>
@@ -120,10 +125,10 @@
         <button class="nav-link" id="tours-tab-btn" data-bs-toggle="tab" data-bs-target="#tours-tab" type="button" role="tab" aria-controls="tours-tab" aria-selected="false" data-tab="tours">Tours</button>
       </li>
     </ul>
-    <button id="collapse-controls" class="btn btn-sm btn-outline-secondary" title="Collapse panel">◀</button>
+    <button type="button" id="collapse-controls" class="btn-close btn-close-white" aria-label="Close" title="Collapse panel"></button>
   </div>
 
-  <div class="card-body tab-content">
+  <div class="offcanvas-body tab-content">
     <div id="recording-tab" class="tab-pane fade show active" role="tabpanel" aria-labelledby="recording-tab-btn">
       <!-- Recording Controls -->
       <h5 class="mt-4 mb-3">Recording Controls</h5>
@@ -173,15 +178,15 @@
           <div class="d-flex align-items-center flex-wrap">
             <div class="me-3">
               <label for="quality" class="form-label mb-0">Quality:</label>
-              <input type="number" class="form-control form-control-sm bg-dark text-light" id="quality" value="100" min="1" max="100" style="width:80px;">
+              <input type="number" class="form-control form-control-sm form-control-dark" id="quality" value="100" min="1" max="100" style="width: 5rem;">
             </div>
             <div class="me-3">
               <label for="framerate" class="form-label mb-0">Framerate:</label>
-              <input type="number" class="form-control form-control-sm bg-dark text-light" id="framerate" value="60" min="1" max="120" style="width:80px;">
+              <input type="number" class="form-control form-control-sm form-control-dark" id="framerate" value="60" min="1" max="120" style="width: 5rem;">
             </div>
             <div class="me-3">
               <label for="aspect-ratio" class="form-label mb-0">Aspect Ratio:</label>
-              <select class="form-select form-select-sm bg-dark text-light" id="aspect-ratio" style="width:auto;">
+              <select class="form-select form-select-sm form-control-dark" id="aspect-ratio">
                 <option value="0" selected>Viewport (Full Screen)</option>
                 <option value="16:9">16:9 (Landscape HD)</option>
                 <option value="4:3">4:3 (Standard)</option>
@@ -207,11 +212,11 @@
               <label class="form-check-label" for="clean-dom">Clean DOM</label>
             </div>
           </div>
-          <div id="custom-aspect-ratio" class="mt-2" style="display: none;">
-            <div class="input-group" style="width: 200px;">
-              <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" class="form-control form-control-sm bg-dark text-light">
+          <div id="custom-aspect-ratio" class="mt-2 d-none">
+            <div class="input-group" style="max-width: 12rem;">
+              <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" class="form-control form-control-sm form-control-dark">
               <span class="input-group-text bg-dark text-light">:</span>
-              <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" class="form-control form-control-sm bg-dark text-light">
+              <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" class="form-control form-control-sm form-control-dark">
             </div>
           </div>
         </div>
@@ -406,7 +411,7 @@
 <script src="script.js"></script>
 
 <!-- Keyboard shortcuts help -->
-<div id="keyboard-shortcuts" class="hide-during-recording" style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.5); font-size: 12px; font-family: Arial, sans-serif;">
+<div id="keyboard-shortcuts" class="hide-during-recording position-absolute bottom-0 end-0 m-3 text-white-50 small">
   <div>Ctrl+Click: Add point at current location</div>
   <div>Shift+Click on point: Edit point properties</div>
   <div>Click and drag points: Reposition points</div>

@@ -14,21 +14,7 @@ body {
   height: 100vh; 
 }
 
-/* Controls panel positioning */
-#controls {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 380px;
-  height: 100vh;
-  z-index: 999;
-  overflow-y: auto;
-  transition: transform 0.3s ease;
-}
-
-#controls.collapsed {
-  transform: translateX(-360px);
-}
+/* Controls panel positioning - now uses Bootstrap's offcanvas component */
 
 /* Visualization elements - cannot use Bootstrap for these */
 .point-marker {
