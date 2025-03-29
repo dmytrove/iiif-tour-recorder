@@ -4,10 +4,7 @@
  */
 
 /* Essential layout and viewer styles */
-body { 
-  background-color: #000;
-  overflow: hidden;
-}
+/* Body styling moved to HTML utility classes */
 
 #viewer { 
   width: 100vw; 
@@ -134,7 +131,7 @@ body {
   display: none !important;
 }
 
-/* Tour card styling - simplified to use more Bootstrap utilities */
+/* Tour card styling - using Bootstrap card component */
 .tour-card {
   background: rgba(40, 40, 45, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,7 +139,7 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   height: 70px;
-  width: calc(50% - 5px);
+  /* Width removed in favor of Bootstrap grid classes */
 }
 
 .tour-card:hover {
@@ -153,8 +150,8 @@ body {
 
 .tour-card.selected {
   background: rgba(74, 111, 165, 0.4);
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 1px #4a6fa5;
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 1px var(--bs-primary);
 }
 
 .tour-thumbnail-container {
