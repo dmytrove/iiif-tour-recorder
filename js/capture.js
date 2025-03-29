@@ -4,6 +4,9 @@ let capturing = false;
 let previewMode = false;
 let frameCount = 0;
 let framesDirectory = 'frames';
+let frameBufferTime = 100; // Default buffer time between animation frames
+let defaultTransitionDuration = 1500; // Default transition duration in ms
+let defaultStillDuration = 1500; // Default still duration in ms
 
 // Start recording process
 function startRecording(options = {}) {
@@ -92,9 +95,13 @@ function startRecording(options = {}) {
 }
 
 // Start preview mode
-function startPreview() {
+function startPreview(isDryRun = false) {
   capturing = false;
   previewMode = true;
+  
+  // Store the dry run state for animation completion handling
+  window.KenBurns.dryRunMode = isDryRun || false;
+  
   return true;
 }
 
@@ -215,7 +222,7 @@ function stopRecording() {
 }
 
 // Start the animation sequence
-function startAnimation(viewer) {
+function startAnimation(viewer, isDryRun = false) {
   const sequence = window.KenBurns.sequence.getSequence();
   
   if (sequence.length === 0) {
@@ -230,6 +237,9 @@ function startAnimation(viewer) {
   const firstPoint = sequence[0];
   viewer.viewport.zoomTo(firstPoint.zoom);
   viewer.viewport.panTo(new OpenSeadragon.Point(firstPoint.center.x, firstPoint.center.y));
+  
+  // Store the dry run state for reference
+  window.KenBurns.dryRunMode = isDryRun || false;
   
   // Allow time to settle at the first point
   setTimeout(() => {
@@ -264,7 +274,7 @@ function animateNextPoint(viewer, index) {
   window.KenBurns.visualization.setCurrentPoint(index + 1);
   
   const next = sequence[index + 1];
-  const transitionDuration = next.duration.transition || 1500;
+  const transitionDuration = next.duration.transition || defaultTransitionDuration;
   
   // Animate to the next point with the transition duration
   window.KenBurns.viewer.smoothPanZoom(
@@ -275,12 +285,12 @@ function animateNextPoint(viewer, index) {
   ).start();
   
   // After transition is done, wait for the still duration
-  const stillDuration = next.duration.still || 1500;
+  const stillDuration = next.duration.still || defaultStillDuration;
   
   // Schedule the next animation after transition + still time
   setTimeout(() => {
     animateNextPoint(viewer, index + 1);
-  }, transitionDuration + stillDuration + 100);
+  }, transitionDuration + stillDuration + frameBufferTime);
 }
 
 // Animation loop
@@ -353,5 +363,11 @@ window.KenBurns.capture = {
   startAnimation,
   animate,
   isCapturing: () => capturing,
-  isPreviewMode: () => previewMode
+  isPreviewMode: () => previewMode,
+  getFrameBufferTime: () => frameBufferTime,
+  setFrameBufferTime: (time) => { frameBufferTime = time; },
+  getDefaultTransitionDuration: () => defaultTransitionDuration,
+  setDefaultTransitionDuration: (time) => { defaultTransitionDuration = time; },
+  getDefaultStillDuration: () => defaultStillDuration,
+  setDefaultStillDuration: (time) => { defaultStillDuration = time; }
 };

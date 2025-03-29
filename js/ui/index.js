@@ -23,6 +23,9 @@ export function setupEventListeners(viewer) {
   // Setup URL input
   controls.setupUrlControl(viewer);
   
+  // Setup timeout controls
+  controls.setupTimeoutControls();
+  
   // Setup point edit modal
   modal.setupPointEditModal(viewer);
   

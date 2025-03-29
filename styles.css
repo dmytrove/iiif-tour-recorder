@@ -739,3 +739,98 @@ label {
 #cancel-edit:hover {
   background-color: #d32f2f;
 }
+
+/* Notification popup */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(40, 40, 40, 0.9);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.notification.info {
+  border-left: 4px solid #4a6fa5;
+}
+
+.notification.warning {
+  border-left: 4px solid #f39c12;
+}
+
+.notification.error {
+  border-left: 4px solid #e74c3c;
+}
+
+.notification.success {
+  border-left: 4px solid #2ecc71;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ESC key indicator */
+#esc-key-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  animation: pulse 2s infinite;
+}
+
+#esc-key-indicator kbd {
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-family: monospace;
+  font-size: 12px;
+  margin: 0 3px;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 111, 165, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(74, 111, 165, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 111, 165, 0);
+  }
+}
+
+/* Stop button for dry run */
+.stop-dry-run {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.stop-dry-run:hover {
+  background-color: #c0392b;
+}

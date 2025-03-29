@@ -82,6 +82,7 @@
   <div class="controls-header">
     <div class="tab-buttons">
       <button class="tab-button active" data-tab="settings">Settings</button>
+      <button class="tab-button" data-tab="timing">Timing</button>
       <button class="tab-button" data-tab="json">JSON</button>
       <button class="tab-button" data-tab="table">Table</button>
       <button class="tab-button" data-tab="tours">Tours</button>
@@ -194,9 +195,75 @@
       </div>
     </fieldset>
     
-    <!-- Timeout Settings -->
+    <!-- Recording Controls -->
+    <div class="group-header">Recording Controls</div>
+    <div class="recording-controls">
+      <button id="dry-run" class="btn-dry-run">Run Dry Run</button>
+      <button id="preview" class="btn-secondary">Preview Animation</button>
+      <button id="clean-viewer" class="btn-clean">Clean UI</button>
+    </div>
+    
+    <div class="status-indicator" id="status-display" style="display: none;">
+      <span class="status-icon"></span>
+      <span id="status-text">Preparing...</span>
+    </div>
+    
+    <div class="progress-container" id="progress-container" style="display: none;">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="timer-display" id="timer-display" style="display: none;">00:00</div>
+    
+    <!-- Visible Stop button during recording -->
+    <div id="recording-stop-button" class="floating-stop-button" style="display: none;">
+      <button id="recording-stop" class="btn-danger">Stop Recording</button>
+    </div>
+    
+    <div class="btn-group" style="margin-top: 20px;">
+      <button id="start" class="btn-primary">Start Recording</button>
+      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
+    </div>
+  </div>
+
+  <div id="timing-tab" class="tab">
+    <!-- Timeout Settings moved from Settings tab -->
     <fieldset>
-      <legend>Timeout Settings</legend>
+      <legend>Animation Timing</legend>
+      <p class="help-text">Adjust animation timing and transitions for smoother recordings</p>
+      
+      <div class="timeout-input">
+        <label for="default-transition-duration">Default Transition Duration (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Default time for the pan/zoom transition between points. Used when not specified in a point.</span>
+          </div>
+        </label>
+        <input type="number" id="default-transition-duration" value="1500" min="100" max="10000" step="100">
+      </div>
+      
+      <div class="timeout-input">
+        <label for="default-still-duration">Default Still Duration (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Default time to stay still at each point. Used when not specified in a point.</span>
+          </div>
+        </label>
+        <input type="number" id="default-still-duration" value="1500" min="100" max="10000" step="100">
+      </div>
+      
+      <div class="timeout-input">
+        <label for="frame-buffer-time">Frame Buffer Time (ms):
+          <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">Extra time buffer between animation frames (lower values = smoother transitions but may cause rendering issues).</span>
+          </div>
+        </label>
+        <input type="number" id="frame-buffer-time" value="100" min="0" max="500" step="10">
+      </div>
+    </fieldset>
+    
+    <fieldset>
+      <legend>Processing Delays</legend>
       <p class="help-text">Adjust timeouts to improve performance during recording</p>
       
       <div class="timeout-input">
@@ -239,35 +306,6 @@
         </div>
       </div>
     </fieldset>
-    
-    <!-- Recording Controls -->
-    <div class="group-header">Recording Controls</div>
-    <div class="recording-controls">
-      <button id="dry-run" class="btn-dry-run">Run Dry Run</button>
-      <button id="preview" class="btn-secondary">Preview Animation</button>
-      <button id="clean-viewer" class="btn-clean">Clean UI</button>
-    </div>
-    
-    <div class="status-indicator" id="status-display" style="display: none;">
-      <span class="status-icon"></span>
-      <span id="status-text">Preparing...</span>
-    </div>
-    
-    <div class="progress-container" id="progress-container" style="display: none;">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    
-    <div class="timer-display" id="timer-display" style="display: none;">00:00</div>
-    
-    <!-- Visible Stop button during recording -->
-    <div id="recording-stop-button" class="floating-stop-button" style="display: none;">
-      <button id="recording-stop" class="btn-danger">Stop Recording</button>
-    </div>
-    
-    <div class="btn-group" style="margin-top: 20px;">
-      <button id="start" class="btn-primary">Start Recording</button>
-      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
-    </div>
   </div>
 
   <div id="json-tab" class="tab">
