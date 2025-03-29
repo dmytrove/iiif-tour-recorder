@@ -77,7 +77,19 @@ function updateTable() {
     
     // Actions cell
     const actionsCell = document.createElement('td');
-    actionsCell.innerHTML = '<span class="edit-action" data-index="' + index + '">Edit</span><span class="delete-action" data-index="' + index + '">Delete</span>';
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'btn-group';
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn btn-primary btn-sm edit-action';
+    editBtn.dataset.index = index;
+    editBtn.textContent = 'Edit';
+    btnGroup.appendChild(editBtn);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-danger btn-sm delete-action';
+    deleteBtn.dataset.index = index;
+    deleteBtn.textContent = 'Delete';
+    btnGroup.appendChild(deleteBtn);
+    actionsCell.appendChild(btnGroup);
     
     row.appendChild(titleCell);
     row.appendChild(zoomCell);

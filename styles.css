@@ -1,16 +1,12 @@
-.help-text {
-  display: block;
-  font-size: 11px;
-  color: #aaa;
-  margin-top: 3px;
-  font-style: italic;
-}
-/* Basic layout */
+/* 
+ * IIIF Tour Recorder Custom Styles
+ * Only includes styles that extend or complement Bootstrap
+ */
+
+/* Essential layout and viewer styles */
 body { 
-  margin: 0; 
-  background: #000; 
-  overflow: hidden; 
-  font-family: Arial, sans-serif; 
+  background-color: #000;
+  overflow: hidden;
 }
 
 #viewer { 
@@ -18,382 +14,23 @@ body {
   height: 100vh; 
 }
 
-/* Tour selector styling */
-.tour-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding: 5px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-}
-
-.tour-card {
-  width: calc(50% - 5px);
-  height: 70px;
-  background: rgba(40, 40, 45, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-}
-
-.tour-card:hover {
-  background: rgba(50, 50, 55, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.tour-card.selected {
-  background: rgba(74, 111, 165, 0.4);
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 1px #4a6fa5;
-}
-
-.tour-thumbnail-container {
-  width: 70px;
-  height: 70px;
-  overflow: hidden;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tour-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tour-thumbnail.placeholder {
-  background: #4a6fa5;
-  color: white;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.tour-info {
-  padding: 5px 10px;
-  overflow: hidden;
-}
-
-.tour-info h5 {
-  margin: 0 0 5px 0;
-  font-size: 14px;
-  color: white;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tour-info .tour-id {
-  margin: 0;
-  font-size: 12px;
-  color: #aaa;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Tour info display */
-#tour-info {
-  background: rgba(0, 0, 0, 0.2);
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  max-height: calc(100vh - 450px);
-  overflow-y: auto;
-}
-
-.tour-preview-container {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.tour-preview {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: 4px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.tour-details {
-  margin-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 10px;
-}
-
-.detail-item {
-  margin-bottom: 8px;
-  display: flex;
-}
-
-.detail-label {
-  width: 120px;
-  font-weight: bold;
-  color: #ccc;
-}
-
-.detail-value {
-  flex: 1;
-  word-break: break-all;
-}
-
-/* Table options */
-.table-options {
-  margin-bottom: 10px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-/* Property columns in table */
-.property-column {
-  display: none;
-}
-
-/* When properties are shown */
-.show-properties .property-column {
-  display: table-cell;
-}
-
-/* Controls header with tab buttons and collapse button */
-.controls-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-/* Form layout */
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.form-col {
-  flex: 1;
-}
-
-.form-col.expand {
-  flex: 3;
-}
-
-.form-col.shrink {
-  flex: 0 0 auto;
-}
-
-.checkbox-group {
-  margin: 12px 0;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.url-input-group {
-  margin-top: 5px;
-}
-
+/* Controls panel positioning */
 #controls {
   position: absolute;
   top: 0;
   left: 0;
-  background: rgba(20, 20, 22, 0.85);
-  padding: 12px;
-  color: white;
+  width: 380px;
+  height: 100vh;
   z-index: 999;
   overflow-y: auto;
-  width: 360px;
-  height: 100vh;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
-/* Collapsed state for controls */
 #controls.collapsed {
-  transform: translateX(-340px);
+  transform: translateX(-360px);
 }
 
-#collapse-controls {
-  position: absolute;
-  right: -12px;
-  top: 10px;
-  background: #333;
-  border: none;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  padding: 0;
-  margin: 0;
-  z-index: 1000;
-}
-
-#collapse-controls:hover {
-  background: #555;
-  transform: scale(1.1);
-}
-
-#controls.collapsed #collapse-controls {
-  transform: rotate(180deg);
-  right: -12px;
-  background: rgba(30, 30, 35, 0.9);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* Tab styling */
-.tab {
-  display: none;
-}
-
-.tab.active {
-  display: block;
-}
-
-.tab-buttons {
-  display: flex;
-  margin-bottom: 12px;
-  gap: 2px;
-  width: 100%;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 8px 5px;
-  background: #333;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 12px;
-  transition: all 0.15s ease;
-}
-
-.tab-button:hover {
-  background: #444;
-}
-
-.tab-button.active {
-  background: #4a6fa5;
-  font-weight: bold;
-  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.3);
-}
-
-/* Text areas */
-textarea {
-  width: 100%;
-  min-height: 100px;
-  background: #222;
-  color: white;
-  border: 1px solid #444;
-  font-family: monospace;
-}
-
-#sequence-json {
-  min-height: 300px;
-  height: calc(100vh - 250px);
-  resize: vertical;
-}
-
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 15px 0;
-  background: rgba(20, 20, 22, 0.7);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-th {
-  background: rgba(30, 30, 40, 0.8);
-  padding: 8px;
-  font-size: 13px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ccc;
-  font-weight: bold;
-}
-
-td {
-  padding: 8px;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: middle;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-td.description {
-  white-space: normal;
-  max-width: 200px;
-}
-
-tr:hover td {
-  background: rgba(74, 111, 165, 0.1);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-/* Style for read-only table cells */
-.readonly-cell {
-  padding: 4px 8px;
-  min-height: 20px;
-  color: white;
-  background: transparent;
-  border-radius: 3px;
-}
-
-.edit-action {
-  cursor: pointer;
-  color: #4a6fa5;
-  text-decoration: underline;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(74, 111, 165, 0.1);
-  border-radius: 3px;
-  margin-right: 4px;
-}
-
-.delete-action {
-  cursor: pointer;
-  color: #f44336;
-  text-decoration: underline;
-  margin-left: 4px;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(244, 67, 54, 0.1);
-  border-radius: 3px;
-}
-
-/* Point markers and visualization */
+/* Visualization elements - cannot use Bootstrap for these */
 .point-marker {
   position: absolute;
   width: 8px;
@@ -454,71 +91,7 @@ tr:last-child td {
   z-index: 101;
 }
 
-/* Button styling */
-.btn-group {
-  display: flex;
-  gap: 8px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 8px 12px;
-  background: #333;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 13px;
-  transition: all 0.2s ease;
-}
-
-button:hover:not(:disabled) {
-  background: #444;
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Button variations */
-.btn-primary {
-  background: #4a6fa5;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #5580bd;
-}
-
-.btn-secondary {
-  background: #454545;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #555;
-}
-
-.btn-accent {
-  background: #6a8a3d;
-}
-
-.btn-accent:hover:not(:disabled) {
-  background: #7ba346;
-}
-
-
-
-
-
-/* Capture frame for aspect ratio visualization */
+/* Capture frame - specific to this application */
 #capture-frame {
   position: absolute;
   border: 2px dashed rgba(0, 170, 255, 0.7);
@@ -532,305 +105,110 @@ button:disabled {
   transition: width 0.3s, height 0.3s;
 }
 
-/* Enhanced form controls */
-fieldset {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  margin-bottom: 15px;
-  padding: 12px;
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-legend {
-  padding: 0 8px;
-  font-weight: bold;
-  color: #ccc;
-  font-size: 13px;
-}
-
-.setting-group {
-  margin: 12px 0;
-}
-
-select, input[type="number"], input[type="text"] {
-  background: rgba(30, 30, 35, 0.8);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 6px 8px;
-  border-radius: 4px;
-  margin-top: 3px;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
-}
-
-select:focus, input[type="number"]:focus, input[type="text"]:focus {
-  border-color: #4a6fa5;
-  outline: none;
-}
-
-input[type="checkbox"] {
-  margin-right: 5px;
-  cursor: pointer;
-  position: relative;
-  width: 16px;
-  height: 16px;
-  -webkit-appearance: none;
-  background: rgba(30, 30, 35, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-input[type="checkbox"]:checked {
-  background: #4a6fa5;
-  border-color: #4a6fa5;
-}
-
-input[type="checkbox"]:checked:after {
-  content: '✓';
+/* Title and subtitle displays */
+#title-callout, #subtitle-display {
   position: absolute;
-  color: white;
-  font-size: 10px;
-  top: 0;
-  left: 3px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-
-
-/* Title callout styling */
-#title-callout {
-  position: absolute;
-  top: 30px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.7);
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
-  font-family: Arial, sans-serif;
+  z-index: 1000;
+  display: none;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+#title-callout {
+  top: 30px;
   font-size: 18px;
   font-weight: bold;
-  z-index: 1000;
-  display: none;
-  text-align: center;
   min-width: 200px;
-  max-width: 80%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-/* Subtitle styling */
 #subtitle-display {
-  position: absolute;
   bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-family: Arial, sans-serif;
   font-size: 16px;
-  z-index: 1000;
-  display: none;
-  text-align: center;
   min-width: 300px;
-  max-width: 80%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-/* Modal styling */
-.modal {
+/* Table property columns visibility */
+.property-column {
   display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
 }
 
-.modal.active {
-  display: flex !important;
+.show-properties .property-column {
+  display: table-cell;
 }
 
-.modal-content {
-  background-color: #222;
-  padding: 20px;
+/* Utility class for hiding during recording */
+.hide-during-recording.hidden {
+  display: none !important;
+}
+
+/* Tour card styling - simplified to use more Bootstrap utilities */
+.tour-card {
+  background: rgba(40, 40, 45, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  min-width: 350px;
-  max-width: 500px;
-  color: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #444;
-  padding-bottom: 10px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.form-group input[type="text"],
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  background-color: #333;
-  border: 1px solid #444;
-  color: white;
-  border-radius: 3px;
-}
-
-.form-group textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.form-group input[type="range"] {
-  width: 100%;
-  margin-top: 5px;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.form-buttons button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 3px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  height: 70px;
+  width: calc(50% - 5px);
+}
+
+.tour-card:hover {
+  background: rgba(50, 50, 55, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.tour-card.selected {
+  background: rgba(74, 111, 165, 0.4);
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 1px #4a6fa5;
+}
+
+.tour-thumbnail-container {
+  width: 70px;
+  height: 70px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tour-thumbnail {
+  object-fit: cover;
+}
+
+.tour-thumbnail.placeholder {
+  background: #4a6fa5;
   color: white;
-  font-weight: bold;
+  font-size: 24px;
 }
 
-#save-point {
-  background-color: #4CAF50;
+/* Custom scrollbar for dark theme - essential for usability */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-#save-point:hover {
-  background-color: #3e8e41;
-}
-
-#cancel-edit {
-  background-color: #f44336;
-}
-
-#cancel-edit:hover {
-  background-color: #d32f2f;
-}
-
-/* Notification popup */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(40, 40, 40, 0.9);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 5px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  font-size: 14px;
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-.notification.info {
-  border-left: 4px solid #4a6fa5;
-}
-
-.notification.warning {
-  border-left: 4px solid #f39c12;
-}
-
-.notification.error {
-  border-left: 4px solid #e74c3c;
-}
-
-.notification.success {
-  border-left: 4px solid #2ecc71;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* ESC key indicator */
-#esc-key-indicator {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 14px;
-  z-index: 1000;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  animation: pulse 2s infinite;
-}
-
-#esc-key-indicator kbd {
-  background: #444;
-  border: 1px solid #666;
-  border-radius: 3px;
-  padding: 2px 5px;
-  font-family: monospace;
-  font-size: 12px;
-  margin: 0 3px;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(74, 111, 165, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 5px rgba(74, 111, 165, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(74, 111, 165, 0);
-  }
-}
-
-/* Stop button for dry run */
-.stop-dry-run {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 4px 10px;
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.stop-dry-run:hover {
-  background-color: #c0392b;
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal support for point editing - simplified to use more Bootstrap */
+.modal.active {
+  background-color: rgba(0, 0, 0, 0.5);
 }

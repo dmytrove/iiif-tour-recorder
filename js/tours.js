@@ -60,26 +60,24 @@ function updateTourSelector() {
   // Create cards for each tour
   availableTours.forEach(tour => {
     const tourCard = document.createElement('div');
-    tourCard.className = 'tour-card';
+    tourCard.className = 'card tour-card mb-3';
     tourCard.dataset.tourId = tour.id;
     tourCard.dataset.tourPath = tour.path;
     
-    // Create thumbnail
-    let thumbnailHTML = '';
+    // Create card image using Bootstrap card-img-top
+    let cardImageHTML = '';
     if (tour.thumbnail) {
-      thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.name}" class="tour-thumbnail">`;
+      cardImageHTML = `<img src="${tour.thumbnail}" alt="${tour.name}" class="card-img-top">`;
     } else {
-      thumbnailHTML = `<div class="tour-thumbnail placeholder">${tour.name[0]}</div>`;
+      cardImageHTML = `<div class="card-img-top placeholder text-center py-5 bg-secondary text-light">${tour.name[0]}</div>`;
     }
     
-    // Create card content
+    // Create card body with title and text
     tourCard.innerHTML = `
-      <div class="tour-thumbnail-container">
-        ${thumbnailHTML}
-      </div>
-      <div class="tour-info">
-        <h5>${tour.name}</h5>
-        <p class="tour-id">${tour.id}</p>
+      ${cardImageHTML}
+      <div class="card-body">
+        <h5 class="card-title">${tour.name}</h5>
+        <p class="card-text">${tour.id}</p>
       </div>
     `;
     
@@ -194,37 +192,22 @@ function generateSRT() {
       return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
     };
     
-    // Add entry to SRT content
-    srtContent += `${index + 1}\n`;
-    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-    srtContent += `${point.description || ''}\n\n`;
+    // Format the subtitle
+    const subtitle = `${index + 1}\n${formatTime(startTime)} --> ${formatTime(endTime)}\n${point.description}`;
+    
+    // Append to the SRT content
+    srtContent += subtitle + '\n\n';
   });
   
   return srtContent;
 }
 
-// Download SRT file
-function downloadSRT() {
-  const srtContent = generateSRT();
-  const blob = new Blob([srtContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  
-  // Create a temporary link and trigger download
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = currentTour ? `${currentTour.id}_subtitles.srt` : 'subtitles.srt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// Export functions
+// At the end of the file, add the tours export
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.tours = {
   initialize,
+  scanAvailableTours,
   loadTour,
   getCurrentTour,
-  generateSRT,
-  downloadSRT
+  generateSRT
 };

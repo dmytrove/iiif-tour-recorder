@@ -8,373 +8,392 @@
   <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@21.0.0/dist/tween.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <!-- Custom CSS - we'll keep this for custom components -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="bg-dark text-light">
 <div id="viewer"></div>
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
 <div id="status-overlay" class="hide-during-recording"></div>
-<div id="point-edit-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Edit Point Properties</h3>
-    <form id="point-edit-form">
-      <div class="form-group">
-        <label for="point-title">Title:</label>
-        <input type="text" id="point-title" placeholder="Enter title">
+<!-- Point Edit Modal -->
+<div class="modal fade" id="point-edit-modal" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pointEditModalLabel">Edit Point Properties</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="form-group">
-        <label for="point-description">Description:</label>
-        <textarea id="point-description" placeholder="Enter description"></textarea>
+      <div class="modal-body">
+        <form id="point-edit-form">
+          <div class="mb-3">
+            <label for="point-title" class="form-label">Title:</label>
+            <input type="text" class="form-control bg-dark text-light" id="point-title" placeholder="Enter title">
+          </div>
+          <div class="mb-3">
+            <label for="point-description" class="form-label">Description:</label>
+            <textarea class="form-control bg-dark text-light" id="point-description" placeholder="Enter description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="point-zoom" class="form-label">Zoom: <span id="zoom-value">1.0</span></label>
+            <input type="range" class="form-range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
+          </div>
+          <div class="mb-3">
+            <label for="point-duration-transition" class="form-label">Transition Duration (ms):</label>
+            <input type="number" class="form-control bg-dark text-light" id="point-duration-transition" min="100" step="100" value="1500">
+          </div>
+          <div class="mb-3">
+            <label for="point-duration-still" class="form-label">Still Duration (ms):</label>
+            <input type="number" class="form-control bg-dark text-light" id="point-duration-still" min="100" step="100" value="1500">
+          </div>
+          <input type="hidden" id="point-index">
+        </form>
       </div>
-      <div class="form-group">
-        <label for="point-zoom">Zoom: <span id="zoom-value">1.0</span></label>
-        <input type="range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancel-edit" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="save-point">Save</button>
       </div>
-      <div class="form-group">
-        <label for="point-duration-transition">Transition Duration (ms):</label>
-        <input type="number" id="point-duration-transition" min="100" step="100" value="1500">
-      </div>
-      <div class="form-group">
-        <label for="point-duration-still">Still Duration (ms):</label>
-        <input type="number" id="point-duration-still" min="100" step="100" value="1500">
-      </div>
-      <input type="hidden" id="point-index">
-      <div class="form-buttons">
-        <button type="button" id="save-point">Save</button>
-        <button type="button" id="cancel-edit">Cancel</button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>
 
 <!-- Tour Edit Modal -->
-<div id="tour-edit-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Edit Tour Information</h3>
-    <form id="tour-edit-form">
-      <div class="form-group">
-        <label for="tour-id">Tour ID:</label>
-        <input type="text" id="tour-id" placeholder="Enter tour ID">
+<div class="modal fade" id="tour-edit-modal" tabindex="-1" aria-labelledby="tourEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tourEditModalLabel">Edit Tour Information</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="form-group">
-        <label for="tour-title">Title:</label>
-        <input type="text" id="tour-title" placeholder="Enter tour title">
+      <div class="modal-body">
+        <form id="tour-edit-form">
+          <div class="mb-3">
+            <label for="tour-id" class="form-label">Tour ID:</label>
+            <input type="text" class="form-control bg-dark text-light" id="tour-id" placeholder="Enter tour ID">
+          </div>
+          <div class="mb-3">
+            <label for="tour-title" class="form-label">Title:</label>
+            <input type="text" class="form-control bg-dark text-light" id="tour-title" placeholder="Enter tour title">
+          </div>
+          <div class="mb-3">
+            <label for="tour-description" class="form-label">Description:</label>
+            <textarea class="form-control bg-dark text-light" id="tour-description" placeholder="Enter tour description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="tour-tiles" class="form-label">IIIF Image URL:</label>
+            <input type="text" class="form-control bg-dark text-light" id="tour-tiles" placeholder="Enter IIIF URL">
+          </div>
+        </form>
       </div>
-      <div class="form-group">
-        <label for="tour-description">Description:</label>
-        <textarea id="tour-description" placeholder="Enter tour description"></textarea>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancel-tour-edit" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="save-tour">Save</button>
       </div>
-      <div class="form-group">
-        <label for="tour-tiles">IIIF Image URL:</label>
-        <input type="text" id="tour-tiles" placeholder="Enter IIIF URL">
-      </div>
-      <div class="form-buttons">
-        <button type="button" id="save-tour">Save</button>
-        <button type="button" id="cancel-tour-edit">Cancel</button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>
 
-<div id="controls" class="hide-during-recording">
-  <div class="controls-header">
-    <div class="tab-buttons">
-      <button class="tab-button active" data-tab="settings">Settings</button>
-      <button class="tab-button" data-tab="timing">Timing</button>
-      <button class="tab-button" data-tab="json">JSON</button>
-      <button class="tab-button" data-tab="table">Table</button>
-      <button class="tab-button" data-tab="tours">Tours</button>
-    </div>
-    <button id="collapse-controls" title="Collapse panel">◀</button>
+<div id="controls" class="hide-during-recording card bg-dark text-light border-secondary">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="recording-tab-btn" data-bs-toggle="tab" data-bs-target="#recording-tab" type="button" role="tab" aria-controls="recording-tab" aria-selected="true" data-tab="recording">Recording</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="settings-tab-btn" data-bs-toggle="tab" data-bs-target="#settings-tab" type="button" role="tab" aria-controls="settings-tab" aria-selected="false" data-tab="settings">Settings</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="timing-tab-btn" data-bs-toggle="tab" data-bs-target="#timing-tab" type="button" role="tab" aria-controls="timing-tab" aria-selected="false" data-tab="timing">Timing</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="json-tab-btn" data-bs-toggle="tab" data-bs-target="#json-tab" type="button" role="tab" aria-controls="json-tab" aria-selected="false" data-tab="json">JSON</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="table-tab-btn" data-bs-toggle="tab" data-bs-target="#table-tab" type="button" role="tab" aria-controls="table-tab" aria-selected="false" data-tab="table">Table</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tours-tab-btn" data-bs-toggle="tab" data-bs-target="#tours-tab" type="button" role="tab" aria-controls="tours-tab" aria-selected="false" data-tab="tours">Tours</button>
+      </li>
+    </ul>
+    <button id="collapse-controls" class="btn btn-sm btn-outline-secondary" title="Collapse panel">◀</button>
   </div>
 
-  <div id="settings-tab" class="tab active">    
-    <!-- Capture settings -->
-    <fieldset>
-      <legend>Capture Settings</legend>
-      <div class="form-row">
-        <div class="form-col">
-          <label>Quality:
-            <input type="number" id="quality" value="100" min="1" max="100">
-          </label>
+  <div class="card-body tab-content">
+    <div id="recording-tab" class="tab-pane fade show active" role="tabpanel" aria-labelledby="recording-tab-btn">
+      <!-- Recording Controls -->
+      <h5 class="mt-4 mb-3">Recording Controls</h5>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <button type="button" id="dry-run" class="btn btn-warning w-100"><i class="bi bi-play-fill"></i> Dry Run</button>
         </div>
-        <div class="form-col">
-          <label>Framerate:
-            <input type="number" id="framerate" value="60" min="1" max="120">
-          </label>
+        <div class="col-md-4 mb-2">
+          <button type="button" id="preview" class="btn btn-secondary w-100"><i class="bi bi-eye-fill"></i> Preview</button>
+        </div>
+        <div class="col-md-4 mb-2">
+          <button type="button" id="clean-viewer" class="btn btn-info w-100"><i class="bi bi-eraser-fill"></i> Clean UI</button>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="alert alert-info d-flex align-items-center d-none" id="status-display">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          <span id="status-text">Preparing...</span>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="progress mb-3 d-none" id="progress-container">
+          <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="badge bg-dark d-none" id="timer-display">00:00</div>
+      </div>
+      <div id="recording-stop-button" class="d-none mt-3">
+        <button id="recording-stop" class="btn btn-danger w-100">Stop Recording</button>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <button type="button" id="start" class="btn btn-primary w-100"><i class="bi bi-record-circle-fill"></i> Start Recording</button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" id="stop" class="btn btn-secondary w-100" disabled><i class="bi bi-stop-fill"></i> Stop Recording</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="settings-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="settings-tab-btn">
+      <!-- Capture settings -->
+      <div class="card mb-3 bg-dark text-light border-secondary">
+        <div class="card-header">Capture Settings</div>
+        <div class="card-body">
+          <div class="d-flex align-items-center flex-wrap">
+            <div class="me-3">
+              <label for="quality" class="form-label mb-0">Quality:</label>
+              <input type="number" class="form-control form-control-sm bg-dark text-light" id="quality" value="100" min="1" max="100" style="width:80px;">
+            </div>
+            <div class="me-3">
+              <label for="framerate" class="form-label mb-0">Framerate:</label>
+              <input type="number" class="form-control form-control-sm bg-dark text-light" id="framerate" value="60" min="1" max="120" style="width:80px;">
+            </div>
+            <div class="me-3">
+              <label for="aspect-ratio" class="form-label mb-0">Aspect Ratio:</label>
+              <select class="form-select form-select-sm bg-dark text-light" id="aspect-ratio" style="width:auto;">
+                <option value="0" selected>Viewport (Full Screen)</option>
+                <option value="16:9">16:9 (Landscape HD)</option>
+                <option value="4:3">4:3 (Standard)</option>
+                <option value="1:1">1:1 (Square)</option>
+                <option value="9:16">9:16 (Portrait)</option>
+                <option value="custom">Custom...</option>
+              </select>
+            </div>
+            <div class="form-check me-3">
+              <input type="checkbox" class="form-check-input" id="show-capture-frame" checked>
+              <label class="form-check-label" for="show-capture-frame">Capture Frame</label>
+            </div>
+            <div class="form-check me-3">
+              <input type="checkbox" class="form-check-input" id="show-callouts" checked>
+              <label class="form-check-label" for="show-callouts">Title Callouts</label>
+            </div>
+            <div class="form-check me-3">
+              <input type="checkbox" class="form-check-input" id="show-subtitles" checked>
+              <label class="form-check-label" for="show-subtitles">Subtitles</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="clean-dom" checked>
+              <label class="form-check-label" for="clean-dom">Clean DOM</label>
+            </div>
+          </div>
+          <div id="custom-aspect-ratio" class="mt-2" style="display: none;">
+            <div class="input-group" style="width: 200px;">
+              <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" class="form-control form-control-sm bg-dark text-light">
+              <span class="input-group-text bg-dark text-light">:</span>
+              <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" class="form-control form-control-sm bg-dark text-light">
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="setting-group">
-        <label>Aspect Ratio:</label>
-        <select id="aspect-ratio">
-          <option value="0" selected>Viewport (Full Screen)</option>
-          <option value="16:9">16:9 (Landscape HD)</option>
-          <option value="4:3">4:3 (Standard)</option>
-          <option value="1:1">1:1 (Square)</option>
-          <option value="9:16">9:16 (Portrait)</option>
-          <option value="custom">Custom...</option>
-        </select>
-        <div id="custom-aspect-ratio" style="display: none; margin-top: 8px;">
-          <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" style="width: 70px">
-          <span>:</span>
-          <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" style="width: 70px">
-        </div>
-      </div>
-      
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-capture-frame" checked>
-              <span>Show capture frame</span>
-            </label>
+      <!-- Performance Settings -->
+      <div class="card mb-3 bg-dark text-light border-secondary">
+        <div class="card-header">Performance & Quality</div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-6">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="subpixel-rendering" checked>
+                <label class="form-check-label" for="subpixel-rendering">Subpixel rendering</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="smooth-animation" checked>
+                <label class="form-check-label" for="smooth-animation">High quality animation</label>
+              </div>
+            </div>
           </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-callouts" checked>
-              <span>Show title callouts</span>
-            </label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-subtitles" checked>
-              <span>Show description subtitles</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="clean-dom" checked>
-              <span>Clean DOM before recording</span>
-            </label>
-            <span class="help-text">Hides UI elements during recording</span>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-    
-    <!-- Performance Settings -->
-    <fieldset>
-      <legend>Performance & Quality</legend>
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="subpixel-rendering" checked>
-              <span>Subpixel rendering</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="smooth-animation" checked>
-              <span>High quality animation</span>
-            </label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="optimize-memory" checked>
-              <span>Optimize memory usage</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label>Render quality:
-              <select id="render-quality">
+          
+          <div class="row">
+            <div class="col-6">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="optimize-memory" checked>
+                <label class="form-check-label" for="optimize-memory">Optimize memory usage</label>
+              </div>
+            </div>
+            <div class="col-6">
+              <label for="render-quality" class="form-label">Render quality:</label>
+              <select class="form-select form-select-sm bg-dark text-light" id="render-quality">
                 <option value="high">High</option>
                 <option value="medium" selected>Medium</option>
                 <option value="low">Low</option>
               </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="timing-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="timing-tab-btn">
+      <!-- Animation Timing Settings -->
+      <div class="card mb-3 bg-dark text-light border-secondary">
+        <div class="card-header">Animation Timing</div>
+        <div class="card-body">
+          <p class="card-text text-muted small">Adjust animation timing and transitions for smoother recordings</p>
+          
+          <div class="mb-3">
+            <label for="default-transition-duration" class="form-label d-flex justify-content-between">
+              Default Transition Duration (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Default time for the pan/zoom transition between points. Used when not specified in a point.">?</span>
             </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="default-transition-duration" value="1500" min="100" max="10000" step="100">
+          </div>
+          
+          <div class="mb-3">
+            <label for="default-still-duration" class="form-label d-flex justify-content-between">
+              Default Still Duration (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Default time to stay still at each point. Used when not specified in a point.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="default-still-duration" value="1500" min="100" max="10000" step="100">
+          </div>
+          
+          <div class="mb-3">
+            <label for="frame-buffer-time" class="form-label d-flex justify-content-between">
+              Frame Buffer Time (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Extra time buffer between animation frames (lower values = smoother transitions but may cause rendering issues).">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="frame-buffer-time" value="100" min="0" max="500" step="10">
           </div>
         </div>
       </div>
-    </fieldset>
-    
-    <!-- Recording Controls -->
-    <div class="group-header">Recording Controls</div>
-    <div class="recording-controls">
-      <button id="dry-run" class="btn-dry-run">Run Dry Run</button>
-      <button id="preview" class="btn-secondary">Preview Animation</button>
-      <button id="clean-viewer" class="btn-clean">Clean UI</button>
-    </div>
-    
-    <div class="status-indicator" id="status-display" style="display: none;">
-      <span class="status-icon"></span>
-      <span id="status-text">Preparing...</span>
-    </div>
-    
-    <div class="progress-container" id="progress-container" style="display: none;">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    
-    <div class="timer-display" id="timer-display" style="display: none;">00:00</div>
-    
-    <!-- Visible Stop button during recording -->
-    <div id="recording-stop-button" class="floating-stop-button" style="display: none;">
-      <button id="recording-stop" class="btn-danger">Stop Recording</button>
-    </div>
-    
-    <div class="btn-group" style="margin-top: 20px;">
-      <button id="start" class="btn-primary">Start Recording</button>
-      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
-    </div>
-  </div>
-
-  <div id="timing-tab" class="tab">
-    <!-- Timeout Settings moved from Settings tab -->
-    <fieldset>
-      <legend>Animation Timing</legend>
-      <p class="help-text">Adjust animation timing and transitions for smoother recordings</p>
       
-      <div class="timeout-input">
-        <label for="default-transition-duration">Default Transition Duration (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Default time for the pan/zoom transition between points. Used when not specified in a point.</span>
+      <!-- Processing Delays -->
+      <div class="card mb-3 bg-dark text-light border-secondary">
+        <div class="card-header">Processing Delays</div>
+        <div class="card-body">
+          <p class="card-text text-muted small">Adjust timeouts to improve performance during recording</p>
+          
+          <div class="mb-3">
+            <label for="tile-loading-timeout" class="form-label d-flex justify-content-between">
+              Tile Loading Timeout (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Time to wait for tiles to load at each point. Increase for larger images.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="tile-loading-timeout" value="1000" min="100" step="100">
           </div>
-        </label>
-        <input type="number" id="default-transition-duration" value="1500" min="100" max="10000" step="100">
-      </div>
-      
-      <div class="timeout-input">
-        <label for="default-still-duration">Default Still Duration (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Default time to stay still at each point. Used when not specified in a point.</span>
+          
+          <div class="mb-3">
+            <label for="transition-delay" class="form-label d-flex justify-content-between">
+              Transition Delay (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Additional time to wait before starting each transition. Helps ensure smooth animations.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="transition-delay" value="300" min="0" step="100">
           </div>
-        </label>
-        <input type="number" id="default-still-duration" value="1500" min="100" max="10000" step="100">
-      </div>
-      
-      <div class="timeout-input">
-        <label for="frame-buffer-time">Frame Buffer Time (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Extra time buffer between animation frames (lower values = smoother transitions but may cause rendering issues).</span>
+          
+          <div class="mb-3">
+            <label for="pre-recording-delay" class="form-label d-flex justify-content-between">
+              Pre-Recording Delay (ms):
+              <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Time to wait before starting the recording. Allows the viewer to stabilize.">?</span>
+            </label>
+            <input type="number" class="form-control form-control-sm bg-dark text-light" id="pre-recording-delay" value="1000" min="0" step="100">
           </div>
-        </label>
-        <input type="number" id="frame-buffer-time" value="100" min="0" max="500" step="10">
-      </div>
-    </fieldset>
-    
-    <fieldset>
-      <legend>Processing Delays</legend>
-      <p class="help-text">Adjust timeouts to improve performance during recording</p>
-      
-      <div class="timeout-input">
-        <label for="tile-loading-timeout">Tile Loading Timeout (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Time to wait for tiles to load at each point. Increase for larger images.</span>
-          </div>
-        </label>
-        <input type="number" id="tile-loading-timeout" value="1000" min="100" step="100">
-      </div>
-      
-      <div class="timeout-input">
-        <label for="transition-delay">Transition Delay (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Additional time to wait before starting each transition. Helps ensure smooth animations.</span>
-          </div>
-        </label>
-        <input type="number" id="transition-delay" value="300" min="0" step="100">
-      </div>
-      
-      <div class="timeout-input">
-        <label for="pre-recording-delay">Pre-Recording Delay (ms):
-          <div class="tooltip">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-content">Time to wait before starting the recording. Allows the viewer to stabilize.</span>
-          </div>
-        </label>
-        <input type="number" id="pre-recording-delay" value="1000" min="0" step="100">
-      </div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <label class="checkbox-label">
-            <input type="checkbox" id="use-dry-run" checked>
-            <span>Use dry run before recording</span>
-          </label>
-          <span class="help-text">Pre-caches tiles for better performance</span>
-        </div>
-      </div>
-    </fieldset>
-  </div>
-
-  <div id="json-tab" class="tab">
-    <p>Edit animation sequence in JSON format (includes complete tour info):</p>
-    <textarea id="sequence-json"></textarea>
-    <div class="btn-group">
-      <button id="apply-json" class="btn-primary">Apply JSON</button>
-      <button id="update-json" class="btn-secondary">Update from Table</button>
-    </div>
-  </div>
-
-  <div id="table-tab" class="tab">
-    <div class="table-options">
-      <label class="checkbox-label">
-        <input type="checkbox" id="show-properties"> 
-        <span>Show Properties</span>
-      </label>
-    </div>
-    <table id="sequence-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th class="property-column">Zoom</th>
-          <th class="property-column">Center X</th>
-          <th class="property-column">Center Y</th>
-          <th class="property-column">Transition (ms)</th>
-          <th class="property-column">Still (ms)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="btn-group">
-      <button id="add-point" class="btn-primary">Add Point</button>
-      <button id="update-table" class="btn-secondary">Update Visualization</button>
-    </div>
-  </div>
-  
-  <div id="tours-tab" class="tab">
-    <!-- Image Source - Moved from Settings tab -->
-    <fieldset>
-      <legend>Image Source</legend>
-      <div class="url-input-group">
-        <label for="iiif-url">IIIF Image URL:</label>
-        <div class="form-row">
-          <div class="form-col expand">
-            <input type="text" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
-          </div>
-          <div class="form-col shrink">
-            <button id="apply-url" class="btn-accent">Apply</button>
+          
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="use-dry-run" checked>
+            <label class="form-check-label" for="use-dry-run">Use dry run before recording</label>
+            <small class="form-text text-muted d-block">Pre-caches tiles for better performance</small>
           </div>
         </div>
       </div>
-    </fieldset>
+    </div>
 
-    <h3>Available Tours</h3>
-    <div id="tour-selector" class="tour-selector"></div>
+    <div id="json-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="json-tab-btn">
+      <p>Edit animation sequence in JSON format (includes complete tour info):</p>
+      <textarea id="sequence-json" class="form-control bg-dark text-light mb-3" style="height: calc(100vh - 250px);"></textarea>
+      <div class="d-flex gap-2">
+        <button id="apply-json" class="btn btn-primary">Apply JSON</button>
+        <button id="update-json" class="btn btn-secondary">Update from Table</button>
+      </div>
+    </div>
+
+    <div id="table-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="table-tab-btn">
+      <div class="form-check mb-3 p-2 bg-dark">
+        <input type="checkbox" class="form-check-input" id="show-properties"> 
+        <label class="form-check-label" for="show-properties">Show Properties</label>
+      </div>
+      <div class="table-responsive">
+        <table id="sequence-table" class="table table-dark table-hover">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th class="property-column">Zoom</th>
+              <th class="property-column">Center X</th>
+              <th class="property-column">Center Y</th>
+              <th class="property-column">Transition (ms)</th>
+              <th class="property-column">Still (ms)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <button id="add-point" class="btn btn-primary">Add Point</button>
+        <button id="update-table" class="btn btn-secondary">Update Visualization</button>
+      </div>
+    </div>
     
-    <div class="group-header">Current Tour Information</div>
-    <div id="tour-info"></div>
-    
-    <div class="btn-group" style="margin-top: 10px;">
-      <button id="edit-tour" class="btn-primary">Edit Tour Information</button>
-      <button id="export-tour" class="btn-secondary">Export Tour</button>
-      <button id="generate-srt" class="btn-secondary">Generate SRT</button>
+    <div id="tours-tab" class="tab-pane fade" role="tabpanel" aria-labelledby="tours-tab-btn">
+      <!-- Image Source -->
+      <div class="card mb-3 bg-dark text-light border-secondary">
+        <div class="card-header">Image Source</div>
+        <div class="card-body">
+          <label for="iiif-url" class="form-label">IIIF Image URL:</label>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control bg-dark text-light" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+            <button id="apply-url" class="btn btn-success">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <h5 class="mb-3">Available Tours</h5>
+      <div id="tour-selector" class="d-flex flex-wrap gap-2 mb-4 p-2 bg-dark rounded overflow-auto" style="max-height: 180px;"></div>
+      
+      <h5 class="mb-3">Current Tour Information</h5>
+      <div id="tour-info" class="bg-dark p-3 rounded mb-3"></div>
+      
+      <div class="d-flex gap-2">
+        <button id="edit-tour" class="btn btn-primary">Edit Tour Information</button>
+        <button id="export-tour" class="btn btn-secondary">Export Tour</button>
+        <button id="generate-srt" class="btn btn-secondary">Generate SRT</button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Load the original scripts instead of modular JavaScript files -->
 <script src="js/viewer.js"></script>
 <script src="js/sequence.js"></script>

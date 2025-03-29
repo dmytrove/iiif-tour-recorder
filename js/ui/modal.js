@@ -7,7 +7,14 @@ export function showModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   
-  modal.style.display = 'flex';
+  // Bootstrap 5 modal implementation
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
+  
+  // Fix accessibility issue by updating aria attributes
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Additional class for our own styling/tracking
   modal.classList.add('active');
   
   // Set focus on the first input element
@@ -26,10 +33,17 @@ export function hideModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   
+  // Bootstrap 5 modal implementation
+  const bsModal = bootstrap.Modal.getInstance(modal);
+  if (bsModal) {
+    bsModal.hide();
+  }
+  
+  // Remove our active class
   modal.classList.remove('active');
-  setTimeout(() => {
-    modal.style.display = 'none';
-  }, 300); // Wait for transition if any
+  
+  // Restore aria-hidden when closing
+  modal.setAttribute('aria-hidden', 'true');
 }
 
 /**

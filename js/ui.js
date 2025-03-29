@@ -1,4 +1,4 @@
-// filepath: c:\tools\KB\ken-burns-effect\js\ui.js
+// filepath: c:\github\iiif-tour-recorder\js\ui.js
 // UI controls and event handlers
 
 // Setup event listeners for the UI controls
@@ -17,23 +17,10 @@ function setupEventListeners(viewer) {
     }
   });
   
-  // Tab navigation
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-      const tabId = button.dataset.tab;
-      
-      // Deactivate all tabs and buttons
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      
-      // Activate the selected tab and button
-      document.getElementById(`${tabId}-tab`).classList.add('active');
-      button.classList.add('active');
-    });
+  // Initialize Bootstrap tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
   });
   
   // "Add Point" button
@@ -80,7 +67,7 @@ function setupEventListeners(viewer) {
         window.KenBurns.visualization.updateVisualizations(viewer);
       });
     } else {
-      alert('Please enter a valid IIIF URL');
+      showNotification('Please enter a valid IIIF URL', 'danger');
     }
   });
   
@@ -119,11 +106,19 @@ function setupEventListeners(viewer) {
     }
   });
   
+  // Handle tab changes to ensure proper UI updates
+  const tabEls = document.querySelectorAll('[data-bs-toggle="tab"]');
+  tabEls.forEach(tabEl => {
+    tabEl.addEventListener('shown.bs.tab', event => {
+      const tabId = event.target.getAttribute('data-tab');
+      if (tabId === 'tours') {
+        updateTourInfo();
+      }
+    });
+  });
+  
   setupRecordingControls(viewer);
   setupQualityControls(viewer);
-  
-  // Update tour info when the tours tab is activated
-  document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo);
 }
 
 // Setup recording controls
@@ -187,21 +182,22 @@ function setupRecordingControls(viewer) {
     const statusDisplay = document.getElementById('status-display');
     const statusText = document.getElementById('status-text');
     if (statusDisplay && statusText) {
-      statusDisplay.style.display = 'flex';
+      statusDisplay.classList.remove('d-none');
       statusText.textContent = 'Running dry run (press ESC to stop)';
       
-      // Create a stop button inside the status display
-      const stopButton = document.createElement('button');
-      stopButton.textContent = 'Stop';
-      stopButton.className = 'btn-danger stop-dry-run';
-      stopButton.style.marginLeft = '10px';
-      stopButton.addEventListener('click', () => stopDryRun(viewer));
-      statusDisplay.appendChild(stopButton);
+      // Create a stop button inside the status display if it doesn't exist
+      if (!statusDisplay.querySelector('.stop-dry-run')) {
+        const stopButton = document.createElement('button');
+        stopButton.textContent = 'Stop';
+        stopButton.className = 'btn btn-sm btn-danger ms-2 stop-dry-run';
+        stopButton.addEventListener('click', () => stopDryRun(viewer));
+        statusDisplay.appendChild(stopButton);
+      }
       
       // Listen for animation complete event to re-enable button
       const onAnimationComplete = () => {
         document.getElementById('dry-run').disabled = false;
-        statusDisplay.style.display = 'none';
+        statusDisplay.classList.add('d-none');
         // Remove stop button if it exists
         const stopBtn = statusDisplay.querySelector('.stop-dry-run');
         if (stopBtn) stopBtn.remove();
@@ -213,7 +209,7 @@ function setupRecordingControls(viewer) {
     }
     
     // Show notification
-    showNotification('Dry run started - press ESC to stop', 'info', 3000);
+    showNotification('Dry run started - press ESC to stop', 'info');
   });
   
   // Clean UI button
@@ -239,23 +235,19 @@ function setupRecordingControls(viewer) {
       });
       
       // Create floating ESC key indicator
-      const escIndicator = document.createElement('div');
-      escIndicator.id = 'esc-key-indicator';
-      escIndicator.innerHTML = 'Press <kbd>ESC</kbd> to restore UI';
-      escIndicator.style.position = 'absolute';
-      escIndicator.style.bottom = '10px';
-      escIndicator.style.left = '10px';
-      escIndicator.style.padding = '8px 12px';
-      escIndicator.style.background = 'rgba(0,0,0,0.7)';
-      escIndicator.style.color = 'white';
-      escIndicator.style.borderRadius = '4px';
-      escIndicator.style.zIndex = '1000';
-      escIndicator.style.fontSize = '14px';
-      escIndicator.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-      document.body.appendChild(escIndicator);
+      let escIndicator = document.getElementById('esc-key-indicator');
+      if (!escIndicator) {
+        escIndicator = document.createElement('div');
+        escIndicator.id = 'esc-key-indicator';
+        escIndicator.className = 'badge bg-dark position-absolute bottom-0 start-0 m-3 p-2';
+        escIndicator.innerHTML = 'Press <kbd>ESC</kbd> to restore UI';
+        document.body.appendChild(escIndicator);
+      } else {
+        escIndicator.style.display = 'block';
+      }
       
       // Show a notification
-      showNotification('UI hidden - press ESC to restore', 'info', 3000);
+      showNotification('UI hidden - press ESC to restore', 'info');
     } else {
       // Restore UI elements
       restoreUI(viewer);
@@ -269,8 +261,6 @@ function setupRecordingControls(viewer) {
     viewer.canvas.focus();
   });
 }
-
-
 
 // Setup quality and rendering controls
 function setupQualityControls(viewer) {
@@ -329,33 +319,33 @@ function updateTourInfo() {
   const tour = window.KenBurns.tours.getCurrentTour();
   
   if (!tour) {
-    tourInfo.innerHTML = '<p>No tour loaded.</p>';
+    tourInfo.innerHTML = '<p class="text-muted">No tour loaded.</p>';
     return;
   }
   
   let thumbnailHTML = '';
   if (tour.thumbnail) {
-    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="tour-preview">`;
+    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="img-fluid rounded mb-3">`;
   }
   
   let infoHTML = `
-    <div class="tour-preview-container">
+    <div class="text-center mb-3">
       ${thumbnailHTML}
     </div>
-    <h4>${tour.title}</h4>
-    <p>${tour.description}</p>
-    <div class="tour-details">
-      <div class="detail-item">
-        <span class="detail-label">ID:</span>
-        <span class="detail-value">${tour.id}</span>
+    <h5 class="mb-2">${tour.title}</h5>
+    <p class="mb-3">${tour.description}</p>
+    <div class="list-group list-group-flush bg-transparent">
+      <div class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+        <span class="fw-bold">ID:</span>
+        <span>${tour.id}</span>
       </div>
-      <div class="detail-item">
-        <span class="detail-label">Points of interest:</span>
-        <span class="detail-value">${tour.pointsOfInterest.length}</span>
+      <div class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Points of interest:</span>
+        <span class="badge bg-primary rounded-pill">${tour.pointsOfInterest.length}</span>
       </div>
-      <div class="detail-item">
-        <span class="detail-label">Image URL:</span>
-        <span class="detail-value">${tour.tiles}</span>
+      <div class="list-group-item bg-dark text-light">
+        <span class="fw-bold">Image URL:</span>
+        <div class="text-break mt-1 small">${tour.tiles}</div>
       </div>
     </div>
   `;
@@ -379,7 +369,7 @@ function stopDryRun(viewer) {
   document.getElementById('dry-run').disabled = false;
   const statusDisplay = document.getElementById('status-display');
   if (statusDisplay) {
-    statusDisplay.style.display = 'none';
+    statusDisplay.classList.add('d-none');
   }
   
   // Reset visualization
@@ -387,7 +377,7 @@ function stopDryRun(viewer) {
   window.KenBurns.visualization.updateVisualizations(viewer);
   
   // Show notification that dry run was stopped
-  showNotification('Dry run stopped', 'info', 2000);
+  showNotification('Dry run stopped', 'info');
 }
 
 // Restore hidden UI elements
@@ -416,45 +406,107 @@ function restoreUI(viewer) {
   // Hide ESC key indicator if it exists
   const escIndicator = document.getElementById('esc-key-indicator');
   if (escIndicator) {
-    escIndicator.remove();
+    escIndicator.style.display = 'none';
   }
   
-  showNotification('UI restored', 'info', 2000);
+  showNotification('UI restored', 'info');
 }
 
-// Show a notification message
+// Show a notification message using Bootstrap toast
 function showNotification(message, type = 'info', duration = 3000) {
-  // Create notification element if it doesn't exist
-  let notification = document.getElementById('notification-popup');
-  if (!notification) {
-    notification = document.createElement('div');
-    notification.id = 'notification-popup';
-    notification.classList.add('notification');
-    document.body.appendChild(notification);
+  // Create toast container if it doesn't exist
+  let toastContainer = document.getElementById('toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+    document.body.appendChild(toastContainer);
   }
   
-  // Set notification content and style
-  notification.textContent = message;
-  notification.className = 'notification';
-  notification.classList.add(type);
+  // Create new toast
+  const toastId = 'toast-' + Date.now();
+  const toastHtml = `
+    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-${type} text-white">
+        <strong class="me-auto">IIIF Tour Recorder</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body bg-dark text-light">
+        ${message}
+      </div>
+    </div>
+  `;
   
-  // Show the notification
-  notification.style.display = 'block';
+  // Add toast to container
+  toastContainer.insertAdjacentHTML('beforeend', toastHtml);
   
-  // Clear any existing timeout
-  if (window.notificationTimeout) {
-    clearTimeout(window.notificationTimeout);
-  }
+  // Initialize and show the toast
+  const toastElement = document.getElementById(toastId);
+  const toast = new bootstrap.Toast(toastElement, {
+    delay: duration
+  });
+  toast.show();
   
-  // Auto-hide after duration
-  window.notificationTimeout = setTimeout(() => {
-    notification.style.display = 'none';
-  }, duration);
+  // Remove toast from DOM after it's hidden
+  toastElement.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+  });
 }
 
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.ui = {
   setupEventListeners,
-  updateTourInfo
+  updateTourInfo,
+  // Import and expose the modal functions
+  modal: {
+    showModal: function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      
+      // Bootstrap 5 modal implementation
+      try {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+      } catch (e) {
+        console.warn('Failed to initialize Bootstrap modal:', e);
+        // Fallback to direct DOM manipulation
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+      }
+      
+      // Fix accessibility issue by updating aria attributes
+      modal.setAttribute('aria-hidden', 'false');
+      
+      // Set focus on the first input element
+      setTimeout(() => {
+        const firstInput = modal.querySelector('input, textarea, select, button');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
+    },
+    hideModal: function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      
+      // Bootstrap 5 modal implementation
+      try {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+          bsModal.hide();
+        }
+      } catch (e) {
+        console.warn('Failed to hide Bootstrap modal:', e);
+        // Fallback to direct DOM manipulation
+        modal.classList.remove('active');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      }
+      
+      // Restore aria-hidden when closing
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  }
 };

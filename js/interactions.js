@@ -159,10 +159,27 @@ function showPointEditModal(viewerOrIndex, pointIndexMaybe) {
   // Store the current editing point index
   editingPointIndex = pointIndex;
   
-  // Show the modal - ensure it's visible
+  // Check if we can use the UI modal module, otherwise fallback to direct DOM manipulation
   console.log('Activating modal');
-  modal.style.display = 'flex';
-  modal.classList.add('active');
+  if (window.KenBurns.ui && window.KenBurns.ui.modal && typeof window.KenBurns.ui.modal.showModal === 'function') {
+    window.KenBurns.ui.modal.showModal('point-edit-modal');
+  } else {
+    // Fallback to direct DOM manipulation
+    console.log('Falling back to direct DOM manipulation for modal');
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    
+    // Initialize Bootstrap modal if available
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+      } catch (e) {
+        console.warn('Failed to initialize Bootstrap modal:', e);
+      }
+    }
+  }
   
   // Set focus on the title input
   setTimeout(() => {
@@ -173,11 +190,33 @@ function showPointEditModal(viewerOrIndex, pointIndexMaybe) {
 
 // Function to hide the point edit modal
 function hidePointEditModal() {
-  const modal = document.getElementById('point-edit-modal');
-  modal.classList.remove('active');
-  setTimeout(() => {
-    modal.style.display = 'none';
-  }, 300); // Wait for transition if any
+  // Check if we can use the UI modal module, otherwise fallback to direct DOM manipulation
+  if (window.KenBurns.ui && window.KenBurns.ui.modal && typeof window.KenBurns.ui.modal.hideModal === 'function') {
+    window.KenBurns.ui.modal.hideModal('point-edit-modal');
+  } else {
+    // Fallback to direct DOM manipulation
+    console.log('Falling back to direct DOM manipulation for hiding modal');
+    const modal = document.getElementById('point-edit-modal');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    // Use Bootstrap to hide modal if available
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      try {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+          bsModal.hide();
+        }
+      } catch (e) {
+        console.warn('Failed to hide Bootstrap modal:', e);
+      }
+    }
+    
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+  
   editingPointIndex = -1;
 }
 
