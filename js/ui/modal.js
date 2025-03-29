@@ -1,113 +1,62 @@
-// Modal dialog functionality
+// Modal dialogs for point and tour editing
+import * as sequence from '../sequence/index.js';
+import * as table from '../table/index.js';
+import * as visualization from '../visualization/index.js';
 
 /**
- * Show a modal dialog
- */
-export function showModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  
-  // Bootstrap 5 modal implementation
-  const bsModal = new bootstrap.Modal(modal);
-  bsModal.show();
-  
-  // Fix accessibility issue by updating aria attributes
-  modal.setAttribute('aria-hidden', 'false');
-  
-  // Additional class for our own styling/tracking
-  modal.classList.add('active');
-  
-  // Set focus on the first input element
-  setTimeout(() => {
-    const firstInput = modal.querySelector('input, textarea, select, button');
-    if (firstInput) {
-      firstInput.focus();
-    }
-  }, 100);
-}
-
-/**
- * Hide a modal dialog
- */
-export function hideModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  
-  // Bootstrap 5 modal implementation
-  const bsModal = bootstrap.Modal.getInstance(modal);
-  if (bsModal) {
-    bsModal.hide();
-  }
-  
-  // Remove our active class
-  modal.classList.remove('active');
-  
-  // Restore aria-hidden when closing
-  modal.setAttribute('aria-hidden', 'true');
-}
-
-/**
- * Setup point edit modal
+ * Set up point edit modal handlers
  */
 export function setupPointEditModal(viewer) {
-  const modalElement = document.getElementById('point-edit-modal');
-  
-  if (!modalElement) {
-    console.error('Modal element not found! Check if point-edit-modal exists in the HTML.');
-    return;
-  }
-  
-  const saveButton = document.getElementById('save-point');
-  const cancelButton = document.getElementById('cancel-edit');
+  const modal = document.getElementById('point-edit-modal');
+  const titleInput = document.getElementById('point-title');
+  const descriptionInput = document.getElementById('point-description');
   const zoomInput = document.getElementById('point-zoom');
   const zoomValue = document.getElementById('zoom-value');
-  
+  const saveButton = document.getElementById('save-point');
+  const cancelButton = document.getElementById('cancel-edit');
+
   // Update zoom value display when slider changes
   zoomInput.addEventListener('input', () => {
-    zoomValue.textContent = parseFloat(zoomInput.value).toFixed(1);
+    zoomValue.textContent = Number.isInteger(parseFloat(zoomInput.value)) ?
+      zoomInput.value : parseFloat(zoomInput.value).toFixed(1);
   });
-  
-  // Save button handler
+
+  // Save point changes when save button is clicked
   saveButton.addEventListener('click', () => {
-    const titleInput = document.getElementById('point-title');
-    const descriptionInput = document.getElementById('point-description');
-    const zoomInput = document.getElementById('point-zoom');
-    const pointIndexInput = document.getElementById('point-index');
-    
-    const pointIndex = parseInt(pointIndexInput.value);
+    const pointIndex = parseInt(document.getElementById('point-index').value);
     if (pointIndex < 0) return;
-    
+
     // Update point properties
-    window.KenBurns.sequence.updatePoint(pointIndex, 'title', titleInput.value.trim());
-    window.KenBurns.sequence.updatePoint(pointIndex, 'description', descriptionInput.value.trim());
-    window.KenBurns.sequence.updatePoint(pointIndex, 'zoom', parseFloat(zoomInput.value));
-    window.KenBurns.sequence.updatePoint(pointIndex, 'durationTransition', parseInt(document.getElementById('point-duration-transition').value));
-    window.KenBurns.sequence.updatePoint(pointIndex, 'durationStill', parseInt(document.getElementById('point-duration-still').value));
-    
-    // Update app state
-    window.KenBurns.table.updateTable();
-    window.KenBurns.table.updateJsonFromSequence();
-    window.KenBurns.visualization.updateVisualizations(viewer);
-    
-    // Hide the modal
+    sequence.updatePoint(pointIndex, 'title', titleInput.value.trim());
+    sequence.updatePoint(pointIndex, 'description', descriptionInput.value.trim());
+    sequence.updatePoint(pointIndex, 'zoom', parseFloat(zoomInput.value));
+    sequence.updatePoint(pointIndex, 'durationTransition', parseInt(document.getElementById('point-duration-transition').value));
+    sequence.updatePoint(pointIndex, 'durationStill', parseInt(document.getElementById('point-duration-still').value));
+
+    // Update table and visualization
+    table.updateTable();
+    table.updateJsonFromSequence();
+    visualization.updateVisualizations(viewer);
+
+    // Hide modal
     hideModal('point-edit-modal');
   });
   
-  // Cancel button handler
+  // Cancel editing when cancel button is clicked
   cancelButton.addEventListener('click', () => {
     hideModal('point-edit-modal');
   });
   
-  // Close modal if clicking outside the content
-  modalElement.addEventListener('click', (e) => {
-    if (e.target === modalElement) {
+  // Close modal when clicking outside the content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
       hideModal('point-edit-modal');
     }
   });
   
   // Add keyboard handlers for the modal
   document.addEventListener('keydown', (e) => {
-    if (!modalElement.classList.contains('active')) return;
+    if (!modal.classList.contains('show')) return;
     
     if (e.key === 'Escape') {
       // Close on Escape key
@@ -120,34 +69,85 @@ export function setupPointEditModal(viewer) {
 }
 
 /**
- * Show point edit modal with point data
+ * Show the point edit modal
  */
-export function showPointEditModal(pointIndex) {
+export function showPointEditModal(viewer, pointIndex) {
   const modal = document.getElementById('point-edit-modal');
-  const titleInput = document.getElementById('point-title');
-  const descriptionInput = document.getElementById('point-description');
-  const zoomInput = document.getElementById('point-zoom');
-  const zoomValue = document.getElementById('zoom-value');
-  const pointIndexInput = document.getElementById('point-index');
-  
-  // Get the sequence data
-  const sequence = window.KenBurns.sequence.getSequence();
-  const point = sequence[pointIndex];
-  
+  const currentSequence = sequence.getSequence();
+  const point = currentSequence[pointIndex];
+
   if (!point) {
     console.error('Point not found:', pointIndex);
     return;
   }
-  
-  // Populate the form with point data
-  titleInput.value = point.title || '';
-  descriptionInput.value = point.description || '';
-  zoomInput.value = point.zoom;
-  zoomValue.textContent = point.zoom.toFixed(1);
+
+  // Set form values
+  document.getElementById('point-title').value = point.title || '';
+  document.getElementById('point-description').value = point.description || '';
+  document.getElementById('point-zoom').value = point.zoom || 1.0;
   document.getElementById('point-duration-transition').value = point.duration?.transition || 1500;
   document.getElementById('point-duration-still').value = point.duration?.still || 1500;
-  pointIndexInput.value = pointIndex;
+  document.getElementById('point-index').value = pointIndex;
+  document.getElementById('zoom-value').textContent = Number.isInteger(point.zoom) ?
+    point.zoom.toString() : point.zoom.toFixed(1);
+
+  // Show modal using Bootstrap
+  try {
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  } catch (e) {
+    console.warn('Failed to show Bootstrap modal:', e);
+    showModalFallback(modal);
+  }
+}
+
+/**
+ * Hide a modal by its ID
+ */
+export function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
   
-  // Show the modal
-  showModal('point-edit-modal');
+  try {
+    const bsModal = bootstrap.Modal.getInstance(modal);
+    if (bsModal) {
+      bsModal.hide();
+    } else {
+      hideModalFallback(modal);
+    }
+  } catch (e) {
+    console.warn('Failed to hide Bootstrap modal:', e);
+    hideModalFallback(modal);
+  }
+}
+
+/**
+ * Fallback function to show a modal without Bootstrap
+ */
+function showModalFallback(modal) {
+  modal.style.display = 'block';
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  
+  // Add backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop fade show';
+  document.body.appendChild(backdrop);
+}
+
+/**
+ * Fallback function to hide a modal without Bootstrap
+ */
+function hideModalFallback(modal) {
+  modal.style.display = 'none';
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  
+  // Remove backdrop
+  const backdrop = document.querySelector('.modal-backdrop');
+  if (backdrop) {
+    backdrop.remove();
+  }
 }

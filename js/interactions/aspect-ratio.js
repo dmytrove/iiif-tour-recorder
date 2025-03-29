@@ -1,4 +1,5 @@
 // Aspect ratio handling
+import * as visualization from '../visualization/index.js';
 
 /**
  * Setup aspect ratio handling
@@ -7,7 +8,7 @@ export function setupAspectRatioHandling(viewer) {
   const aspectRatio = document.getElementById('aspect-ratio');
   const customAspectRatio = document.getElementById('custom-aspect-ratio');
   const showCaptureFrame = document.getElementById('show-capture-frame');
-  
+
   // Handle aspect ratio selection change
   aspectRatio.addEventListener('change', () => {
     if (aspectRatio.value === 'custom') {
@@ -15,27 +16,27 @@ export function setupAspectRatioHandling(viewer) {
     } else {
       customAspectRatio.style.display = 'none';
     }
-    
+
     // Update capture frame
-    window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio.value);
+    visualization.updateCaptureFrame(viewer, aspectRatio.value);
   });
-  
+
   // Show/hide capture frame
   showCaptureFrame.addEventListener('change', () => {
-    window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio.value);
+    visualization.updateCaptureFrame(viewer, aspectRatio.value);
   });
-  
+
   // Custom aspect ratio inputs
   document.getElementById('custom-width').addEventListener('change', () => {
-    window.KenBurns.visualization.updateCaptureFrame(viewer, 'custom');
+    visualization.updateCaptureFrame(viewer, 'custom');
   });
-  
+
   document.getElementById('custom-height').addEventListener('change', () => {
-    window.KenBurns.visualization.updateCaptureFrame(viewer, 'custom');
+    visualization.updateCaptureFrame(viewer, 'custom');
   });
-  
+
   // Initialize capture frame
-  window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio.value);
+  visualization.updateCaptureFrame(viewer, aspectRatio.value);
 }
 
 /**
@@ -43,7 +44,7 @@ export function setupAspectRatioHandling(viewer) {
  */
 export function getAspectRatioSettings() {
   const aspectRatio = document.getElementById('aspect-ratio').value;
-  
+
   if (aspectRatio === 'custom') {
     return {
       type: 'custom',
@@ -72,13 +73,13 @@ export function getAspectRatioSettings() {
 export function calculateDimensions(containerWidth, containerHeight) {
   const settings = getAspectRatioSettings();
   let width, height;
-  
+
   if (settings.type === 'viewport') {
     width = containerWidth;
     height = containerHeight;
   } else if (settings.type === 'custom') {
     const ratio = settings.width / settings.height;
-    
+
     if (containerWidth / containerHeight > ratio) {
       // Container is wider than frame
       height = containerHeight;
@@ -91,7 +92,7 @@ export function calculateDimensions(containerWidth, containerHeight) {
   } else {
     // Predefined ratio
     const ratio = settings.width / settings.height;
-    
+
     if (containerWidth / containerHeight > ratio) {
       // Container is wider than frame
       height = containerHeight;
@@ -102,6 +103,6 @@ export function calculateDimensions(containerWidth, containerHeight) {
       height = width / ratio;
     }
   }
-  
+
   return { width, height };
 }
