@@ -44,7 +44,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Listen for video processing completion (before download starts)
   document.addEventListener('video-processing-complete', (e) => {
-    console.log(`Video processing complete, starting download for: ${e.detail.filename}`);
+    if (e.detail.filename) {
+      console.log(`Video processing complete, starting download for: ${e.detail.filename}`);
+    } else if (e.detail.parts) {
+      console.log(`Video processing complete: ${e.detail.message}`);
+      // Display notification to user about multiple parts
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.innerHTML = `
+        <div class="notification-content">
+          <h3>Multi-part Recording Complete</h3>
+          <p>${e.detail.message}</p>
+          <p>Each part was saved separately to improve performance.</p>
+          <button class="notification-close">OK</button>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      // Handle close button
+      notification.querySelector('.notification-close').addEventListener('click', () => {
+        notification.remove();
+      });
+      
+      // Auto-remove after 10 seconds
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          notification.remove();
+        }
+      }, 10000);
+    }
   });
   
   // Listen for download completion

@@ -1,5 +1,7 @@
 // Recording and animation capture functionality
-let capturer = null;
+let capturers = [];
+let capturedFrames = []; // Track which instances have captured frames
+let activeCapturerIndex = 0;
 let capturing = false;
 let previewMode = false;
 let frameCount = 0;
@@ -10,9 +12,13 @@ function startRecording(options = {}) {
   const quality = options.quality || 100;
   const framerate = options.framerate || 60;
   const aspectRatio = options.aspectRatio || '0';
+  const numInstances = parseInt(document.getElementById('parallel-instances')?.value || 4);
 
-  // Reset frame counter
+  // Reset frame counter and capturers
   frameCount = 0;
+  capturers = [];
+  capturedFrames = [];
+  activeCapturerIndex = 0;
 
   // Allow setting a custom frames directory
   if (options.framesDirectory) {
@@ -52,38 +58,49 @@ function startRecording(options = {}) {
   width = Math.floor(width / 2) * 2;
   height = Math.floor(height / 2) * 2;
 
-  // Initialize CCapture with options
-  if (options.saveFrames) {
-    // Use PNG sequence for individual frames
-    capturer = new CCapture({
-      format: 'png',
-      framerate,
-      name: framesDirectory,
-      quality,
-      workersPath: './',
-      width,
-      height,
-      verbose: false,
-    });
-  } else {
-    // Use webm for standard video capture
-    capturer = new CCapture({
-      format: 'webm',
-      framerate,
-      quality,
-      name: 'ken-burns-animation',
-      workersPath: './',
-      width,
-      height,
-      verbose: false,
-    });
+  // Initialize multiple CCapture instances
+  for (let i = 0; i < numInstances; i++) {
+    let capturer;
+    
+    if (options.saveFrames) {
+      // Use PNG sequence for individual frames
+      capturer = new CCapture({
+        format: 'png',
+        framerate,
+        name: `${framesDirectory}-part${i + 1}`,
+        quality,
+        workersPath: './',
+        width,
+        height,
+        verbose: false,
+      });
+    } else {
+      // Use webm for standard video capture
+      capturer = new CCapture({
+        format: 'webm',
+        framerate,
+        quality,
+        name: `ken-burns-animation-part${i + 1}`,
+        workersPath: './',
+        width,
+        height,
+        verbose: false,
+      });
+    }
+    
+    capturers.push(capturer);
+    capturer.start();
   }
 
   capturing = true;
   previewMode = false;
 
   try {
-    capturer.start();
+    console.log(`Started recording with ${numInstances} parallel CCapture instances`);
+    
+    // Initialize the capturedFrames array with false values
+    capturedFrames = new Array(numInstances).fill(false);
+    
     return true;
   } catch (error) {
     console.error('Failed to start recording:', error);
@@ -102,110 +119,139 @@ function startPreview() {
 function stopRecording() {
   if (capturing) {
     capturing = false;
-    capturer.stop();
-
-    // Use the callback version of save to get direct access to the blob
-    capturer.save(function(blob) {
-      // Generate filename
-      const filename = `ken-burns-${Date.now()}.webm`;
-
-      // For PNG sequence, we need to handle differently
-      const isPngSequence = blob instanceof Array;
-
-      if (isPngSequence) {
-        console.log(`Processing complete, saved ${blob.length} frames to ${framesDirectory}/`);
-
-        // Dispatch event that frames are ready
-        document.dispatchEvent(new CustomEvent('frames-complete', {
-          detail: {
-            frameCount: blob.length,
-            directory: framesDirectory
-          }
-        }));
-
-        // Signal workflow completion
-        document.dispatchEvent(new CustomEvent('workflow-complete'));
-
-        // Clear capturer resources
-        capturer = null;
-        return;
-      }
-
-      console.log(`Processing complete, saving video as ${filename}...`);
-
-      // Create a separate variable to track download completion
-      let downloadComplete = false;
-
-      // Create a function to signal download completion
-      const signalDownloadComplete = () => {
-        if (downloadComplete) return; // Prevent multiple calls
-
-        downloadComplete = true;
-        console.log(`Video download complete: ${filename}`);
-
-        // Dispatch event for download completion
-        document.dispatchEvent(new CustomEvent('download-complete', {
-          detail: { filename }
-        }));
-
-        // Clear capturer resources
-        capturer = null;
-
-        // Signal workflow completion
-        document.dispatchEvent(new CustomEvent('workflow-complete'));
-      };
-
-      try {
-        // Check if saveAs is available (from FileSaver.js)
-        if (typeof saveAs !== 'undefined') {
-          // Use saveAs to save the blob with tracking
-          const originalSaveAs = saveAs;
-          window.saveAs = function(blob, filename) {
-            const result = originalSaveAs(blob, filename);
-
-            // Signal completion after a short delay for the download to start
-            setTimeout(signalDownloadComplete, 500);
-
-            // Restore original function
-            window.saveAs = originalSaveAs;
-
-            return result;
-          };
-
-          saveAs(blob, filename);
-        } else {
-          // Fallback method if FileSaver.js is not available
-          console.warn('FileSaver.js not available, using fallback download method');
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-
-          // Add listener to detect when download starts
-          a.addEventListener('click', () => {
-            // Signal completion after a short delay
-            setTimeout(signalDownloadComplete, 500);
-          });
-
-          document.body.appendChild(a);
-          a.click();
-
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }, 100);
+    
+    // Stop all capturers
+    capturers.forEach(capturer => capturer.stop());
+    
+    console.log("Captured frames by instance:", capturedFrames);
+    console.log("Total frames captured:", frameCount);
+    
+    // Check if any frames were captured
+    const hasFrames = capturedFrames.some(captured => captured);
+    
+    if (!hasFrames) {
+      console.warn("No frames were captured by any instance!");
+      
+      // If no frames were captured, try creating a dummy frame in the first instance
+      if (capturers.length > 0) {
+        try {
+          const dummyCanvas = document.createElement('canvas');
+          dummyCanvas.width = 320;
+          dummyCanvas.height = 240;
+          const ctx = dummyCanvas.getContext('2d');
+          ctx.fillStyle = 'black';
+          ctx.fillRect(0, 0, dummyCanvas.width, dummyCanvas.height);
+          ctx.fillStyle = 'white';
+          ctx.font = '20px Arial';
+          ctx.fillText('No frames captured', 50, 120);
+          
+          capturers[0].capture(dummyCanvas);
+          capturedFrames[0] = true;
+          console.log("Created a dummy frame in the first instance");
+        } catch (error) {
+          console.error("Failed to create dummy frame:", error);
         }
-
-        // Signal that video processing is complete and download is starting
-        document.dispatchEvent(new CustomEvent('video-processing-complete', {
-          detail: { filename }
-        }));
-
-        // Set a backup timer in case other methods fail
-        setTimeout(signalDownloadComplete, 5000);
+      }
+    }
+    
+    // Track completion for all parts
+    const usedCapturers = capturers.filter((_, i) => capturedFrames[i]);
+    const totalParts = usedCapturers.length;
+    
+    if (totalParts === 0) {
+      console.error("No CCapture instances have frames to save!");
+      // Dispatch workflow completion event to reset UI
+      document.dispatchEvent(new CustomEvent('workflow-complete'));
+      return true;
+    }
+    
+    let completedParts = 0;
+    const partBlobs = [];
+    
+    // Only save CCapture instances that have captured frames
+    usedCapturers.forEach((capturer, index) => {
+      console.log(`Saving CCapture instance ${index} (has frames: ${capturedFrames[index]})`);
+      
+      try {
+        capturer.save(function(blob) {
+          // Generate filename with part number
+          const isPngSequence = blob instanceof Array;
+          const partNumber = index + 1;
+          
+          if (isPngSequence) {
+            console.log(`Processing complete, saved ${blob.length} frames to ${framesDirectory}-part${partNumber}/`);
+            
+            // Store the part data
+            partBlobs[index] = {
+              type: 'png-sequence',
+              data: blob,
+              partNumber
+            };
+          } else {
+            const filename = `ken-burns-part${partNumber}-${Date.now()}.webm`;
+            console.log(`Processing complete for part ${partNumber}, saving as ${filename}...`);
+            
+            // Store the part data
+            partBlobs[index] = {
+              type: 'webm',
+              data: blob,
+              filename,
+              partNumber
+            };
+            
+            // Save each part as a separate file
+            try {
+              if (typeof saveAs !== 'undefined') {
+                saveAs(blob, filename);
+              } else {
+                // Fallback method
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 100);
+              }
+            } catch (error) {
+              console.error(`Error saving part ${partNumber}:`, error);
+            }
+          }
+          
+          // Track completion
+          completedParts++;
+          
+          // When all parts are complete, signal workflow completion
+          if (completedParts === totalParts) {
+            // Signal that video processing is complete
+            document.dispatchEvent(new CustomEvent('video-processing-complete', {
+              detail: { 
+                parts: partBlobs.length,
+                message: `Saved ${partBlobs.length} video part${partBlobs.length > 1 ? 's' : ''}. ${partBlobs.length > 1 ? 'You\'ll need to combine them using an external tool.' : ''}`
+              }
+            }));
+            
+            // Signal workflow completion
+            setTimeout(() => {
+              document.dispatchEvent(new CustomEvent('workflow-complete'));
+            }, 1000);
+            
+            // Clear resources
+            capturers = [];
+          }
+        });
       } catch (error) {
-        console.error('Error saving video:', error);
-        signalDownloadComplete(); // Ensure workflow completes even on error
+        console.error(`Error saving CCapture instance ${index}:`, error);
+        completedParts++;
+        
+        // Check if this was the last part
+        if (completedParts === totalParts) {
+          // Signal workflow completion even if there was an error
+          document.dispatchEvent(new CustomEvent('workflow-complete'));
+        }
       }
     });
   }
@@ -306,7 +352,7 @@ function animate(viewer) {
   TWEEN.update();
 
   // Capture frame if recording
-  if (capturing && capturer) {
+  if (capturing && capturers.length > 0) {
     viewer.forceRedraw();
 
     // Get the canvas from the viewer
@@ -315,6 +361,12 @@ function animate(viewer) {
       // If the subpixel rendering option is enabled, apply additional smoothing
       const subpixelRendering = document.getElementById('subpixel-rendering').checked;
 
+      // Get the current capturer using round-robin
+      const capturer = capturers[activeCapturerIndex];
+      
+      // Advance to the next capturer for the next frame
+      activeCapturerIndex = (activeCapturerIndex + 1) % capturers.length;
+      
       if (subpixelRendering) {
         // Create a temporary canvas with the same dimensions
         const tempCanvas = document.createElement('canvas');
@@ -349,6 +401,9 @@ function animate(viewer) {
         // Capture the standard frame
         capturer.capture(canvas);
       }
+      
+      // Track frame count
+      frameCount++;
     }
   }
 

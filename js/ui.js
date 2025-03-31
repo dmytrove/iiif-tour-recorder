@@ -178,6 +178,35 @@ function setupAnimationControls() {
       e.target.value = 0;
     }
   });
+  
+  // Parallel instances setting
+  document.getElementById('parallel-instances').addEventListener('change', (e) => {
+    const value = parseInt(e.target.value);
+    if (isNaN(value) || value < 1) {
+      e.target.value = 1;
+    } else if (value > 16) {
+      e.target.value = 16;
+    }
+    
+    // Show performance hint
+    const instances = parseInt(e.target.value);
+    let messageEl = document.getElementById('parallel-instances-hint');
+    
+    if (!messageEl) {
+      messageEl = document.createElement('div');
+      messageEl.id = 'parallel-instances-hint';
+      messageEl.className = 'help-text';
+      e.target.parentNode.appendChild(messageEl);
+    }
+    
+    if (instances <= 2) {
+      messageEl.textContent = 'Low parallelism: Better for slower computers';
+    } else if (instances <= 6) {
+      messageEl.textContent = 'Medium parallelism: Good for most computers';
+    } else {
+      messageEl.textContent = 'High parallelism: Best for powerful computers';
+    }
+  });
 }
 
 // Setup quality and rendering controls
