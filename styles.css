@@ -212,80 +212,20 @@ textarea {
   resize: vertical;
 }
 
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 15px 0;
-  background: rgba(20, 20, 22, 0.7);
-  border-radius: 6px;
-  overflow: hidden;
-}
+/* Table styling - Replaced by DataTables Bootstrap theme */
+/* table { ... } removed */
+/* th { ... } removed */
+/* td { ... } removed */
+/* td.description { ... } removed */
+/* tr:hover td { ... } removed */
+/* tr:last-child td { ... } removed */
 
-th {
-  background: rgba(30, 30, 40, 0.8);
-  padding: 8px;
-  font-size: 13px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ccc;
-  font-weight: bold;
-}
+/* Style for read-only table cells - Obsolete */
+/* .readonly-cell { ... } removed */
 
-td {
-  padding: 8px;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: middle;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-td.description {
-  white-space: normal;
-  max-width: 200px;
-}
-
-tr:hover td {
-  background: rgba(74, 111, 165, 0.1);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-/* Style for read-only table cells */
-.readonly-cell {
-  padding: 4px 8px;
-  min-height: 20px;
-  color: white;
-  background: transparent;
-  border-radius: 3px;
-}
-
-.edit-action {
-  cursor: pointer;
-  color: #4a6fa5;
-  text-decoration: underline;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(74, 111, 165, 0.1);
-  border-radius: 3px;
-  margin-right: 4px;
-}
-
-.delete-action {
-  cursor: pointer;
-  color: #f44336;
-  text-decoration: underline;
-  margin-left: 4px;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(244, 67, 54, 0.1);
-  border-radius: 3px;
-}
+/* Edit/Delete Action links - Replaced by Buttons */
+/* .edit-action { ... } removed */
+/* .delete-action { ... } removed */
 
 /* Point markers and visualization */
 .point-marker {
