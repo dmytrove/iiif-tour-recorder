@@ -90,19 +90,26 @@ function initializeDataTable() {
 
 // Update the table display using DataTables API
 function updateTable() {
+  // Initialize DataTable if it hasn't been already
   if (!sequenceDataTable) {
     initializeDataTable();
-  } else {
-    const sequence = window.KenBurns.sequence.getSequence();
-    // Map sequence data and add original index for actions
-    const mappedData = sequence.map((point, index) => ({
-      ...point,
-      originalIndex: index // Add index for button data attributes
-    }));
-
-    // Clear existing data, add new data, and redraw the table
-    sequenceDataTable.clear().rows.add(mappedData).draw();
+    // Check if initialization was successful before proceeding
+    if (!sequenceDataTable) {
+        console.error("DataTable failed to initialize. Cannot update table.");
+        return; 
+    }
   }
+
+  // Now, clear the table and add the current sequence data
+  const sequence = window.KenBurns.sequence.getSequence();
+  // Map sequence data and add original index for actions
+  const mappedData = sequence.map((point, index) => ({
+    ...point,
+    originalIndex: index // Add index for button data attributes
+  }));
+
+  // Clear existing data, add new data, and redraw the table
+  sequenceDataTable.clear().rows.add(mappedData).draw();
 }
 
 // Function to update JSON from sequence (Keep as is)
