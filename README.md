@@ -1,141 +1,111 @@
-# Ken Burns Effect Creator
-An interactive web application that allows you to create dynamic Ken Burns effect animations from high-resolution images. Perfect for creating engaging presentations, videos, and digital storytelling with smooth panning and zooming effects.
+# IIIF Tour Recorder & Ken Burns Animator
+
+An interactive web application that allows you to create dynamic Ken Burns effect animations from high-resolution IIIF images and record them as video tours, complete with optional burned-in titles and subtitles.
 
 ## Features
-- **Interactive Editor**: Create, preview, and modify Ken Burns effects with an intuitive interface
-- **High-Quality Output**: Export professional animations with adjustable quality and framerate
-- **IIIF Support**: Works with high-resolution IIIF (International Image Interoperability Framework) images
-- **Tour Creation**: Define point sequences with customizable zoom levels, durations, and transitions
-- **Subtitle Generation**: Export SRT subtitle files to accompany your animations
-- **Aspect Ratio Control**: Choose from standard aspect ratios or define custom dimensions
-- **Quality Settings**: Optimize rendering quality based on your hardware capabilities
-- **Headless Mode**: Generate videos programmatically via command-line or API server
-- **Responsive Design**: Works across desktop and tablet devices
-- **Export Options**: WebM video with configurable quality and framerate
+
+*   **Interactive Editor**: Modern UI using Bootstrap 5 with offcanvas panels for controls and information.
+*   **IIIF Support**: Works with any high-resolution IIIF (International Image Interoperability Framework) image URL.
+*   **Tour Creation & Management**:
+    *   Define point sequences with customizable zoom levels, durations (transition/still), titles, and descriptions.
+    *   Load existing tours from a `tours/manifest.json` file.
+    *   Edit tour metadata (title, description) directly in the UI.
+    *   View sequence points in a sortable table (planned: drag-and-drop reordering).
+*   **Animation & Recording**:
+    *   Preview animations in real-time.
+    *   Record tours as WebM video files using CCapture.js.
+    *   Configure quality, framerate, and aspect ratio.
+    *   **Burn-in Overlays**: Optionally burn point titles and/or descriptions directly into the video frames with customizable font size, color, and family.
+*   **Enhanced Playback Controls**:
+    *   Progress bar showing animation progress.
+    *   Persistent markers on the progress bar indicating point start times (with title/timestamp) and still period start times (pause icon).
+*   **Subtitle Generation**: Export SRT subtitle files based on point timing and descriptions.
+*   **JSON Editor**: View and edit the raw JSON for the current sequence.
+*   **Keyboard Shortcuts**: Speed up point creation and editing.
+*   **(Planned/Existing)** Headless Mode: Generate videos programmatically via command-line or API server.
 
 ## Getting Started
 
 ### Prerequisites
-- Modern web browser (Chrome, Firefox, Edge recommended)
-- Local web server for development (optional)
+
+*   Modern web browser (Chrome, Firefox, Edge recommended)
+*   Local web server for development (optional but recommended)
 
 ### Quick Start
-1. Clone or download the repository
-2. Open `index.html` in your browser
-3. Use the default IIIF image or enter your own IIIF URL
-4. Create animation points by clicking "Add Point" or using Ctrl+Click in the image
-5. Customize durations, titles, and descriptions in the Table tab
-6. Preview your animation using the "Preview" button
-7. Record the final animation with "Start Recording"
+
+1.  Clone or download the repository.
+2.  Open `index.html` in your browser (ideally served by a local web server).
+3.  Load a IIIF Image:
+    *   Enter a IIIF Image `info.json` URL in the "Current Tour Information" section and click Apply.
+    *   Or, select a pre-defined tour from the "Available Tours" section.
+4.  Create Animation Points:
+    *   `Ctrl` + `Click` on the image adds a point at the current view.
+    *   Points appear in the sequence table (bottom panel).
+5.  Edit Points & Sequence:
+    *   Click a point marker on the image to select it.
+    *   `Shift` + `Click` on a selected point marker to open the edit modal (set title, description, durations).
+    *   (Planned) Drag points in the table (bottom panel) to reorder.
+6.  Configure Settings (Left Panel):
+    *   Adjust capture quality, framerate, aspect ratio.
+    *   Configure burn-in overlay options and styles.
+    *   Set default animation timings.
+7.  Preview & Record (Top Panel):
+    *   Click "Preview" to watch the animation.
+    *   Click "Record" to generate and download a WebM video.
+    *   Use the progress bar markers for navigation context.
+8.  Export (Right Panel):
+    *   Generate and download SRT subtitles.
+    *   View/copy the sequence JSON.
 
 ## Usage Guide
 
-### Basic Controls
-- **Add Points**: Click "Add Point" button or use Ctrl+Click on the image
-- **Edit Points**: Drag points to reposition, use Shift+Click+Mouse Wheel to adjust zoom levels
-- **Sequence Management**: Use the Table tab to edit details and reorder points
-- **Preview**: Click "Preview" to see how your animation will look
-- **Record**: Click "Start Recording" to generate a WebM video file
+### Interface Overview
+
+*   **Viewer**: Main area displaying the IIIF image.
+*   **Top Panel (Playback)**: Contains Preview/Record/Stop buttons and the enhanced progress bar.
+*   **Left Panel (Settings)**: Accordion sections for Capture, Burn-in Overlays, Performance, and Animation settings.
+*   **Right Panel (Info/Tours)**: Accordion sections for Current Tour Info (loading images/metadata), Available Tours (loading from manifest), JSON Editor, SRT Subtitles, and Keyboard Shortcuts.
+*   **Bottom Panel (Sequence)**: Table display of sequence points (planned: editing/reordering).
 
 ### Tour Management
-The application supports loading tour data from JSON files:
-1. Tours are listed in the `tours/tours.json` file which contains metadata about each available tour
-2. Actual tour data is stored in individual JSON files (e.g., `tours/SK-A-2099.json`)
-3. Add new tours by creating a JSON file following the existing format and adding its entry to `tours.json`
-4. Generate SRT subtitles for your tour using the "Generate SRT Subtitles" button in the Tours tab
 
-### Advanced Features
-- **Custom Aspect Ratios**: Define specific dimensions for your output video
-- **Performance Settings**: Adjust quality settings based on your device capabilities
-- **Custom Styles**: Modify the visualization of points, capture frames, and UI elements
-- **Keyboard Shortcuts**: Speed up your workflow with keyboard shortcuts for common actions
-- **Point Reordering**: Drag and drop to reorder animation points in the Table tab
+*   The application loads available tours from `tours/manifest.json`.
+*   Each entry in the manifest points to a IIIF `info.json` URL and can contain pre-defined sequence points (`pointsOfInterest`).
+*   You can load a base image via URL and build a sequence from scratch, or load an existing tour.
 
-## Headless Implementation
-A headless implementation is available in the `headless` directory, allowing you to generate videos programmatically without requiring a browser UI:
+### Burn-in Overlays
 
-### Command Line Usage
-```bash
-cd headless
-npm install
-node index.js --tour ../tours/SK-A-2099.json --output ./videos/asparagus.webm
-```
-
-### Additional Command Line Options
-```bash
-# Specify custom framerate
-node index.js --tour ../tours/SK-A-2099.json --output ./videos/asparagus.webm --fps 30
-
-# Set quality (1-100)
-node index.js --tour ../tours/SK-A-2099.json --output ./videos/asparagus.webm --quality 85
-
-# Custom aspect ratio
-node index.js --tour ../tours/SK-A-2099.json --output ./videos/asparagus.webm --width 1920 --height 1080
-```
-
-### API Server
-A simple API server is also provided for generating videos on demand:
-```bash
-cd headless
-npm install
-node server.js
-```
-This will start a server on port 3000 that you can use to generate videos via REST API calls.
-
-#### API Endpoints
-- `POST /generate-video`: Generate a video from a tour
-  - Request body:
-    ```json
-    {
-      "tourPath": "../tours/SK-A-2099.json",
-      "outputPath": "./videos/output.webm",
-      "fps": 30,
-      "quality": 85,
-      "width": 1920,
-      "height": 1080
-    }
-    ```
-  - Response: JSON with video URL and generation status
-
-For more information, see the [Headless README](headless/README.md).
-
-## Configuration Options
-
-### Capture Settings
-- **Quality**: Adjusts the export quality (1-100)
-- **Framerate**: Sets the frames per second (FPS) for the output video
-- **Aspect Ratio**: Choose from predefined ratios or create custom dimensions
-
-### Performance Settings
-- **Subpixel Rendering**: Enables higher quality rendering (may impact performance)
-- **High Quality Animation**: Smoother transitions between points
-- **Optimize Memory Usage**: Reduces memory consumption for large images
-- **Render Quality**: Low, medium, or high settings for overall visual quality
-
-## Examples
-The project includes sample tours of "The Milkmaid" by Johannes Vermeer and "Still Life with Asparagus" by Adriaen Coorte, showcasing how to:
-- Create effective point sequences
-- Add informative titles and descriptions
-- Generate appropriate durations for each segment
+*   Enable "Burn titles" and/or "Burn subtitles" in the Settings panel.
+*   Customize font size, color, and family.
+*   The text (using the `title` and `description` from sequence points) will be drawn onto the video frames during recording.
+*   Subtitles have a maximum width and will wrap automatically.
+*   Text is drawn with a semi-transparent, rounded background for readability.
 
 ## Technologies Used
-- OpenSeadragon (v4.1.0) for deep zoom image viewing
-- Tween.js (v21.0.0) for smooth animations
-- CCapture.js (v1.1.0) for video capture
-- IIIF Image API for high-resolution image support
-- Puppeteer for headless video generation
+
+*   OpenSeadragon (v4.1.0) for deep zoom image viewing
+*   Tween.js (v21.0.0) for smooth animations
+*   CCapture.js (v1.1.0) for client-side video capture
+*   Bootstrap 5.3.3 for UI components and layout
+*   Bootstrap Icons for iconography
+*   IIIF Image API for high-resolution image support
+*   (Planned/Existing) Puppeteer for headless video generation
 
 ## Browser Compatibility
-- Chrome 88+
-- Firefox 85+
-- Edge 88+
-- Safari 14+
+
+*   Chrome 88+
+*   Firefox 85+
+*   Edge 88+
+*   Safari 14+
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- OpenSeadragon for the powerful deep zoom viewer
-- IIIF for the image interoperability framework
-- CCapture.js for the client-side video recording capabilities
-- The Rijksmuseum for providing high-quality IIIF images used in the example tours
+
+*   OpenSeadragon for the powerful deep zoom viewer
+*   IIIF for the image interoperability framework
+*   CCapture.js for the client-side video recording capabilities
+*   Bootstrap contributors
+*   The Rijksmuseum for providing high-quality IIIF images used in the example tours
