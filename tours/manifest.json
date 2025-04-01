@@ -3,14 +3,14 @@
     "id": "SK-A-2099",
     "title": "SK-A-2099",
     "url": "tours/SK-A-2099.json",
-    "thumbnail": null,
+    "thumbnail": "https://iiif.micr.io/OHDPD/full/!200,/0/default.webp",
     "default": true
   },
   {
     "id": "SK-A-2344",
     "title": "SK-A-2344",
     "url": "tours/SK-A-2344.json",
-    "thumbnail": null,
+    "thumbnail": "https://iiif.micr.io/QkOGy/full/!200,/0/default.webp",
     "default": false
   },
   {
