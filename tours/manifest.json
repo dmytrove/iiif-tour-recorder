@@ -1,0 +1,23 @@
+[
+  {
+    "id": "SK-A-2099",
+    "title": "SK-A-2099",
+    "url": "tours/SK-A-2099.json",
+    "thumbnail": null,
+    "default": true
+  },
+  {
+    "id": "SK-A-2344",
+    "title": "SK-A-2344",
+    "url": "tours/SK-A-2344.json",
+    "thumbnail": null,
+    "default": false
+  },
+  {
+    "id": "SK-A-3262",
+    "title": "SK-A-3262",
+    "url": "tours/SK-A-3262.json",
+    "thumbnail": null,
+    "default": false
+  }
+] 
