@@ -434,12 +434,66 @@ function updateAnimationProgress(currentTime, totalTime, currentFrame, totalFram
   }
 }
 
+// Create and display markers on the progress bar for sequence points
+function createProgressMarkers(sequence = [], totalDurationSeconds = 0) {
+  const markersContainer = document.getElementById('progress-markers-container');
+  if (!markersContainer) return;
+
+  // Clear existing markers and text
+  markersContainer.innerHTML = '';
+
+  if (!sequence || sequence.length === 0 || totalDurationSeconds <= 0) {
+    return; // Nothing to mark
+  }
+
+  // Calculate times accurately
+  let times = [0];
+  let cumulativeTime = 0;
+  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+  const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
+
+  for (let i = 0; i < sequence.length - 1; i++) {
+      const currentPoint = sequence[i];
+      const nextPoint = sequence[i+1];
+      const transition = nextPoint.duration.transition || defaultTransitionDuration;
+      const still = currentPoint.duration.still || defaultStillDuration;
+      cumulativeTime += (transition + still + frameDelay) / 1000;
+      times.push(cumulativeTime - (still + frameDelay) / 1000); // Time is at the START of the transition TO next point
+  }
+
+  // Now create markers and text labels
+  times.forEach((time, index) => {
+      const percentage = (time / totalDurationSeconds) * 100;
+      if (percentage >= 0 && percentage <= 100) {
+          const point = sequence[index];
+          const title = point.title || `Point ${index + 1}`;
+          const timeFormatted = formatTime(time);
+
+          // Create marker line div
+          const marker = document.createElement('div');
+          marker.className = 'progress-marker';
+          marker.style.left = `${percentage}%`;
+
+          // Create text span
+          const textSpan = document.createElement('span');
+          textSpan.className = 'marker-text';
+          textSpan.style.left = `${percentage}%`; // Position text with the marker
+          textSpan.textContent = `${title} (${timeFormatted})`; // Combine title and time
+
+          markersContainer.appendChild(marker);
+          markersContainer.appendChild(textSpan);
+      }
+  });
+}
+
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.ui = {
   setupEventListeners,
   updateTourInfo,
-  updateAnimationProgress
+  updateAnimationProgress,
+  createProgressMarkers
 };
 
 // Helper function to show Bootstrap Toasts

@@ -7,33 +7,74 @@ let totalFrames = 0;
 let animationStartTime = 0;
 let animationRequest = null;
 let totalDurationSeconds = 0; // Added to store total time
+let currentSegmentTitle = ''; // Track title for capture
+let currentSegmentDescription = ''; // Track description for capture
 
-// Helper to draw text with a background for better visibility
-function drawTextWithBackground(ctx, text, x, y, font, color, bgColor = 'rgba(0, 0, 0, 0.6)') {
+// Helper to draw text with a rounded background for better visibility
+function drawTextWithBackground(ctx, text, x, y, font, color, bgColor = 'rgba(0, 0, 0, 0.6)', maxWidth = null, borderRadius = 4) {
     ctx.font = font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-
-    // Measure text for background
-    const textMetrics = ctx.measureText(text);
-    const textWidth = textMetrics.width;
-    // Estimate height based on font size (adjust multiplier as needed)
     const fontSize = parseInt(font, 10);
-    const textHeight = fontSize * 1.2;
-    const padding = fontSize * 0.4; // Padding around text
+    const lineHeight = fontSize * 1.2;
+    const padding = fontSize * 0.4;
 
-    // Draw background rectangle
+    let lines = [text];
+    let textWidth = ctx.measureText(text).width;
+    let textBlockHeight = lineHeight;
+
+    // Basic word wrapping if maxWidth is provided and text exceeds it
+    if (maxWidth && textWidth > maxWidth) {
+        lines = [];
+        let currentLine = '';
+        const words = text.split(' ');
+        textWidth = 0; // Reset to calculate max width of wrapped lines
+
+        for (const word of words) {
+            const testLine = currentLine ? currentLine + ' ' + word : word;
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && currentLine !== '') {
+                lines.push(currentLine);
+                textWidth = Math.max(textWidth, ctx.measureText(currentLine).width);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine);
+        textWidth = Math.max(textWidth, ctx.measureText(currentLine).width);
+        textBlockHeight = lines.length * lineHeight;
+    }
+
+    // Calculate background dimensions
+    const bgWidth = textWidth + padding * 2;
+    const bgHeight = textBlockHeight + padding * 2;
+    const bgX = x - bgWidth / 2;
+    // Adjust Y position so the block is centered vertically around the original y
+    const bgY = y - bgHeight / 2;
+
+    // Draw rounded rectangle background
     ctx.fillStyle = bgColor;
-    ctx.fillRect(
-        x - textWidth / 2 - padding, // Center background horizontally
-        y - textHeight / 2 - padding, // Center background vertically
-        textWidth + padding * 2,
-        textHeight + padding * 2
-    );
+    // Ensure radius is not larger than half the width/height
+    const r = Math.min(borderRadius, bgWidth / 2, bgHeight / 2);
 
-    // Draw text on top
+    ctx.beginPath();
+    ctx.moveTo(bgX + r, bgY);
+    ctx.arcTo(bgX + bgWidth, bgY,   bgX + bgWidth, bgY + bgHeight, r); // Top-right corner
+    ctx.arcTo(bgX + bgWidth, bgY + bgHeight, bgX, bgY + bgHeight, r); // Bottom-right corner
+    ctx.arcTo(bgX, bgY + bgHeight, bgX,   bgY,   r); // Bottom-left corner
+    ctx.arcTo(bgX,   bgY,   bgX + bgWidth, bgY,   r); // Top-left corner
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw text lines on top
     ctx.fillStyle = color;
-    ctx.fillText(text, x, y);
+    // Adjust starting Y for drawing lines to be centered within the background
+    let drawY = bgY + padding + (lineHeight / 2);
+    for (const line of lines) {
+        ctx.fillText(line, x, drawY);
+        drawY += lineHeight;
+    }
 }
 
 // Start recording process
@@ -254,6 +295,9 @@ function stopAnimation() {
     animationRequest = null;
   }
   TWEEN.removeAll(); // Stop all tweens
+  // Reset segment text trackers
+  currentSegmentTitle = '';
+  currentSegmentDescription = '';
   // Reset visualization state if needed
   if (window.KenBurns && window.KenBurns.visualization && window.KenBurns.visualization.setCurrentPoint) {
     window.KenBurns.visualization.setCurrentPoint(-1);
@@ -271,6 +315,17 @@ function stopAnimation() {
              window.KenBurns.ui.updateAnimationProgress(0, 0, 0, 0, 'idle');
          }
     }, 2000); // Reset after 2 seconds
+  }
+
+  // Reset progress bar UI and clear markers
+  if (window.KenBurns.ui) {
+      if (window.KenBurns.ui.updateAnimationProgress) {
+        // ... existing progress update logic ...
+      }
+      if (window.KenBurns.ui.createProgressMarkers) {
+          // Clear markers by calling with no sequence
+          window.KenBurns.ui.createProgressMarkers([], 0);
+      }
   }
 }
 
@@ -304,6 +359,8 @@ function startAnimation(viewer) {
   totalFrames = 0;
   totalDurationSeconds = 0;
   animationStartTime = 0;
+  currentSegmentTitle = '';
+  currentSegmentDescription = '';
 
   // Get settings
   const framerate = parseInt(document.getElementById('framerate')?.value || 30);
@@ -335,18 +392,26 @@ function startAnimation(viewer) {
       console.log(`Calculated total duration: ${totalDurationSeconds.toFixed(2)}s, total frames: ${totalFrames}`);
   }
 
-  // Reset UI progress display
-  if (window.KenBurns.ui && window.KenBurns.ui.updateAnimationProgress) {
-     window.KenBurns.ui.updateAnimationProgress(0, totalDurationSeconds, 0, totalFrames, isCapturing ? 'recording' : isPreview ? 'previewing' : 'idle');
-  }
-
-  // Set current point to start
-  window.KenBurns.visualization.setCurrentPoint(0);
-
-  // Reset to first point
+  // Initialize text and viewer state for the first point
   const firstPoint = sequence[0];
+  currentSegmentTitle = firstPoint.title || '';
+  currentSegmentDescription = firstPoint.description || '';
   viewer.viewport.zoomTo(firstPoint.zoom);
   viewer.viewport.panTo(new OpenSeadragon.Point(firstPoint.center.x, firstPoint.center.y));
+
+  // Reset UI progress display and create markers
+  if (window.KenBurns.ui) {
+     if (window.KenBurns.ui.updateAnimationProgress) {
+         window.KenBurns.ui.updateAnimationProgress(0, totalDurationSeconds, 0, totalFrames, isCapturing ? 'recording' : isPreview ? 'previewing' : 'idle');
+     }
+     if (window.KenBurns.ui.createProgressMarkers) {
+         // Pass the full sequence for marker generation
+         window.KenBurns.ui.createProgressMarkers(sequence, totalDurationSeconds);
+     }
+  }
+
+  // Set current point visualization index (should this be 0 here?)
+  window.KenBurns.visualization.setCurrentPoint(0);
 
   // Trigger the animation sequence starting from the first point
   setTimeout(() => {
@@ -358,14 +423,14 @@ function startAnimation(viewer) {
       return;
     }
     console.log("Starting animation sequence...");
-    animateNextPoint(viewer, 0); // Start with the first point (index 0)
+    animateNextPoint(viewer, 0); // Start animating TO the second point (index 1)
     if (window.KenBurns?.ui?.showToast) {
         if (isPreview) window.KenBurns.ui.showToast("Preview started.", "info");
         else if (isCapturing) window.KenBurns.ui.showToast("Recording started...", "info");
     }
   }, 50); // Short delay to allow UI to update before intensive work
 
-  // Start the core animation/capture loop (TWEEN updates and frame capture)
+  // Start the core animation/capture loop
   animationStartTime = performance.now();
   animate(viewer); // Start the TWEEN update/capture loop
 
@@ -396,6 +461,10 @@ function animateNextPoint(viewer, index) {
         document.dispatchEvent(new CustomEvent('animation-complete'));
       }, stillDuration + frameDelay);
     }
+    // Keep the last point's text active during final still time
+    const lastPoint = sequence[index];
+    currentSegmentTitle = lastPoint.title || '';
+    currentSegmentDescription = lastPoint.description || '';
     return;
   }
 
@@ -410,6 +479,10 @@ function animateNextPoint(viewer, index) {
   
   // Use point-specific durations if available, otherwise use defaults
   const transitionDuration = next.duration.transition || defaultTransitionDuration;
+
+  // Update the text variables for the upcoming segment (transition + still of nextPoint)
+  currentSegmentTitle = next.title || '';
+  currentSegmentDescription = next.description || '';
 
   // Animate to the next point with the transition duration
   window.KenBurns.viewer.smoothPanZoom(
@@ -449,33 +522,30 @@ function animate(viewer) {
       const ctx = canvas.getContext('2d');
 
       // --- START Burn-in Text --- //
-      // Check if visualization module and function exist
-      if (window.KenBurns?.visualization?.getCurrentText) {
-          const burnTitles = document.getElementById('burn-titles')?.checked;
-          const burnSubtitles = document.getElementById('burn-subtitles')?.checked;
-          const { currentTitle, currentDescription } = window.KenBurns.visualization.getCurrentText();
+      // Check if options are enabled
+      const burnTitles = document.getElementById('burn-titles')?.checked;
+      const burnSubtitles = document.getElementById('burn-subtitles')?.checked;
 
-          if (burnTitles && currentTitle) {
-            const fontSize = document.getElementById('overlay-title-font-size')?.value + 'px';
-            const color = document.getElementById('overlay-title-color')?.value;
-            const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
-            const font = `${fontSize} ${fontFamily}`;
-            const x = canvas.width / 2; // Center horizontally
-            const y = canvas.height * 0.1; // Position near top (10% from top)
-            drawTextWithBackground(ctx, currentTitle, x, y, font, color);
-          }
+      // Use locally tracked segment text, NOT live visualization text
+      if (burnTitles && currentSegmentTitle) {
+        const fontSize = document.getElementById('overlay-title-font-size')?.value + 'px';
+        const color = document.getElementById('overlay-title-color')?.value;
+        const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
+        const font = `${fontSize} ${fontFamily}`;
+        const x = canvas.width / 2;
+        const y = canvas.height * 0.1;
+        drawTextWithBackground(ctx, currentSegmentTitle, x, y, font, color);
+      }
 
-          if (burnSubtitles && currentDescription) {
-            const fontSize = document.getElementById('overlay-subtitle-font-size')?.value + 'px';
-            const color = document.getElementById('overlay-subtitle-color')?.value;
-            const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
-            const font = `${fontSize} ${fontFamily}`;
-            const x = canvas.width / 2; // Center horizontally
-            const y = canvas.height * 0.9; // Position near bottom (90% from top)
-            drawTextWithBackground(ctx, currentDescription, x, y, font, color);
-          }
-      } else {
-           console.warn("Burn-in text skipped: KenBurns.visualization.getCurrentText not found.");
+      if (burnSubtitles && currentSegmentDescription) {
+        const fontSize = document.getElementById('overlay-subtitle-font-size')?.value + 'px';
+        const color = document.getElementById('overlay-subtitle-color')?.value;
+        const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
+        const font = `${fontSize} ${fontFamily}`;
+        const x = canvas.width / 2;
+        const y = canvas.height * 0.9;
+        const subtitleMaxWidth = canvas.width * 0.8; // Limit subtitle width to 80%
+        drawTextWithBackground(ctx, currentSegmentDescription, x, y, font, color, undefined, subtitleMaxWidth);
       }
       // --- END Burn-in Text --- //
 
@@ -513,26 +583,6 @@ function animate(viewer) {
         window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio);
     }
   }
-}
-
-// Helper function to update the progress bar UI
-function updateProgressBar(percentage) {
-    const progressBar = document.getElementById('animation-progress-bar');
-    if (progressBar) {
-        const clampedPercentage = Math.min(100, Math.max(0, percentage));
-        progressBar.style.width = `${clampedPercentage}%`;
-        progressBar.setAttribute('aria-valuenow', clampedPercentage.toFixed(0));
-        // Change color based on state?
-        if (isCapturing) {
-            progressBar.classList.remove('bg-info');
-            progressBar.classList.add('bg-danger');
-        } else if (isPreview) {
-            progressBar.classList.remove('bg-danger');
-            progressBar.classList.add('bg-info');
-        } else {
-            progressBar.classList.remove('bg-danger', 'bg-info'); // Reset if neither
-        }
-    }
 }
 
 // Export functions
