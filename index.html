@@ -394,10 +394,6 @@
                 -->
             </div>
             
-            <div class="btn-group mt-1"> <!-- Adjusted margin -->
-              <button id="generate-srt" class="btn btn-sm btn-secondary">Generate SRT</button>
-            </div>
-            
             <fieldset class="mt-4">
               <legend class="h6">Image Source</legend>
               <div class="mb-3">
@@ -432,7 +428,7 @@
         </div>
       </div>
 
-      <!-- Keyboard Shortcuts Section (New Accordion Item) -->
+      <!-- Keyboard Shortcuts Section (Existing Item) -->
       <div class="accordion-item bg-dark text-white border-secondary">
         <h2 class="accordion-header" id="headingShortcuts">
           <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShortcuts" aria-expanded="false" aria-controls="collapseShortcuts">
@@ -450,6 +446,25 @@
           </div>
         </div>
       </div>
+
+       <!-- SRT Subtitles Section (New Accordion Item) -->
+       <div class="accordion-item bg-dark text-white border-secondary">
+         <h2 class="accordion-header" id="headingSrt">
+           <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSrt" aria-expanded="false" aria-controls="collapseSrt">
+              <i class="bi bi-file-earmark-text me-2"></i> SRT Subtitles
+           </button>
+         </h2>
+         <div id="collapseSrt" class="accordion-collapse collapse" aria-labelledby="headingSrt" data-bs-parent="#infoAccordion">
+           <div class="accordion-body">
+              <p class="small text-muted">Generate SRT format subtitles based on the current sequence points and durations.</p>
+              <div class="mb-2">
+                 <button id="generate-srt" class="btn btn-sm btn-primary"><i class="bi bi-gear"></i> Generate SRT</button>
+                 <button id="download-srt" class="btn btn-sm btn-success ms-2" disabled><i class="bi bi-download"></i> Download SRT</button>
+              </div>
+              <textarea id="srt-output" class="form-control form-control-sm" rows="10" readonly placeholder="Generated SRT content will appear here..."></textarea>
+           </div>
+         </div>
+       </div>
       
     </div> 
   </div>

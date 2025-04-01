@@ -249,53 +249,114 @@ function getCurrentTour() {
   return currentTour;
 }
 
-// Generate SRT subtitles from sequence descriptions
+// Function to generate SRT content from the current tour
 function generateSRT() {
-  const sequence = window.KenBurns.sequence.getSequence();
-  let srtContent = '';
-  let totalTime = 0;
-  
-  sequence.forEach((point, index) => {
-    // Calculate start and end times
-    const startTime = totalTime;
-    totalTime += point.duration;
-    const endTime = totalTime;
+  if (!currentTour || !currentTour.pointsOfInterest) {
+    console.error("Cannot generate SRT: No tour or points loaded.");
+    return null; // Return null or empty string to indicate failure
+  }
+
+  let srtContent = "";
+  let sequenceNumber = 1;
+  let currentTimeMs = 0;
+  const defaultTransition = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStill = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+
+  // Sort points by order just in case
+  const sortedPoints = [...currentTour.pointsOfInterest].sort((a, b) => a.order - b.order);
+
+  sortedPoints.forEach((point) => {
+    const transitionMs = point.duration?.transition ?? defaultTransition;
+    const stillMs = point.duration?.still ?? defaultStill;
     
-    // Format times as SRT format (HH:MM:SS,mmm)
-    const formatTime = (ms) => {
-      const totalSec = Math.floor(ms / 1000);
-      const hours = Math.floor(totalSec / 3600);
-      const minutes = Math.floor((totalSec % 3600) / 60);
-      const seconds = totalSec % 60;
-      const milliseconds = ms % 1000;
-      
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
-    };
+    // Time when the subtitle should appear (after transition)
+    const startTimeMs = currentTimeMs + transitionMs;
+    // Time when the subtitle should disappear (after transition + still)
+    const endTimeMs = startTimeMs + stillMs;
+
+    // Only add subtitle if there's a description and still duration > 0
+    if (point.description && stillMs > 0) {
+        srtContent += sequenceNumber + "\n";
+        srtContent += formatSrtTime(startTimeMs) + " --> " + formatSrtTime(endTimeMs) + "\n";
+        srtContent += point.description.trim() + "\n\n";
+        sequenceNumber++;
+    }
     
-    // Add entry to SRT content
-    srtContent += `${index + 1}\n`;
-    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-    srtContent += `${point.description || ''}\n\n`;
+    // Update current time for the next point
+    currentTimeMs += transitionMs + stillMs;
   });
-  
+
   return srtContent;
 }
 
-// Download SRT file
-function downloadSRT() {
-  const srtContent = generateSRT();
-  const blob = new Blob([srtContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  
-  // Create a temporary link and trigger download
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = currentTour ? `${currentTour.id}_subtitles.srt` : 'subtitles.srt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+// Function to download the generated SRT content
+function downloadSRT(srtContent) {
+    if (!srtContent || srtContent.trim() === "") {
+        window.KenBurns.ui.showToast("No SRT content generated to download.", "warning");
+        return;
+    }
+
+    const filename = `${currentTour?.id || 'tour'}_subtitles.srt`;
+    const blob = new Blob([srtContent], { type: 'text/plain;charset=utf-8' });
+
+    try {
+        if (window.saveAs) {
+            window.saveAs(blob, filename);
+            window.KenBurns.ui.showToast("SRT file download started.", "success");
+        } else {
+            console.error("FileSaver.js not found.");
+            window.KenBurns.ui.showToast("Download failed: FileSaver not found.", "error");
+        }
+    } catch (error) {
+        console.error("Error triggering SRT download:", error);
+        window.KenBurns.ui.showToast("Download error. See console.", "error");
+    }
 }
+
+// Helper function to format milliseconds into SRT time format (HH:MM:SS,ms)
+function formatSrtTime(totalMilliseconds) {
+    const totalSeconds = Math.floor(totalMilliseconds / 1000);
+    const milliseconds = Math.floor(totalMilliseconds % 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60);
+
+    const pad = (num, size = 2) => num.toString().padStart(size, '0');
+
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)},${pad(milliseconds, 3)}`;
+}
+
+// Event Listeners (Should be set up in ui.js or script.js ideally)
+// Placeholder here - Move to ui.js setupEventListeners if possible
+function setupSrtButtonListeners() {
+    const generateBtn = document.getElementById('generate-srt');
+    const downloadBtn = document.getElementById('download-srt');
+    const outputArea = document.getElementById('srt-output');
+
+    if (generateBtn && downloadBtn && outputArea) {
+        generateBtn.addEventListener('click', () => {
+            const srtText = generateSRT();
+            if (srtText !== null) {
+                outputArea.value = srtText;
+                downloadBtn.disabled = srtText.trim() === ""; // Enable download if content exists
+                if (!downloadBtn.disabled) {
+                   window.KenBurns.ui.showToast("SRT content generated.", "info");
+                }
+            } else {
+                outputArea.value = "Failed to generate SRT. Check console.";
+                downloadBtn.disabled = true;
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            downloadSRT(outputArea.value);
+        });
+    }
+}
+
+// Call setup function (Ideally called from main script/DOMContentLoaded)
+// setupSrtButtonListeners(); 
 
 // Function to update the current tour's metadata
 function updateTourMetadata(newTitle, newDescription) {
@@ -324,5 +385,6 @@ window.KenBurns.tours = {
   getCurrentTour,
   generateSRT,
   downloadSRT,
-  updateTourMetadata
+  updateTourMetadata,
+  setupSrtButtonListeners
 };

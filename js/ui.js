@@ -114,6 +114,13 @@ function setupEventListeners(viewer) {
 
   // Setup Tour Info Editing
   setupTourInfoEditing();
+  
+  // Setup SRT Button Listeners (Added call)
+  if (window.KenBurns.tours && window.KenBurns.tours.setupSrtButtonListeners) {
+    window.KenBurns.tours.setupSrtButtonListeners();
+  } else {
+    console.error("setupSrtButtonListeners function not found in tours module.");
+  }
 }
 
 // Setup recording controls
