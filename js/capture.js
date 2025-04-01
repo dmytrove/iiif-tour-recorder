@@ -271,8 +271,8 @@ function startAnimation(viewer) {
     animateNextPoint(viewer, 0);
   }, 500);
 
-  // Start the animation frame loop
-  animateCaptureFrame(viewer, safeFramerate);
+  // Start the animation loop immediately
+  requestAnimationFrame(animateFrame);
   return true; // Indicate animation started
 }
 

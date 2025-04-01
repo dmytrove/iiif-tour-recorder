@@ -71,10 +71,14 @@ textarea {
   font-family: monospace;
 }
 
-#sequence-json {
-  min-height: 300px;
-  height: calc(100vh - 250px);
-  resize: vertical;
+/* Style the JSON textarea for dark theme */
+#sequence-json,
+#srt-output { /* Apply to both textareas */
+  background-color: #2b3035; /* Slightly lighter dark */
+  color: #e9ecef;          /* Light text */
+  border-color: #495057;   /* Matching border */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  min-height: 200px; /* Ensure a minimum height */
 }
 
 /* Point markers and visualization */
@@ -381,5 +385,17 @@ kbd {
     background-color: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.2);
     color: #ccc;
+}
+
+/* --- Right Info/JSON/Tours Offcanvas --- */
+
+/* Make muted text in JSON editor more visible */
+#collapseJsonEditor .text-muted {
+  color: #adb5bd !important; /* Lighter gray */
+}
+
+/* Specific styling for tour selector cards */
+.tour-card-selector {
+  /* ... existing code ... */
 }
 

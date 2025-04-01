@@ -347,126 +347,126 @@
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="accordion" id="infoAccordion">
-      
-      <!-- Available Tours Section (New Accordion Item) -->
-      <div class="accordion-item bg-dark text-white border-secondary">
-        <h2 class="accordion-header" id="headingAvailableTours">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAvailableTours" aria-expanded="false" aria-controls="collapseAvailableTours">
-             <i class="bi bi-collection me-2"></i> Available Tours
-          </button>
-        </h2>
-        <div id="collapseAvailableTours" class="accordion-collapse collapse" aria-labelledby="headingAvailableTours" data-bs-parent="#infoAccordion">
-          <div class="accordion-body" style="max-height: 250px; overflow-y: auto;">
-             <!-- Tour selector content goes here -->
-             <div id="tour-selector" class="row row-cols-1 row-cols-md-2 g-2">
-                <!-- Cards populated by js/tours.js -->
-             </div>
-          </div>
-        </div>
-      </div>
+    <div class="accordion" id="rightPanelAccordion">
 
-      <!-- Tour Information Section (Existing Item) -->
-      <div class="accordion-item bg-dark text-white border-secondary">
-        <h2 class="accordion-header" id="headingTourInfo">
-          <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTourInfo" aria-expanded="true" aria-controls="collapseTourInfo">
-             <i class="bi bi-signpost-split me-2"></i> Current Tour Information
-          </button>
-        </h2>
-        <div id="collapseTourInfo" class="accordion-collapse collapse show" aria-labelledby="headingTourInfo" data-bs-parent="#infoAccordion">
-          <div class="accordion-body">
-            <!-- Original Tour Info content - Available Tours header removed -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5>Current Tour Information</h5>
-              <div>
-                 <button id="edit-tour-info" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</button>
-                 <button id="save-tour-info" class="btn btn-sm btn-success d-none"><i class="bi bi-check-lg"></i> Save</button>
-                 <button id="cancel-tour-info" class="btn btn-sm btn-danger d-none"><i class="bi bi-x-lg"></i> Cancel</button>
-              </div>
-            </div>
-            <div id="tour-info" class="border border-secondary rounded p-2 mb-3" style="min-height: 100px;">
-                <!-- Content populated by js/ui.js -> updateTourInfo -->
-                <!-- Structure will be like:
-                <div class="tour-preview-container">...</div>
-                <h4 data-editable-field="title">Tour Title</h4>
-                <p data-editable-field="description">Tour Description</p>
-                <div class="tour-details">...</div> 
-                -->
-            </div>
-            
-            <fieldset class="mt-4">
-              <legend class="h6">Image Source</legend>
-              <div class="mb-3">
-                <label for="iiif-url" class="form-label">IIIF Image URL:</label>
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
-                  <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
+              <!-- 1. Current Tour Info -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTourInfo">
+                  <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTourInfo" aria-expanded="true" aria-controls="collapseTourInfo">
+                     <i class="bi bi-signpost-split me-2"></i> Current Tour Information
+                  </button>
+                </h2>
+                <div id="collapseTourInfo" class="accordion-collapse collapse show" aria-labelledby="headingTourInfo" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                    <!-- Original Tour Info content - Available Tours header removed -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h5>Current Tour Information</h5>
+                      <div>
+                         <button id="edit-tour-info" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</button>
+                         <button id="save-tour-info" class="btn btn-sm btn-success d-none"><i class="bi bi-check-lg"></i> Save</button>
+                         <button id="cancel-tour-info" class="btn btn-sm btn-danger d-none"><i class="bi bi-x-lg"></i> Cancel</button>
+                      </div>
+                    </div>
+                    <div id="tour-info" class="border border-secondary rounded p-2 mb-3" style="min-height: 100px;">
+                        <!-- Content populated by js/ui.js -> updateTourInfo -->
+                        <!-- Structure will be like:
+                        <div class="tour-preview-container">...</div>
+                        <h4 data-editable-field="title">Tour Title</h4>
+                        <p data-editable-field="description">Tour Description</p>
+                        <div class="tour-details">...</div> 
+                        -->
+                    </div>
+                    
+                    <fieldset class="mt-4">
+                      <legend class="h6">Image Source</legend>
+                      <div class="mb-3">
+                        <label for="iiif-url" class="form-label">IIIF Image URL:</label>
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+                          <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
                 </div>
               </div>
-            </fieldset>
-          </div>
-        </div>
-      </div>
-      
-      <!-- JSON Editor Section (Existing Item) -->
-      <div class="accordion-item bg-dark text-white border-secondary">
-        <h2 class="accordion-header" id="headingJsonEditor">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJsonEditor" aria-expanded="false" aria-controls="collapseJsonEditor">
-             <i class="bi bi-filetype-json me-2"></i> JSON Editor
-          </button>
-        </h2>
-        <div id="collapseJsonEditor" class="accordion-collapse collapse" aria-labelledby="headingJsonEditor" data-bs-parent="#infoAccordion">
-          <div class="accordion-body">
-            <!-- JSON tab content goes here -->
-            <p class="small text-muted">Edit animation sequence in JSON format (includes complete tour info):</p>
-            <textarea id="sequence-json" class="form-control form-control-sm mb-2" style="height: calc(100vh - 300px); font-size: 0.8em;"></textarea>
-            <div class="btn-group">
-              <button id="apply-json" class="btn btn-sm btn-primary">Apply JSON</button>
-              <button id="update-json" class="btn btn-sm btn-secondary">Update from Sequence</button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Keyboard Shortcuts Section (Existing Item) -->
-      <div class="accordion-item bg-dark text-white border-secondary">
-        <h2 class="accordion-header" id="headingShortcuts">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShortcuts" aria-expanded="false" aria-controls="collapseShortcuts">
-             <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
-          </button>
-        </h2>
-        <div id="collapseShortcuts" class="accordion-collapse collapse" aria-labelledby="headingShortcuts" data-bs-parent="#infoAccordion">
-          <div class="accordion-body">
-             <!-- Keyboard Shortcuts Content Moved Here -->
-              <ul class="list-unstyled small">
-                <li><kbd>Ctrl</kbd> + <kbd>Click</kbd>: Add point at current location</li>
-                <li><kbd>Shift</kbd> + <kbd>Click</kbd> on point: Edit point properties</li>
-                <li>Click and drag points: Reposition points</li>
-              </ul>
-          </div>
-        </div>
-      </div>
-
-       <!-- SRT Subtitles Section (New Accordion Item) -->
-       <div class="accordion-item bg-dark text-white border-secondary">
-         <h2 class="accordion-header" id="headingSrt">
-           <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSrt" aria-expanded="false" aria-controls="collapseSrt">
-              <i class="bi bi-file-earmark-text me-2"></i> SRT Subtitles
-           </button>
-         </h2>
-         <div id="collapseSrt" class="accordion-collapse collapse" aria-labelledby="headingSrt" data-bs-parent="#infoAccordion">
-           <div class="accordion-body">
-              <p class="small text-muted">Generate SRT format subtitles based on the current sequence points and durations.</p>
-              <div class="mb-2">
-                 <button id="generate-srt" class="btn btn-sm btn-primary"><i class="bi bi-gear"></i> Generate SRT</button>
-                 <button id="download-srt" class="btn btn-sm btn-success ms-2" disabled><i class="bi bi-download"></i> Download SRT</button>
+              <!-- 2. Tours List -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingToursList">
+                  <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseToursList" aria-expanded="false" aria-controls="collapseToursList">
+                     <i class="bi bi-collection me-2"></i> Available Tours
+                  </button>
+                </h2>
+                <div id="collapseToursList" class="accordion-collapse collapse" aria-labelledby="headingToursList" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body" style="max-height: 250px; overflow-y: auto;">
+                     <!-- Tour selector content goes here -->
+                     <div id="tour-selector" class="row row-cols-1 row-cols-md-2 g-2">
+                        <!-- Cards populated by js/tours.js -->
+                     </div>
+                  </div>
+                </div>
               </div>
-              <textarea id="srt-output" class="form-control form-control-sm" rows="10" readonly placeholder="Generated SRT content will appear here..."></textarea>
-           </div>
-         </div>
-       </div>
-      
-    </div> 
+
+              <!-- 3. JSON Editor -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingJsonEditor">
+                 <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJsonEditor" aria-expanded="false" aria-controls="collapseJsonEditor">
+                    <i class="bi bi-filetype-json me-2"></i> JSON Editor
+                 </button>
+                </h2>
+                <div id="collapseJsonEditor" class="accordion-collapse collapse" aria-labelledby="headingJsonEditor" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                    <!-- JSON tab content goes here -->
+                    <p class="small text-muted">Edit animation sequence in JSON format (includes complete tour info):</p>
+                    <textarea id="sequence-json" class="form-control form-control-sm mb-2" style="height: calc(100vh - 300px); font-size: 0.8em;"></textarea>
+                    <div class="btn-group">
+                      <button id="apply-json" class="btn btn-sm btn-primary">Apply JSON</button>
+                      <button id="update-json" class="btn btn-sm btn-secondary">Update from Sequence</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. SRT Subtitles -->
+              <div class="accordion-item" id="accordionItemSrt">
+                <h2 class="accordion-header" id="headingSrt">
+                  <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSrt" aria-expanded="false" aria-controls="collapseSrt">
+                     <i class="bi bi-file-earmark-text me-2"></i> SRT Subtitles
+                  </button>
+                </h2>
+                <div id="collapseSrt" class="accordion-collapse collapse" aria-labelledby="headingSrt" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                     <p class="small text-muted">Generate SRT format subtitles based on the current sequence points and durations.</p>
+                     <div class="mb-2">
+                        <button id="generate-srt" class="btn btn-sm btn-primary"><i class="bi bi-gear"></i> Generate SRT</button>
+                        <button id="download-srt" class="btn btn-sm btn-success ms-2" disabled><i class="bi bi-download"></i> Download SRT</button>
+                     </div>
+                     <textarea id="srt-output" class="form-control form-control-sm" rows="10" readonly placeholder="Generated SRT content will appear here..."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Keyboard Shortcuts (Moved to last) -->
+              <div class="accordion-item" id="accordionItemShortcuts">
+                 <h2 class="accordion-header" id="headingShortcuts">
+                   <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShortcuts" aria-expanded="false" aria-controls="collapseShortcuts">
+                      <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
+                   </button>
+                 </h2>
+                 <div id="collapseShortcuts" class="accordion-collapse collapse" aria-labelledby="headingShortcuts" data-bs-parent="#rightPanelAccordion">
+                   <div class="accordion-body">
+                     <!-- Keyboard Shortcuts Content Moved Here -->
+                      <ul class="list-unstyled small">
+                        <li><kbd>Ctrl</kbd> + <kbd>Click</kbd>: Add point at current location</li>
+                        <li><kbd>Shift</kbd> + <kbd>Click</kbd> on point: Edit point properties</li>
+                        <li>Click and drag points: Reposition points</li>
+                      </ul>
+                   </div>
+                 </div>
+               </div>
+
+            </div> <!-- End Accordion -->
   </div>
 </div>
 </body>
