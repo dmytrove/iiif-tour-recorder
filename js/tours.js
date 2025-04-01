@@ -198,6 +198,7 @@ async function loadTour(tourPath) {
       currentTour = window.KenBurns.sequence.setTourInfo(tourData);
     } else {
       currentTour = tourData;
+      console.warn("Sequence module not found, setting tour data directly.");
     }
     
     // Update IIIF URL if provided in tour
@@ -221,14 +222,20 @@ async function loadTour(tourPath) {
     // Update visualizations if viewer is ready
     if (window.KenBurns.viewer && window.KenBurns.visualization) {
       const viewer = window.KenBurns.viewer.getViewer();
-      if (viewer) {
+      if (viewer && viewer.world) {
         window.KenBurns.visualization.updateVisualizations(viewer);
       }
+    }
+
+    // --- Trigger UI update for Current Tour Info ---
+    if (window.KenBurns.ui && window.KenBurns.ui.updateTourInfo) {
+        window.KenBurns.ui.updateTourInfo();
     }
     
     return currentTour;
   } catch (error) {
     console.error('Error loading tour:', error);
+    if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast(`Error loading tour: ${error.message}`, "error");
     throw error;
   }
 }
