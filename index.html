@@ -7,6 +7,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@21.0.0/dist/tween.umd.js"></script>
   <script src="js/CCapture.all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,254 +16,265 @@
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
-<div id="point-edit-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Edit Point Properties</h3>
-    <form id="point-edit-form">
-      <div class="form-group">
-        <label for="point-title">Title:</label>
-        <input type="text" id="point-title" placeholder="Enter title">
+<div id="point-edit-modal" class="modal fade" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pointEditModalLabel">Edit Point Properties</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="cancel-edit-x"></button>
       </div>
-      <div class="form-group">
-        <label for="point-description">Description:</label>
-        <textarea id="point-description" placeholder="Enter description"></textarea>
+      <div class="modal-body">
+        <form id="point-edit-form">
+          <div class="mb-3">
+            <label for="point-title" class="form-label">Title:</label>
+            <input type="text" class="form-control" id="point-title" placeholder="Enter title">
+          </div>
+          <div class="mb-3">
+            <label for="point-description" class="form-label">Description:</label>
+            <textarea class="form-control" id="point-description" placeholder="Enter description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="point-zoom" class="form-label">Zoom: <span id="zoom-value">1.0</span></label>
+            <input type="range" class="form-range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="point-duration-transition" class="form-label">Transition Duration (ms):</label>
+              <input type="number" class="form-control" id="point-duration-transition" min="100" step="100" value="1500">
+            </div>
+            <div class="col">
+              <label for="point-duration-still" class="form-label">Still Duration (ms):</label>
+              <input type="number" class="form-control" id="point-duration-still" min="100" step="100" value="1500">
+            </div>
+          </div>
+          <input type="hidden" id="point-index">
+        </form>
       </div>
-      <div class="form-group">
-        <label for="point-zoom">Zoom: <span id="zoom-value">1.0</span></label>
-        <input type="range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel-edit">Cancel</button>
+        <button type="button" class="btn btn-primary" id="save-point">Save</button>
       </div>
-      <div class="form-group">
-        <label for="point-duration-transition">Transition Duration (ms):</label>
-        <input type="number" id="point-duration-transition" min="100" step="100" value="1500">
-      </div>
-      <div class="form-group">
-        <label for="point-duration-still">Still Duration (ms):</label>
-        <input type="number" id="point-duration-still" min="100" step="100" value="1500">
-      </div>
-      <input type="hidden" id="point-index">
-      <div class="form-buttons">
-        <button type="button" id="save-point">Save</button>
-        <button type="button" id="cancel-edit">Cancel</button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>
-<div id="controls">
-  <div class="controls-header">
-    <div class="tab-buttons">
-    <button class="tab-button active" data-tab="settings">Settings</button>
-    <button class="tab-button" data-tab="json">JSON</button>
-    <button class="tab-button" data-tab="table">Table</button>
-    <button class="tab-button" data-tab="tours">Tours</button>
-    </div>
-    <button id="collapse-controls" title="Collapse panel">◀</button>
+<div id="controls" class="card position-absolute top-0 end-0 m-3" style="width: 400px; z-index: 10;">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <ul class="nav nav-tabs card-header-tabs" id="controlsTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="settings-tab-btn" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="settings-tab-pane" aria-selected="true">Settings</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="json-tab-btn" data-bs-toggle="tab" data-bs-target="#json-tab-pane" type="button" role="tab" aria-controls="json-tab-pane" aria-selected="false">JSON</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="table-tab-btn" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false">Table</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tours-tab-btn" data-bs-toggle="tab" data-bs-target="#tours-tab-pane" type="button" role="tab" aria-controls="tours-tab-pane" aria-selected="false">Tours</button>
+      </li>
+    </ul>
+    <button id="collapse-controls" title="Collapse panel" class="btn btn-sm btn-outline-secondary">◀</button>
   </div>
 
-  <div id="settings-tab" class="tab active">
-    <fieldset>
-      <legend>Capture Settings</legend>
-      <div class="form-row">
-        <div class="form-col">
-          <label>Quality:
-            <input type="number" id="quality" value="100" min="1" max="100">
-          </label>
+  <div class="card-body tab-content" id="controlsTabContent">
+    <div id="settings-tab-pane" class="tab-pane fade show active" role="tabpanel" aria-labelledby="settings-tab-btn">
+      <fieldset class="mb-3">
+        <legend class="h6">Capture Settings</legend>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="quality" class="form-label">Quality:</label>
+            <input type="number" class="form-control" id="quality" value="100" min="1" max="100">
+          </div>
+          <div class="col">
+            <label for="framerate" class="form-label">Framerate:</label>
+            <input type="number" class="form-control" id="framerate" value="60" min="1" max="120">
+          </div>
         </div>
-        <div class="form-col">
-          <label>Framerate:
-            <input type="number" id="framerate" value="60" min="1" max="120">
-          </label>
+        
+        <div class="mb-3">
+          <label for="aspect-ratio" class="form-label">Aspect Ratio:</label>
+          <select class="form-select" id="aspect-ratio">
+            <option value="0" selected>Viewport (Full Screen)</option>
+            <option value="16:9">16:9 (Landscape HD)</option>
+            <option value="4:3">4:3 (Standard)</option>
+            <option value="1:1">1:1 (Square)</option>
+            <option value="9:16">9:16 (Portrait)</option>
+            <option value="custom">Custom...</option>
+          </select>
+          <div id="custom-aspect-ratio" style="display: none;" class="mt-2 row gx-2 align-items-center">
+            <div class="col">
+             <input type="number" class="form-control" id="custom-width" placeholder="Width" min="1" step="1" value="1920">
+            </div>
+             <div class="col-auto">:</div>
+            <div class="col">
+             <input type="number" class="form-control" id="custom-height" placeholder="Height" min="1" step="1" value="1080">
+            </div>
+          </div>
         </div>
+        
+        <div class="mb-3">
+          <div class="row">
+            <div class="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="show-capture-frame" checked>
+                <label class="form-check-label" for="show-capture-frame">Show capture frame</label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-check">
+                 <input class="form-check-input" type="checkbox" id="show-callouts" checked>
+                 <label class="form-check-label" for="show-callouts">Show title callouts</label>
+              </div>
+            </div>
+          </div>
+           <div class="row">
+             <div class="col">
+               <div class="form-check">
+                 <input class="form-check-input" type="checkbox" id="show-subtitles" checked>
+                 <label class="form-check-label" for="show-subtitles">Show description subtitles</label>
+               </div>
+             </div>
+             <div class="col"></div>
+           </div>
+        </div>
+      </fieldset>
+      
+      <fieldset class="mb-3">
+        <legend class="h6">Performance & Quality</legend>
+        <div class="mb-3">
+          <div class="row">
+            <div class="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="subpixel-rendering" checked>
+                <label class="form-check-label" for="subpixel-rendering">Subpixel rendering</label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="smooth-animation" checked>
+                <label class="form-check-label" for="smooth-animation">High quality animation</label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="optimize-memory" checked>
+                <label class="form-check-label" for="optimize-memory">Optimize memory usage</label>
+              </div>
+            </div>
+            <div class="col">
+              <label for="render-quality" class="form-label visually-hidden">Render quality:</label>
+              <select class="form-select form-select-sm" id="render-quality">
+                <option value="high">High Quality Render</option>
+                <option value="medium" selected>Medium Quality Render</option>
+                <option value="low">Low Quality Render</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="mb-3">
+        <legend class="h6">Animation Settings</legend>
+        <div class="row mb-2">
+          <div class="col">
+            <label for="default-transition-duration" class="form-label">Default Transition (ms):</label>
+            <input type="number" class="form-control" id="default-transition-duration" value="1500" min="100" step="100">
+          </div>
+          <div class="col">
+            <label for="default-still-duration" class="form-label">Default Still (ms):</label>
+            <input type="number" class="form-control" id="default-still-duration" value="1500" min="100" step="100">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="frame-delay" class="form-label">Frame Delay (ms):</label>
+            <input type="number" class="form-control" id="frame-delay" value="100" min="0" step="10">
+          </div>
+          <div class="col">
+            <label for="easing-function" class="form-label">Easing Function:</label>
+            <select class="form-select" id="easing-function">
+              <option value="Linear.None">Linear</option>
+              <option value="Quadratic.InOut">Quadratic</option>
+              <option value="Cubic.InOut" selected>Cubic</option>
+              <option value="Quartic.InOut">Quartic</option>
+              <option value="Quintic.InOut">Quintic</option>
+              <option value="Sinusoidal.InOut">Sinusoidal</option>
+              <option value="Exponential.InOut">Exponential</option>
+              <option value="Circular.InOut">Circular</option>
+              <option value="Elastic.InOut">Elastic</option>
+              <option value="Back.InOut">Back</option>
+              <option value="Bounce.InOut">Bounce</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+      
+      <div class="btn-group d-flex mb-3" role="group" aria-label="Recording Controls">
+        <button id="start" class="btn btn-success flex-fill">Start Recording</button>
+        <button id="stop" class="btn btn-danger flex-fill" disabled>Stop Recording</button>
+        <button id="preview" class="btn btn-info flex-fill">Preview</button>
       </div>
       
-      <div class="setting-group">
-        <label>Aspect Ratio:</label>
-        <select id="aspect-ratio">
-          <option value="0" selected>Viewport (Full Screen)</option>
-          <option value="16:9">16:9 (Landscape HD)</option>
-          <option value="4:3">4:3 (Standard)</option>
-          <option value="1:1">1:1 (Square)</option>
-          <option value="9:16">9:16 (Portrait)</option>
-          <option value="custom">Custom...</option>
-        </select>
-        <div id="custom-aspect-ratio" style="display: none; margin-top: 8px;">
-          <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" style="width: 70px">
-          <span>:</span>
-          <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" style="width: 70px">
-        </div>
-      </div>
-      
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-capture-frame" checked>
-              <span>Show capture frame</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-callouts" checked>
-              <span>Show title callouts</span>
-            </label>
+      <fieldset>
+        <legend class="h6">Image Source</legend>
+        <div class="mb-3">
+          <label for="iiif-url" class="form-label">IIIF Image URL:</label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+            <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-subtitles" checked>
-              <span>Show description subtitles</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-    
-    <fieldset>
-      <legend>Performance & Quality</legend>
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="subpixel-rendering" checked>
-              <span>Subpixel rendering</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="smooth-animation" checked>
-              <span>High quality animation</span>
-            </label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="optimize-memory" checked>
-              <span>Optimize memory usage</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label>Render quality:
-              <select id="render-quality">
-                <option value="high">High</option>
-                <option value="medium" selected>Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Animation Settings</legend>
-      <div class="setting-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label>Default Transition (ms):
-              <input type="number" id="default-transition-duration" value="1500" min="100" step="100">
-            </label>
-          </div>
-          <div class="form-col">
-            <label>Default Still (ms):
-              <input type="number" id="default-still-duration" value="1500" min="100" step="100">
-            </label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label>Frame Delay (ms):
-              <input type="number" id="frame-delay" value="100" min="0" step="10">
-            </label>
-          </div>
-          <div class="form-col">
-            <label>Easing Function:
-              <select id="easing-function">
-                <option value="Linear.None">Linear</option>
-                <option value="Quadratic.InOut">Quadratic</option>
-                <option value="Cubic.InOut" selected>Cubic</option>
-                <option value="Quartic.InOut">Quartic</option>
-                <option value="Quintic.InOut">Quintic</option>
-                <option value="Sinusoidal.InOut">Sinusoidal</option>
-                <option value="Exponential.InOut">Exponential</option>
-                <option value="Circular.InOut">Circular</option>
-                <option value="Elastic.InOut">Elastic</option>
-                <option value="Back.InOut">Back</option>
-                <option value="Bounce.InOut">Bounce</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-    
-    <div class="btn-group">
-      <button id="start" class="btn-primary">Start Recording</button>
-      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
-      <button id="preview" class="btn-secondary">Preview</button>
+      </fieldset>
     </div>
-    
-    <fieldset>
-      <legend>Image Source</legend>
-      <div class="url-input-group">
-        <label for="iiif-url">IIIF Image URL:</label>
-        <div class="form-row">
-          <div class="form-col expand">
-            <input type="text" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
-          </div>
-          <div class="form-col shrink">
-            <button id="apply-url" class="btn-accent">Apply</button>
-          </div>
-        </div>
+
+    <div id="json-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="json-tab-btn">
+      <p>Edit animation sequence in JSON format (includes complete tour info):</p>
+      <textarea id="sequence-json" class="form-control"></textarea>
+      <div class="btn-group mt-2">
+        <button id="apply-json" class="btn btn-primary">Apply JSON</button>
+        <button id="update-json" class="btn btn-secondary">Update from Table</button>
       </div>
-    </fieldset>
-  </div>
-
-  <div id="json-tab" class="tab">
-    <p>Edit animation sequence in JSON format (includes complete tour info):</p>
-    <textarea id="sequence-json"></textarea>
-    <div class="btn-group">
-      <button id="apply-json" class="btn-primary">Apply JSON</button>
-      <button id="update-json" class="btn-secondary">Update from Table</button>
     </div>
-  </div>
 
-  <div id="table-tab" class="tab">
-    <div class="table-options">
-      <label class="checkbox-label">
-        <input type="checkbox" id="show-properties"> 
-        <span>Show Properties</span>
-      </label>
+    <div id="table-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="table-tab-btn">
+      <div class="table-options form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="show-properties">
+        <label class="form-check-label" for="show-properties">
+          Show Properties
+        </label>
+      </div>
+      <div class="table-responsive">
+        <table id="sequence-table" class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th class="property-column">Zoom</th>
+              <th class="property-column">Center X</th>
+              <th class="property-column">Center Y</th>
+              <th class="property-column">Transition (ms)</th>
+              <th class="property-column">Still (ms)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="btn-group mt-2">
+        <button id="add-point" class="btn btn-primary">Add Point</button>
+        <button id="update-table" class="btn btn-secondary">Update Visualization</button>
+      </div>
     </div>
-    <table id="sequence-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th class="property-column">Zoom</th>
-          <th class="property-column">Center X</th>
-          <th class="property-column">Center Y</th>
-          <th class="property-column">Transition (ms)</th>
-          <th class="property-column">Still (ms)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="btn-group">
-      <button id="add-point" class="btn-primary">Add Point</button>
-      <button id="update-table" class="btn-secondary">Update Visualization</button>
-    </div>
-  </div>
-  
 
-  
-  <div id="tours-tab" class="tab">
-    <h3>Available Tours</h3>
-    <div id="tour-selector" class="tour-selector"></div>
-    <h3>Current Tour Information</h3>
-    <div id="tour-info"></div>
-    <div class="btn-group" style="margin-top: 10px;">
-      <button id="generate-srt" class="btn-secondary">Generate SRT Subtitles</button>
+    <div id="tours-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="tours-tab-btn">
+      <h3>Available Tours</h3>
+      <div id="tour-selector" class="list-group mb-3"></div>
+      <h3>Current Tour Information</h3>
+      <div id="tour-info"></div>
+      <div class="btn-group mt-3">
+        <button id="generate-srt" class="btn btn-secondary">Generate SRT Subtitles</button>
+      </div>
     </div>
   </div>
 </div>
@@ -277,11 +290,19 @@
 <script src="js/tours.js"></script>
 <script src="script.js"></script>
 
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
 <!-- Keyboard shortcuts help -->
 <div id="keyboard-shortcuts" style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.5); font-size: 12px; font-family: Arial, sans-serif;">
   <div>Ctrl+Click: Add point at current location</div>
   <div>Shift+Click on point: Edit point properties</div>
   <div>Click and drag points: Reposition points</div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <!-- Toast template will be added here by JavaScript -->
 </div>
 </body>
 </html>

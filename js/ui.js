@@ -17,8 +17,8 @@ function setupEventListeners(viewer) {
     }
   });
 
-  // Tab navigation
-  document.querySelectorAll('.tab-button').forEach(button => {
+  // Tab navigation (Handled by Bootstrap via data-bs-* attributes)
+  /*  document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
       const tabId = button.dataset.tab;
 
@@ -34,7 +34,7 @@ function setupEventListeners(viewer) {
       document.getElementById(`${tabId}-tab`).classList.add('active');
       button.classList.add('active');
     });
-  });
+  }); */
 
   // "Add Point" button
   document.getElementById('add-point').addEventListener('click', () => {
@@ -46,6 +46,7 @@ function setupEventListeners(viewer) {
     window.KenBurns.table.updateTable();
     window.KenBurns.table.updateJsonFromSequence();
     window.KenBurns.visualization.updateVisualizations(viewer);
+    window.KenBurns.ui.showToast('Point added at current view.', 'success');
   });
 
   // "Apply JSON" button
@@ -54,6 +55,9 @@ function setupEventListeners(viewer) {
     if (window.KenBurns.sequence.updateSequenceFromJson(jsonText)) {
       window.KenBurns.table.updateTable();
       window.KenBurns.visualization.updateVisualizations(viewer);
+      window.KenBurns.ui.showToast('JSON sequence applied successfully.', 'success');
+    } else {
+      window.KenBurns.ui.showToast('Failed to apply JSON. Check format.', 'error');
     }
   });
 
@@ -106,8 +110,12 @@ function setupEventListeners(viewer) {
   setupQualityControls(viewer);
   setupAnimationControls();
 
-  // Update tour info when the tours tab is activated
-  document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo);
+  // Update tour info when the tours tab is shown
+  const toursTab = document.getElementById('tours-tab-btn');
+  if (toursTab) { // Check if the element exists
+    toursTab.addEventListener('shown.bs.tab', updateTourInfo);
+  }
+  // document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo); // Old listener removed
 }
 
 // Setup recording controls
@@ -277,3 +285,40 @@ window.KenBurns.ui = {
   setupEventListeners,
   updateTourInfo
 };
+
+// Helper function to show Bootstrap Toasts
+function showToast(message, type = 'info') {
+  const toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) return;
+
+  const toastId = `toast-${Date.now()}`;
+  const toastBgClass = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-primary');
+
+  const toastHTML = `
+    <div id="${toastId}" class="toast align-items-center text-white ${toastBgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  `;
+
+  toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+  const toastElement = document.getElementById(toastId);
+  const toastInstance = new bootstrap.Toast(toastElement, {
+    delay: 3000 // Auto-hide after 3 seconds
+  });
+
+  toastInstance.show();
+
+  // Remove the toast element from DOM after it's hidden
+  toastElement.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+  });
+}
+
+// Add showToast to the KenBurns.ui namespace
+window.KenBurns.ui.showToast = showToast;
