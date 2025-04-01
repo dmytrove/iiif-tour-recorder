@@ -8,6 +8,34 @@ let animationStartTime = 0;
 let animationRequest = null;
 let totalDurationSeconds = 0; // Added to store total time
 
+// Helper to draw text with a background for better visibility
+function drawTextWithBackground(ctx, text, x, y, font, color, bgColor = 'rgba(0, 0, 0, 0.6)') {
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Measure text for background
+    const textMetrics = ctx.measureText(text);
+    const textWidth = textMetrics.width;
+    // Estimate height based on font size (adjust multiplier as needed)
+    const fontSize = parseInt(font, 10);
+    const textHeight = fontSize * 1.2;
+    const padding = fontSize * 0.4; // Padding around text
+
+    // Draw background rectangle
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(
+        x - textWidth / 2 - padding, // Center background horizontally
+        y - textHeight / 2 - padding, // Center background vertically
+        textWidth + padding * 2,
+        textHeight + padding * 2
+    );
+
+    // Draw text on top
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+}
+
 // Start recording process
 function startRecording(options = {}) {
   const quality = options.quality || 100;
@@ -418,64 +446,72 @@ function animate(viewer) {
     viewer.forceRedraw();
     const canvas = viewer.drawer.canvas;
     if (canvas) {
-      // If the subpixel rendering option is enabled, apply additional smoothing
-      const subpixelRendering = document.getElementById('subpixel-rendering').checked;
+      const ctx = canvas.getContext('2d');
 
-      if (subpixelRendering) {
-        // Create a temporary canvas with the same dimensions
-        const tempCanvas = document.createElement('canvas');
-        const captureFrame = document.getElementById('capture-frame');
-        const frameRect = captureFrame.getBoundingClientRect();
+      // --- START Burn-in Text --- //
+      // Check if visualization module and function exist
+      if (window.KenBurns?.visualization?.getCurrentText) {
+          const burnTitles = document.getElementById('burn-titles')?.checked;
+          const burnSubtitles = document.getElementById('burn-subtitles')?.checked;
+          const { currentTitle, currentDescription } = window.KenBurns.visualization.getCurrentText();
 
-        // Use exact capture frame dimensions for best quality
-        tempCanvas.width = Math.floor(frameRect.width);
-        tempCanvas.height = Math.floor(frameRect.height);
+          if (burnTitles && currentTitle) {
+            const fontSize = document.getElementById('overlay-title-font-size')?.value + 'px';
+            const color = document.getElementById('overlay-title-color')?.value;
+            const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
+            const font = `${fontSize} ${fontFamily}`;
+            const x = canvas.width / 2; // Center horizontally
+            const y = canvas.height * 0.1; // Position near top (10% from top)
+            drawTextWithBackground(ctx, currentTitle, x, y, font, color);
+          }
 
-        const ctx = tempCanvas.getContext('2d');
-
-        // Apply high quality image smoothing
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-
-        // Calculate the source region to match the capture frame
-        const viewerRect = document.getElementById('viewer').getBoundingClientRect();
-        const sourceX = (frameRect.left - viewerRect.left);
-        const sourceY = (frameRect.top - viewerRect.top);
-
-        // Draw only the capture frame area with subpixel rendering
-        ctx.drawImage(
-          canvas,
-          sourceX, sourceY, frameRect.width, frameRect.height,
-          0, 0, tempCanvas.width, tempCanvas.height
-        );
-
-        // Capture the enhanced frame
-        capturer.capture(tempCanvas);
+          if (burnSubtitles && currentDescription) {
+            const fontSize = document.getElementById('overlay-subtitle-font-size')?.value + 'px';
+            const color = document.getElementById('overlay-subtitle-color')?.value;
+            const fontFamily = document.getElementById('overlay-font-family')?.value || 'Arial, sans-serif';
+            const font = `${fontSize} ${fontFamily}`;
+            const x = canvas.width / 2; // Center horizontally
+            const y = canvas.height * 0.9; // Position near bottom (90% from top)
+            drawTextWithBackground(ctx, currentDescription, x, y, font, color);
+          }
       } else {
-        // Capture the standard frame
-        capturer.capture(canvas);
+           console.warn("Burn-in text skipped: KenBurns.visualization.getCurrentText not found.");
       }
+      // --- END Burn-in Text --- //
+
+      // --- START Subpixel Rendering Logic (Optional - keep if needed) ---
+      // const subpixelRendering = document.getElementById('subpixel-rendering').checked;
+      // if (subpixelRendering) {
+      //    // ... existing temp canvas logic ...
+      //    capturer.capture(tempCanvas);
+      // } else {
+      //    capturer.capture(canvas);
+      // }
+      // --- END Subpixel Rendering Logic ---
+
+      // Capture the canvas (potentially with text drawn on it)
+      // Ensure subpixel rendering logic above is adjusted or removed if not used
+      capturer.capture(canvas);
       currentFrame++; // Increment frame counter *after* capturing
     }
-    // Ensure elapsed time doesn't exceed total duration for display
     elapsedSeconds = Math.min(elapsedSeconds, totalDurationSeconds);
   } else if (isPreview) {
-     // Ensure elapsed time doesn't exceed total duration for display
      elapsedSeconds = Math.min(elapsedSeconds, totalDurationSeconds);
   } else {
-     elapsedSeconds = 0; // Reset time if not running
+     elapsedSeconds = 0;
   }
 
   // Update UI progress display
   if (window.KenBurns.ui && window.KenBurns.ui.updateAnimationProgress) {
-     // Pass totalFrames only when capturing
      window.KenBurns.ui.updateAnimationProgress(elapsedSeconds, totalDurationSeconds, currentFrame, isCapturing ? totalFrames : 0, state);
   }
 
-  // Update capture frame if needed
-  if (document.getElementById('show-capture-frame').checked) {
-    const aspectRatio = document.getElementById('aspect-ratio').value;
-    window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio);
+  // Update capture frame visualization (this is separate from burn-in)
+  if (document.getElementById('show-capture-frame')?.checked) {
+    const aspectRatio = document.getElementById('aspect-ratio')?.value;
+    if (window.KenBurns?.visualization?.updateCaptureFrame) {
+        window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio);
+    }
   }
 }
 

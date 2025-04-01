@@ -8,14 +8,19 @@
 /* Basic layout */
 body { 
   margin: 0; 
-  background: #000; 
-  overflow: hidden; 
+  background-color: #f8f9fa; /* Light background for the page */
+  color: #212529;
+  overflow: hidden; /* Prevent scrolling on the body */
   font-family: Arial, sans-serif; 
 }
 
 #viewer { 
   width: 100vw; 
   height: 100vh; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000;
 }
 
 /* Tour info display */
@@ -74,11 +79,12 @@ textarea {
 /* Style the JSON textarea for dark theme */
 #sequence-json,
 #srt-output { /* Apply to both textareas */
-  background-color: #2b3035; /* Slightly lighter dark */
+  background-color: #343a40; /* Darker background */
   color: #e9ecef;          /* Light text */
   border-color: #495057;   /* Matching border */
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-  min-height: 200px; /* Ensure a minimum height */
+  min-height: 150px; /* Adjusted min-height */
+  resize: vertical;
 }
 
 /* Point markers and visualization */
@@ -172,15 +178,11 @@ textarea {
 /* Capture frame for aspect ratio visualization */
 #capture-frame {
   position: absolute;
-  border: 2px dashed rgba(0, 170, 255, 0.7);
-  background: rgba(0, 170, 255, 0.05);
-  pointer-events: none;
-  z-index: 90;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-  transition: width 0.3s, height 0.3s;
+  border: 2px dashed rgba(255, 0, 0, 0.7);
+  box-sizing: border-box;
+  pointer-events: none; /* Allow clicks through */
+  display: none; /* Hidden by default */
+  z-index: 9;
 }
 
 /* Enhanced form controls */
@@ -292,7 +294,7 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
 /* Title callout styling */
 #title-callout {
   position: absolute;
-  top: 30px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.7);
@@ -313,7 +315,7 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
 /* Subtitle styling */
 #subtitle-display {
   position: absolute;
-  bottom: 30px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.7);
@@ -334,19 +336,22 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
 kbd {
     padding: 0.1em 0.4em;
     border-radius: 3px;
-    border: 1px solid #6c757d; /* Bootstrap secondary border color */
-    background-color: #495057; /* Darker gray */
-    color: #e9ecef; /* Lighter text */
+    border: 1px solid #6c757d;
+    background-color: #495057;
+    color: #e9ecef;
     font-family: monospace;
     font-size: 0.9em;
+    margin: 0 0.1em;
+    display: inline-block;
+    line-height: 1.2;
 }
 
 /* Panel Transparency */
 .offcanvas,
 .modal-content {
-    background-color: rgba(21, 25, 29, 0.8); /* Bootstrap dark color with 80% alpha */
-    color: #fff; /* Ensure text is light */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Add a subtle border */
+    background-color: rgba(33, 37, 41, 0.95); /* Darker semi-transparent */
+    color: #e9ecef; /* Light text for offcanvas content */
+    border: 1px solid #495057 !important; /* Darker border */
 }
 
 /* Adjust accordion items within transparent offcanvas */
@@ -357,7 +362,7 @@ kbd {
 
 .offcanvas .accordion-button {
     background-color: rgba(255, 255, 255, 0.05); /* Slight contrast for button */
-    color: #fff;
+    color: #e9ecef; /* Light text */
 }
 
 .offcanvas .accordion-button:not(.collapsed) {
@@ -372,7 +377,7 @@ kbd {
 }
 
 .offcanvas .accordion-button::after {
-    filter: brightness(0) invert(1); /* Make default icon white */
+    filter: invert(1) grayscale(100%) brightness(200%); /* Make default icon white */
 }
 
 /* Adjust DataTables elements for transparent background */
@@ -396,35 +401,137 @@ kbd {
 
 /* Specific styling for tour selector cards */
 .tour-card-selector {
-  /* ... existing code ... */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.tour-card-selector:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tour-card-selector .card-img-top {
+  height: 100px; /* Fixed height for consistency */
+  object-fit: cover; /* Crop image nicely */
 }
 
 /* --- Top Playback/Capture Offcanvas --- */
 #offcanvasPlayback {
-  background-color: rgba(33, 37, 41, 0.9); /* Dark semi-transparent */
-  color: #e9ecef;
-  border-bottom: 1px solid #495057;
+  border-bottom: 1px solid #495057; /* Keep bottom border */
 }
 
 #offcanvasPlayback .offcanvas-header {
   border-bottom: 1px solid #495057;
 }
 
-/* Make progress info text lighter */
-#offcanvasPlayback .progress-info.text-muted,
-#offcanvasPlayback .progress-info .text-muted { /* Target parent and children */
+/* Style progress info text */
+#offcanvasPlayback .progress-info {
     color: #adb5bd !important; /* Lighter gray */
+    font-size: 0.8rem; /* Slightly smaller */
 }
 
 /* Reduce vertical padding in playback offcanvas body */
 #offcanvasPlayback .offcanvas-body {
-    padding-top: 0.5rem;    /* Reduce top padding */
-    padding-bottom: 0.5rem; /* Reduce bottom padding */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* --- Left Controls Offcanvas --- */
+#controlsOffcanvas {
+   --bs-offcanvas-width: 420px; /* Specific width */
 }
 
 /* --- Right Info/JSON/Tours Offcanvas --- */
 #offcanvasRight {
-  background-color: rgba(33, 37, 41, 0.9);
-  /* ... existing code ... */
+  /* Inherits general offcanvas styles */
+}
+
+/* --- Accordion Styling (General Dark Theme) --- */
+.accordion-item {
+    background-color: transparent; /* Use offcanvas background */
+    border: 1px solid #495057; /* Darker border */
+    margin-bottom: -1px; /* Prevent double borders */
+}
+
+.accordion-button {
+    background-color: rgba(255, 255, 255, 0.05); /* Slightly lighter background for button */
+    color: #e9ecef; /* Light text */
+    border: none;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter when open */
+    color: #fff; /* White text when open */
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.accordion-button::after {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Make chevron white */
+}
+
+.accordion-body {
+    background-color: transparent; /* Use offcanvas background */
+    padding: 1rem;
+}
+
+/* --- Specific Controls Accordion Styling (#settingsAccordion) --- */
+#settingsAccordion .form-label {
+    color: #ced4da; /* Ensure labels are light gray */
+    margin-bottom: 0.25rem;
+}
+
+#settingsAccordion .form-control,
+#settingsAccordion .form-select {
+    background-color: #495057; /* Dark input background */
+    color: #e9ecef; /* Light text in inputs */
+    border-color: #6c757d; /* Slightly lighter border */
+}
+
+#settingsAccordion .form-control:focus,
+#settingsAccordion .form-select:focus {
+    background-color: #495057;
+    color: #e9ecef;
+    border-color: #86b7fe; /* Standard Bootstrap focus blue */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Standard Bootstrap focus shadow */
+}
+
+#settingsAccordion .form-control::placeholder {
+    color: #adb5bd; /* Lighter placeholder text */
+}
+
+#settingsAccordion .form-control-color {
+    padding: 0.1rem 0.2rem; /* Adjust padding for color input */
+    max-width: 100px; /* Limit color input width */
+}
+
+#settingsAccordion .form-check-label {
+    color: #ced4da; /* Light label for switches */
+}
+
+/* --- Visualization Elements (Callouts, Subtitles, Capture Frame) --- */
+.visualization-overlay {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    display: none; /* Hidden by default */
+    z-index: 10;
+}
+
+/* Utility Classes (Keep if needed elsewhere) */
+.draggable {
+  cursor: move;
+}
+
+.handle {
+  cursor: grab;
 }
 

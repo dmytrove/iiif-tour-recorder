@@ -65,7 +65,7 @@
       <div id="animation-progress-bar" class="progress-bar bg-secondary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
     <!-- Progress Info Display -->
-    <div class="d-flex justify-content-between small mt-1 text-muted progress-info">
+    <div class="d-flex justify-content-between small mt-1 progress-info">
       <span id="progress-time-info">Time: 0:00 / 0:00</span>
       <span id="progress-frame-info">Frame: 0 / 0</span>
     </div>
@@ -118,7 +118,7 @@
 </div>
 
 <!-- Controls Offcanvas -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="controlsOffcanvas" aria-labelledby="controlsOffcanvasLabel" style="width: 420px;" data-bs-scroll="true" data-bs-backdrop="false"> 
+<div class="offcanvas offcanvas-start" tabindex="-1" id="controlsOffcanvas" aria-labelledby="controlsOffcanvasLabel" style="width: 420px;" data-bs-scroll="true" data-bs-backdrop="false">
   <div class="offcanvas-header border-bottom border-secondary">
     <h5 class="offcanvas-title" id="controlsOffcanvasLabel"><i class="bi bi-gear-fill me-2"></i> Settings</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -126,26 +126,23 @@
   <div class="offcanvas-body p-3">
     <div id="controls" class="h-100">
         <div class="accordion" id="settingsAccordion">
-          
-          <!-- Capture Settings Accordion Item -->
-          <div class="accordion-item bg-dark text-white border-secondary">
+
+          <!-- 1. Capture Settings Accordion Item -->
+          <div class="accordion-item">
             <h2 class="accordion-header" id="headingCaptureSettings">
-              <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCaptureSettings" aria-expanded="true" aria-controls="collapseCaptureSettings">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCaptureSettings" aria-expanded="true" aria-controls="collapseCaptureSettings">
                 <i class="bi bi-camera-video me-2"></i> Capture Settings
               </button>
             </h2>
             <div id="collapseCaptureSettings" class="accordion-collapse collapse show" aria-labelledby="headingCaptureSettings" data-bs-parent="#settingsAccordion">
               <div class="accordion-body">
-                 <!-- Content from Capture Settings fieldset -->
-                 <div class="row mb-3">
-                   <div class="col">
-                     <label for="quality" class="form-label form-label-sm">Quality:</label>
-                     <input type="number" class="form-control form-control-sm" id="quality" value="100" min="1" max="100">
-                   </div>
-                   <div class="col">
-                     <label for="framerate" class="form-label form-label-sm">Framerate:</label>
-                     <input type="number" class="form-control form-control-sm" id="framerate" value="60" min="1" max="120">
-                   </div>
+                 <div class="mb-3">
+                   <label for="quality" class="form-label form-label-sm">Quality:</label>
+                   <input type="number" class="form-control form-control-sm" id="quality" value="100" min="1" max="100">
+                 </div>
+                 <div class="mb-3">
+                   <label for="framerate" class="form-label form-label-sm">Framerate:</label>
+                   <input type="number" class="form-control form-control-sm" id="framerate" value="60" min="1" max="120">
                  </div>
                  <div class="mb-3">
                    <label for="aspect-ratio" class="form-label form-label-sm">Aspect Ratio:</label>
@@ -168,11 +165,11 @@
                    </div>
                  </div>
                  <div class="mb-2">
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mb-1">
                       <input class="form-check-input" type="checkbox" role="switch" id="show-capture-frame" checked>
                       <label class="form-check-label small" for="show-capture-frame">Show capture frame</label>
                     </div>
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mb-1">
                        <input class="form-check-input" type="checkbox" role="switch" id="show-callouts" checked>
                        <label class="form-check-label small" for="show-callouts">Show title callouts</label>
                     </div>
@@ -181,104 +178,131 @@
                       <label class="form-check-label small" for="show-subtitles">Show description subtitles</label>
                     </div>
                   </div>
-              </div>
-            </div>
-          </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseCaptureSettings -->
+          </div> <!-- End accordion-item -->
 
-          <!-- Performance & Quality Accordion Item -->
-          <div class="accordion-item bg-dark text-white border-secondary">
+          <!-- 2. Burn-in Overlays Accordion Item (New) -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingBurnIn">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBurnIn" aria-expanded="false" aria-controls="collapseBurnIn">
+                <i class="bi bi-fonts me-2"></i> Burn-in Overlays
+              </button>
+            </h2>
+            <div id="collapseBurnIn" class="accordion-collapse collapse" aria-labelledby="headingBurnIn" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                 <div class="mb-3">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="burn-titles">
+                        <label class="form-check-label small" for="burn-titles">Burn titles into video</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="burn-subtitles">
+                        <label class="form-check-label small" for="burn-subtitles">Burn subtitles into video</label>
+                    </div>
+                 </div>
+                 <div class="mb-2">
+                    <label for="overlay-title-font-size" class="form-label form-label-sm mb-0">Title Size (px)</label>
+                    <input type="number" class="form-control form-control-sm" id="overlay-title-font-size" value="24" min="8">
+                 </div>
+                 <div class="mb-2">
+                    <label for="overlay-title-color" class="form-label form-label-sm mb-0">Title Color</label>
+                    <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-title-color" value="#FFFFFF" title="Choose title color">
+                 </div>
+                 <div class="mb-2">
+                    <label for="overlay-subtitle-font-size" class="form-label form-label-sm mb-0">Subtitle Size (px)</label>
+                    <input type="number" class="form-control form-control-sm" id="overlay-subtitle-font-size" value="18" min="8">
+                 </div>
+                 <div class="mb-2">
+                    <label for="overlay-subtitle-color" class="form-label form-label-sm mb-0">Subtitle Color</label>
+                    <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-subtitle-color" value="#FFFFFF" title="Choose subtitle color">
+                 </div>
+                 <div class="mb-3">
+                     <label for="overlay-font-family" class="form-label form-label-sm mb-0">Font Family</label>
+                     <input type="text" class="form-control form-control-sm" id="overlay-font-family" value="Arial, sans-serif" placeholder="e.g., Arial, sans-serif">
+                 </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseBurnIn -->
+          </div> <!-- End accordion-item -->
+
+          <!-- 3. Performance & Quality Accordion Item -->
+          <div class="accordion-item">
             <h2 class="accordion-header" id="headingPerformance">
-              <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerformance" aria-expanded="false" aria-controls="collapsePerformance">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerformance" aria-expanded="false" aria-controls="collapsePerformance">
                 <i class="bi bi-sliders me-2"></i> Performance & Quality
               </button>
             </h2>
             <div id="collapsePerformance" class="accordion-collapse collapse" aria-labelledby="headingPerformance" data-bs-parent="#settingsAccordion">
               <div class="accordion-body">
-                <!-- Content from Performance & Quality fieldset -->
                  <div class="mb-3">
-                   <div class="row">
-                      <div class="col">
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" role="switch" id="subpixel-rendering" checked>
-                          <label class="form-check-label small" for="subpixel-rendering">Subpixel rendering</label>
-                        </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" role="switch" id="smooth-animation" checked>
-                          <label class="form-check-label small" for="smooth-animation">High quality animation</label>
-                        </div>
-                      </div>
-                   </div>
-                   <div class="row mt-2">
-                      <div class="col">
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" role="switch" id="optimize-memory" checked>
-                          <label class="form-check-label small" for="optimize-memory">Optimize memory</label>
-                        </div>
-                      </div>
-                      <div class="col">
-                        <label for="render-quality" class="form-label form-label-sm visually-hidden">Render quality:</label>
-                        <select class="form-select form-select-sm" id="render-quality">
-                          <option value="high">High Render Quality</option>
-                          <option value="medium" selected>Medium Render Quality</option>
-                          <option value="low">Low Render Quality</option>
-                        </select>
-                      </div>
-                   </div>
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="subpixel-rendering" checked>
+                        <label class="form-check-label small" for="subpixel-rendering">Subpixel rendering</label>
+                    </div>
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="smooth-animation" checked>
+                        <label class="form-check-label small" for="smooth-animation">High quality animation</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="optimize-memory" checked>
+                        <label class="form-check-label small" for="optimize-memory">Optimize memory</label>
+                    </div>
                  </div>
-              </div>
-            </div>
-          </div>
+                 <div class="mb-3">
+                    <label for="render-quality" class="form-label form-label-sm">Render quality:</label>
+                    <select class="form-select form-select-sm" id="render-quality">
+                        <option value="high">High Render Quality</option>
+                        <option value="medium" selected>Medium Render Quality</option>
+                        <option value="low">Low Render Quality</option>
+                    </select>
+                 </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapsePerformance -->
+          </div> <!-- End accordion-item -->
 
-          <!-- Animation Settings Accordion Item -->
-          <div class="accordion-item bg-dark text-white border-secondary">
+          <!-- 4. Animation Settings Accordion Item -->
+          <div class="accordion-item">
             <h2 class="accordion-header" id="headingAnimation">
-              <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAnimation" aria-expanded="false" aria-controls="collapseAnimation">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAnimation" aria-expanded="false" aria-controls="collapseAnimation">
                 <i class="bi bi-film me-2"></i> Animation Settings
               </button>
             </h2>
             <div id="collapseAnimation" class="accordion-collapse collapse" aria-labelledby="headingAnimation" data-bs-parent="#settingsAccordion">
               <div class="accordion-body">
-                 <!-- Content from Animation Settings fieldset -->
-                 <div class="row mb-2">
-                   <div class="col">
-                     <label for="default-transition-duration" class="form-label form-label-sm">Default Transition (ms):</label>
-                     <input type="number" class="form-control form-control-sm" id="default-transition-duration" value="1500" min="100" step="100">
-                   </div>
-                   <div class="col">
-                     <label for="default-still-duration" class="form-label form-label-sm">Default Still (ms):</label>
-                     <input type="number" class="form-control form-control-sm" id="default-still-duration" value="1500" min="100" step="100">
-                   </div>
+                 <div class="mb-3">
+                   <label for="default-transition-duration" class="form-label form-label-sm">Default Transition (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="default-transition-duration" value="1500" min="100" step="100">
                  </div>
-                 <div class="row">
-                   <div class="col">
-                     <label for="frame-delay" class="form-label form-label-sm">Frame Delay (ms):</label>
-                     <input type="number" class="form-control form-control-sm" id="frame-delay" value="100" min="0" step="10">
-                   </div>
-                   <div class="col">
-                     <label for="easing-function" class="form-label form-label-sm">Easing Function:</label>
-                     <select class="form-select form-select-sm" id="easing-function">
-                       <option value="Linear.None">Linear</option>
-                       <option value="Quadratic.InOut">Quadratic</option>
-                       <option value="Cubic.InOut" selected>Cubic</option>
-                       <option value="Quartic.InOut">Quartic</option>
-                       <option value="Quintic.InOut">Quintic</option>
-                       <option value="Sinusoidal.InOut">Sinusoidal</option>
-                       <option value="Exponential.InOut">Exponential</option>
-                       <option value="Circular.InOut">Circular</option>
-                       <option value="Elastic.InOut">Elastic</option>
-                       <option value="Back.InOut">Back</option>
-                       <option value="Bounce.InOut">Bounce</option>
-                     </select>
-                   </div>
+                 <div class="mb-3">
+                   <label for="default-still-duration" class="form-label form-label-sm">Default Still (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="default-still-duration" value="1500" min="100" step="100">
                  </div>
-              </div>
-            </div>
-          </div>
-               
+                 <div class="mb-3">
+                   <label for="frame-delay" class="form-label form-label-sm">Frame Delay (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="frame-delay" value="100" min="0" step="10">
+                 </div>
+                 <div class="mb-3">
+                   <label for="easing-function" class="form-label form-label-sm">Easing Function:</label>
+                   <select class="form-select form-select-sm" id="easing-function">
+                     <option value="Linear.None">Linear</option>
+                     <option value="Quadratic.InOut">Quadratic</option>
+                     <option value="Cubic.InOut" selected>Cubic</option>
+                     <option value="Quartic.InOut">Quartic</option>
+                     <option value="Quintic.InOut">Quintic</option>
+                     <option value="Sinusoidal.InOut">Sinusoidal</option>
+                     <option value="Exponential.InOut">Exponential</option>
+                     <option value="Circular.InOut">Circular</option>
+                     <option value="Elastic.InOut">Elastic</option>
+                     <option value="Back.InOut">Back</option>
+                     <option value="Bounce.InOut">Bounce</option>
+                   </select>
+                 </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseAnimation -->
+          </div> <!-- End accordion-item -->
+
         </div> <!-- End Settings Accordion -->
-             
+
     </div>
   </div>
 </div>
