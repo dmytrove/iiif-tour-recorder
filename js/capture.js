@@ -6,6 +6,7 @@ let currentFrame = 0;
 let totalFrames = 0;
 let animationStartTime = 0;
 let animationRequest = null;
+let totalDurationSeconds = 0; // Added to store total time
 
 // Start recording process
 function startRecording(options = {}) {
@@ -229,8 +230,20 @@ function stopAnimation() {
   if (window.KenBurns && window.KenBurns.visualization && window.KenBurns.visualization.setCurrentPoint) {
     window.KenBurns.visualization.setCurrentPoint(-1);
   }
-  // Reset progress bar
-  updateProgressBar(0);
+  // Reset progress bar UI to idle/complete state
+  if (window.KenBurns.ui && window.KenBurns.ui.updateAnimationProgress) {
+    // Show 100% if it was running, 0% otherwise. Use 'complete' state if it was running.
+    const finalTime = (isCapturing || isPreview) ? totalDurationSeconds : 0;
+    const finalFrame = (isCapturing) ? totalFrames : 0;
+    const finalState = (isCapturing || isPreview) ? 'complete' : 'idle';
+    window.KenBurns.ui.updateAnimationProgress(finalTime, totalDurationSeconds, finalFrame, finalFrame, finalState);
+    // After a short delay, reset to idle visually
+    setTimeout(() => {
+         if (!isCapturing && !isPreview && window.KenBurns.ui?.updateAnimationProgress) { // Check if still stopped
+             window.KenBurns.ui.updateAnimationProgress(0, 0, 0, 0, 'idle');
+         }
+    }, 2000); // Reset after 2 seconds
+  }
 }
 
 // Function to stop the preview process
@@ -249,13 +262,54 @@ function stopPreview() {
   // Ensure UI state is reset via ui.js listener
 }
 
-// Start the animation sequence
+// Function to start the animation process (either recording or preview)
 function startAnimation(viewer) {
   const sequence = window.KenBurns.sequence.getSequence();
-
-  if (sequence.length === 0) {
-    alert('No animation sequence defined');
+  if (!sequence || sequence.length < 2) {
+    console.error("Sequence must have at least two points to animate.");
+    if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast("Error: Add at least two points to the sequence.", "error");
     return false;
+  }
+
+  // Reset counters and state
+  currentFrame = 0;
+  totalFrames = 0;
+  totalDurationSeconds = 0;
+  animationStartTime = 0;
+
+  // Get settings
+  const framerate = parseInt(document.getElementById('framerate')?.value || 30);
+  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+  const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
+
+  // Calculate total duration and total frames (only needed for recording progress)
+  for (let i = 0; i < sequence.length; i++) {
+    const point = sequence[i];
+    const transitionDuration = (i > 0 ? point.duration.transition : 0) || (i > 0 ? defaultTransitionDuration : 0);
+    const stillDuration = point.duration.still || defaultStillDuration;
+
+    // Add transition time (after the first point)
+    if (i > 0) {
+        totalDurationSeconds += (transitionDuration / 1000);
+    }
+    // Add still time
+    totalDurationSeconds += (stillDuration / 1000);
+
+    // Add frame delay time (between points)
+    if (i < sequence.length - 1) {
+        totalDurationSeconds += (frameDelay / 1000);
+    }
+  }
+
+  if (isCapturing) {
+      totalFrames = Math.ceil(totalDurationSeconds * framerate);
+      console.log(`Calculated total duration: ${totalDurationSeconds.toFixed(2)}s, total frames: ${totalFrames}`);
+  }
+
+  // Reset UI progress display
+  if (window.KenBurns.ui && window.KenBurns.ui.updateAnimationProgress) {
+     window.KenBurns.ui.updateAnimationProgress(0, totalDurationSeconds, 0, totalFrames, isCapturing ? 'recording' : isPreview ? 'previewing' : 'idle');
   }
 
   // Set current point to start
@@ -266,13 +320,27 @@ function startAnimation(viewer) {
   viewer.viewport.zoomTo(firstPoint.zoom);
   viewer.viewport.panTo(new OpenSeadragon.Point(firstPoint.center.x, firstPoint.center.y));
 
-  // Allow time to settle at the first point
+  // Trigger the animation sequence starting from the first point
   setTimeout(() => {
-    animateNextPoint(viewer, 0);
-  }, 500);
+    // Ensure TWEEN is available
+    if (typeof TWEEN === 'undefined') {
+      console.error("TWEEN is not loaded!");
+      if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast("Error: Animation library not loaded.", "error");
+      // Potentially reset UI state here
+      return;
+    }
+    console.log("Starting animation sequence...");
+    animateNextPoint(viewer, 0); // Start with the first point (index 0)
+    if (window.KenBurns?.ui?.showToast) {
+        if (isPreview) window.KenBurns.ui.showToast("Preview started.", "info");
+        else if (isCapturing) window.KenBurns.ui.showToast("Recording started...", "info");
+    }
+  }, 50); // Short delay to allow UI to update before intensive work
 
-  // Start the animation loop immediately
-  requestAnimationFrame(animateFrame);
+  // Start the core animation/capture loop (TWEEN updates and frame capture)
+  animationStartTime = performance.now();
+  animate(viewer); // Start the TWEEN update/capture loop
+
   return true; // Indicate animation started
 }
 
@@ -337,16 +405,17 @@ function animateNextPoint(viewer, index) {
 
 // Animation loop
 function animate(viewer) {
-  requestAnimationFrame(() => animate(viewer));
+  animationRequest = requestAnimationFrame(() => animate(viewer)); // Store the request ID
 
   // Update tweens
   TWEEN.update();
 
-  // Capture frame if recording
+  // Update progress and capture frame if recording
+  let elapsedSeconds = (performance.now() - animationStartTime) / 1000;
+  let state = isCapturing ? 'recording' : isPreview ? 'previewing' : 'idle';
+
   if (isCapturing && capturer) {
     viewer.forceRedraw();
-
-    // Get the canvas from the viewer
     const canvas = viewer.drawer.canvas;
     if (canvas) {
       // If the subpixel rendering option is enabled, apply additional smoothing
@@ -386,19 +455,27 @@ function animate(viewer) {
         // Capture the standard frame
         capturer.capture(canvas);
       }
+      currentFrame++; // Increment frame counter *after* capturing
     }
+    // Ensure elapsed time doesn't exceed total duration for display
+    elapsedSeconds = Math.min(elapsedSeconds, totalDurationSeconds);
+  } else if (isPreview) {
+     // Ensure elapsed time doesn't exceed total duration for display
+     elapsedSeconds = Math.min(elapsedSeconds, totalDurationSeconds);
+  } else {
+     elapsedSeconds = 0; // Reset time if not running
+  }
+
+  // Update UI progress display
+  if (window.KenBurns.ui && window.KenBurns.ui.updateAnimationProgress) {
+     // Pass totalFrames only when capturing
+     window.KenBurns.ui.updateAnimationProgress(elapsedSeconds, totalDurationSeconds, currentFrame, isCapturing ? totalFrames : 0, state);
   }
 
   // Update capture frame if needed
   if (document.getElementById('show-capture-frame').checked) {
     const aspectRatio = document.getElementById('aspect-ratio').value;
     window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio);
-  }
-
-  // Update progress bar during animation
-  if ((isCapturing || isPreview) && totalFrames > 0) {
-    const progress = Math.min(100, Math.max(0, (currentFrame / totalFrames) * 100));
-    updateProgressBar(progress);
   }
 }
 

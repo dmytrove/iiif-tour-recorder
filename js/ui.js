@@ -386,11 +386,60 @@ function updateTourInfo() {
   setTourInfoEditingState(false); // Ensure editing is off when info updates
 }
 
+// Helper function to format time in seconds to MM:SS
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  const paddedSeconds = String(remainingSeconds).padStart(2, '0');
+  return `${minutes}:${paddedSeconds}`;
+}
+
+// Update the animation progress display (bar, time, frames)
+function updateAnimationProgress(currentTime, totalTime, currentFrame, totalFrames, state) {
+  const progressBar = document.getElementById('animation-progress-bar');
+  const timeInfo = document.getElementById('progress-time-info');
+  const frameInfo = document.getElementById('progress-frame-info');
+
+  if (progressBar) {
+    const percentage = totalTime > 0 ? (currentTime / totalTime) * 100 : 0;
+    const clampedPercentage = Math.min(100, Math.max(0, percentage));
+    progressBar.style.width = `${clampedPercentage}%`;
+    progressBar.setAttribute('aria-valuenow', clampedPercentage.toFixed(0));
+
+    progressBar.classList.remove('bg-info', 'bg-danger', 'bg-success', 'bg-secondary'); // Clear existing states
+    if (state === 'recording') {
+      progressBar.classList.add('bg-danger');
+    } else if (state === 'previewing') {
+      progressBar.classList.add('bg-info');
+    } else if (state === 'complete') {
+       progressBar.classList.add('bg-success');
+    } else { // Idle or stopped
+       progressBar.classList.add('bg-secondary');
+    }
+  }
+
+  if (timeInfo) {
+    timeInfo.textContent = `Time: ${formatTime(currentTime)} / ${formatTime(totalTime)}`;
+  }
+
+  if (frameInfo) {
+    // Only show frame info if totalFrames is calculated (i.e., during recording)
+    if (totalFrames > 0 && state === 'recording') {
+      frameInfo.textContent = `Frame: ${currentFrame} / ${totalFrames}`;
+      frameInfo.style.display = ''; // Make sure it's visible
+    } else {
+      frameInfo.textContent = 'Frame: - / -'; // Placeholder when not recording
+      // Optionally hide frame info during preview: frameInfo.style.display = 'none';
+    }
+  }
+}
+
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.ui = {
   setupEventListeners,
-  updateTourInfo
+  updateTourInfo,
+  updateAnimationProgress
 };
 
 // Helper function to show Bootstrap Toasts

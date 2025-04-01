@@ -399,3 +399,32 @@ kbd {
   /* ... existing code ... */
 }
 
+/* --- Top Playback/Capture Offcanvas --- */
+#offcanvasPlayback {
+  background-color: rgba(33, 37, 41, 0.9); /* Dark semi-transparent */
+  color: #e9ecef;
+  border-bottom: 1px solid #495057;
+}
+
+#offcanvasPlayback .offcanvas-header {
+  border-bottom: 1px solid #495057;
+}
+
+/* Make progress info text lighter */
+#offcanvasPlayback .progress-info.text-muted,
+#offcanvasPlayback .progress-info .text-muted { /* Target parent and children */
+    color: #adb5bd !important; /* Lighter gray */
+}
+
+/* Reduce vertical padding in playback offcanvas body */
+#offcanvasPlayback .offcanvas-body {
+    padding-top: 0.5rem;    /* Reduce top padding */
+    padding-bottom: 0.5rem; /* Reduce bottom padding */
+}
+
+/* --- Right Info/JSON/Tours Offcanvas --- */
+#offcanvasRight {
+  background-color: rgba(33, 37, 41, 0.9);
+  /* ... existing code ... */
+}
+
