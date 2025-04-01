@@ -326,6 +326,17 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
+/* Styling for KBD elements */
+kbd {
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    border: 1px solid #6c757d; /* Bootstrap secondary border color */
+    background-color: #495057; /* Darker gray */
+    color: #e9ecef; /* Lighter text */
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
 /* Panel Transparency */
 .offcanvas,
 .modal-content {
