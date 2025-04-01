@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Initialize visualizations once the viewer is ready
   viewer.addHandler('open', () => {
-    console.log("Viewer opened, initializing visualizations.");
-    window.KenBurns.visualization.initVisualizations(viewer);
     window.KenBurns.visualization.updateVisualizations(viewer);
     window.KenBurns.interactions.setupViewerInteractions(viewer);
   });

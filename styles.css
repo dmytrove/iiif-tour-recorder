@@ -88,11 +88,65 @@ textarea {
 }
 
 /* Point markers and visualization */
-/* .point-marker { ... } */
-/* .point-number { ... } */
-/* .point-line { ... } */
-/* .capture-rect { ... } */ /* Keep for now, might be used by createRectangle... */
-/* .zoom-indicator { ... } */ /* Keep for now */
+.point-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: red;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  pointer-events: all;
+  cursor: move;
+}
+
+.point-number {
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  transform: translate(12px, -12px);
+  text-shadow: 1px 1px 2px black;
+  pointer-events: none;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.point-line {
+  position: absolute;
+  height: 2px;
+  background: rgba(255, 100, 100, 0.7);
+  z-index: 150;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.capture-rect {
+  position: absolute;
+  border: 2px solid yellow;
+  background: rgba(255, 255, 0, 0.1);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.zoom-indicator {
+  position: absolute;
+  top: -20px;
+  left: -2px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  user-select: none;
+  z-index: 101;
+}
 
 /* Button variations */
 .btn-primary {
@@ -507,107 +561,5 @@ kbd {
 
 .handle {
   cursor: grab;
-}
-
-/* --- Visualization Elements --- */
-
-/* OSD Point Marker Overlay Styles */
-.point-marker-overlay {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    position: absolute; /* Needed for inner elements */
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    pointer-events: auto; /* Allow hover/click */
-}
-
-.point-marker-overlay:hover {
-    transform: scale(1.3); /* Enlarge on hover */
-    z-index: 11; /* Bring hovered marker to front */
-}
-
-/* Central dot */
-.point-marker-dot {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background-color: rgba(255, 0, 0, 0.8); /* Red dot */
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/* Rotating border */
-.point-marker-rotator {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    border-top-color: transparent; /* Gap in the spinner */
-    box-sizing: border-box;
-    animation: spin 1.5s linear infinite;
-}
-
-/* Rotation Animation */
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Existing visualization overlays (Callouts, Subtitles) */
-.visualization-overlay {
-    /* ... existing styles ... */
-}
-
-#title-callout {
-    /* ... existing styles ... */
-}
-
-#subtitle-display {
-    /* ... existing styles ... */
-}
-
-#capture-frame {
-    /* ... existing styles ... */
-}
-
-/* Utility Classes */
-/* ... existing styles ... */
-
-/* OSD SVG Overlay for Lines */
-.osd-svg-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Don't interfere with OSD controls */
-    z-index: 5; /* Below point overlays but above image */
-}
-
-.osd-svg-overlay .sequence-line {
-    stroke: rgba(255, 100, 100, 0.7); /* Match old line color */
-    stroke-width: 2;
-}
-
-/* OSD Text Label Overlay Styles */
-.point-label-overlay {
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px black;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 1px 4px;
-    border-radius: 3px;
-    white-space: nowrap; /* Prevent wrapping */
-    pointer-events: none; /* Don't interfere */
-    /* Position will be set by OSD relative to anchor point */
 }
 

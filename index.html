@@ -100,8 +100,8 @@
             <div class="col">
               <label for="point-duration-still" class="form-label">Still Duration (ms):</label>
               <input type="number" class="form-control" id="point-duration-still" min="100" step="100" value="1500">
-            </div>
-          </div>
+      </div>
+      </div>
           <input type="hidden" id="point-index">
         </form>
       </div>
@@ -109,7 +109,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel-edit">Cancel</button>
         <button type="button" class="btn btn-primary" id="save-point">Save</button>
       </div>
-    </div>
+      </div>
   </div>
 </div>
 
@@ -135,21 +135,21 @@
                  <div class="mb-3">
                    <label for="quality" class="form-label form-label-sm">Quality:</label>
                    <input type="number" class="form-control form-control-sm" id="quality" value="100" min="1" max="100">
-                 </div>
+        </div>
                  <div class="mb-3">
                    <label for="framerate" class="form-label form-label-sm">Framerate:</label>
                    <input type="number" class="form-control form-control-sm" id="framerate" value="60" min="1" max="120">
-                 </div>
+        </div>
                  <div class="mb-3">
                    <label for="aspect-ratio" class="form-label form-label-sm">Aspect Ratio:</label>
                    <select class="form-select form-select-sm" id="aspect-ratio">
-                     <option value="0" selected>Viewport (Full Screen)</option>
-                     <option value="16:9">16:9 (Landscape HD)</option>
-                     <option value="4:3">4:3 (Standard)</option>
-                     <option value="1:1">1:1 (Square)</option>
-                     <option value="9:16">9:16 (Portrait)</option>
-                     <option value="custom">Custom...</option>
-                   </select>
+          <option value="0" selected>Viewport (Full Screen)</option>
+          <option value="16:9">16:9 (Landscape HD)</option>
+          <option value="4:3">4:3 (Standard)</option>
+          <option value="1:1">1:1 (Square)</option>
+          <option value="9:16">9:16 (Portrait)</option>
+          <option value="custom">Custom...</option>
+        </select>
                    <div id="custom-aspect-ratio" style="display: none;" class="mt-2 row gx-2 align-items-center">
                      <div class="col">
                       <input type="number" class="form-control form-control-sm" id="custom-width" placeholder="Width" min="1" step="1" value="1920">
@@ -157,23 +157,23 @@
                       <div class="col-auto">:</div>
                      <div class="col">
                       <input type="number" class="form-control form-control-sm" id="custom-height" placeholder="Height" min="1" step="1" value="1080">
-                     </div>
-                   </div>
-                 </div>
+        </div>
+      </div>
+          </div>
                  <div class="mb-2">
                     <div class="form-check form-switch mb-1">
                       <input class="form-check-input" type="checkbox" role="switch" id="show-capture-frame" checked>
                       <label class="form-check-label small" for="show-capture-frame">Show capture frame</label>
-                    </div>
+          </div>
                     <div class="form-check form-switch mb-1">
                        <input class="form-check-input" type="checkbox" role="switch" id="show-callouts" checked>
                        <label class="form-check-label small" for="show-callouts">Show title callouts</label>
-                    </div>
+        </div>
                     <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" role="switch" id="show-subtitles" checked>
                       <label class="form-check-label small" for="show-subtitles">Show description subtitles</label>
-                    </div>
-                  </div>
+          </div>
+        </div>
               </div> <!-- End accordion-body -->
             </div> <!-- End collapseCaptureSettings -->
           </div> <!-- End accordion-item -->
@@ -191,12 +191,12 @@
                     <div class="form-check form-switch mb-1">
                         <input class="form-check-input" type="checkbox" role="switch" id="burn-titles">
                         <label class="form-check-label small" for="burn-titles">Burn titles into video</label>
-                    </div>
+          </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="burn-subtitles">
                         <label class="form-check-label small" for="burn-subtitles">Burn subtitles into video</label>
-                    </div>
-                 </div>
+          </div>
+        </div>
                  <div class="mb-2">
                     <label for="overlay-title-font-size" class="form-label form-label-sm mb-0">Title Size (px)</label>
                     <input type="number" class="form-control form-control-sm" id="overlay-title-font-size" value="24" min="8">
@@ -204,19 +204,19 @@
                  <div class="mb-2">
                     <label for="overlay-title-color" class="form-label form-label-sm mb-0">Title Color</label>
                     <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-title-color" value="#FFFFFF" title="Choose title color">
-                 </div>
+          </div>
                  <div class="mb-2">
                     <label for="overlay-subtitle-font-size" class="form-label form-label-sm mb-0">Subtitle Size (px)</label>
                     <input type="number" class="form-control form-control-sm" id="overlay-subtitle-font-size" value="18" min="8">
-                 </div>
+          </div>
                  <div class="mb-2">
                     <label for="overlay-subtitle-color" class="form-label form-label-sm mb-0">Subtitle Color</label>
                     <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-subtitle-color" value="#FFFFFF" title="Choose subtitle color">
-                 </div>
+        </div>
                  <div class="mb-3">
                      <label for="overlay-font-family" class="form-label form-label-sm mb-0">Font Family</label>
                      <input type="text" class="form-control form-control-sm" id="overlay-font-family" value="Arial, sans-serif" placeholder="e.g., Arial, sans-serif">
-                 </div>
+      </div>
               </div> <!-- End accordion-body -->
             </div> <!-- End collapseBurnIn -->
           </div> <!-- End accordion-item -->
@@ -238,12 +238,12 @@
                     <div class="form-check form-switch mb-1">
                         <input class="form-check-input" type="checkbox" role="switch" id="smooth-animation" checked>
                         <label class="form-check-label small" for="smooth-animation">High quality animation</label>
-                    </div>
+          </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="optimize-memory" checked>
                         <label class="form-check-label small" for="optimize-memory">Optimize memory</label>
-                    </div>
-                 </div>
+          </div>
+        </div>
                  <div class="mb-3">
                     <label for="render-quality" class="form-label form-label-sm">Render quality:</label>
                     <select class="form-select form-select-sm" id="render-quality">
@@ -276,23 +276,23 @@
                  <div class="mb-3">
                    <label for="frame-delay" class="form-label form-label-sm">Frame Delay (ms):</label>
                    <input type="number" class="form-control form-control-sm" id="frame-delay" value="100" min="0" step="10">
-                 </div>
+          </div>
                  <div class="mb-3">
                    <label for="easing-function" class="form-label form-label-sm">Easing Function:</label>
                    <select class="form-select form-select-sm" id="easing-function">
-                     <option value="Linear.None">Linear</option>
-                     <option value="Quadratic.InOut">Quadratic</option>
-                     <option value="Cubic.InOut" selected>Cubic</option>
-                     <option value="Quartic.InOut">Quartic</option>
-                     <option value="Quintic.InOut">Quintic</option>
-                     <option value="Sinusoidal.InOut">Sinusoidal</option>
-                     <option value="Exponential.InOut">Exponential</option>
-                     <option value="Circular.InOut">Circular</option>
-                     <option value="Elastic.InOut">Elastic</option>
-                     <option value="Back.InOut">Back</option>
-                     <option value="Bounce.InOut">Bounce</option>
-                   </select>
-                 </div>
+                <option value="Linear.None">Linear</option>
+                <option value="Quadratic.InOut">Quadratic</option>
+                <option value="Cubic.InOut" selected>Cubic</option>
+                <option value="Quartic.InOut">Quartic</option>
+                <option value="Quintic.InOut">Quintic</option>
+                <option value="Sinusoidal.InOut">Sinusoidal</option>
+                <option value="Exponential.InOut">Exponential</option>
+                <option value="Circular.InOut">Circular</option>
+                <option value="Elastic.InOut">Elastic</option>
+                <option value="Back.InOut">Back</option>
+                <option value="Bounce.InOut">Bounce</option>
+              </select>
+          </div>
               </div> <!-- End accordion-body -->
             </div> <!-- End collapseAnimation -->
           </div> <!-- End accordion-item -->
