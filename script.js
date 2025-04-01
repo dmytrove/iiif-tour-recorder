@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup event listeners for UI interaction
   window.KenBurns.ui.setupEventListeners(viewer);
   
-  // Setup table properties toggle
-  window.KenBurns.table.setupTablePropertiesToggle();
+  // Setup table properties toggle (Removed - Feature no longer exists)
+  // window.KenBurns.table.setupTablePropertiesToggle();
   
   // Set up aspect ratio handling
   window.KenBurns.interactions.setupAspectRatioHandling(viewer);
