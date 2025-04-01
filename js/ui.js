@@ -125,68 +125,63 @@ function setupEventListeners(viewer) {
 
 // Setup recording controls
 function setupRecordingControls(viewer) {
-  const startBtn = document.getElementById('start');
-  const stopBtn = document.getElementById('stop');
-  const previewBtn = document.getElementById('preview');
-  const stopPreviewBtn = document.getElementById('stop-preview');
+  // Use new button IDs
+  const startPreviewBtn = document.getElementById('start-preview');
+  const startRecordingBtn = document.getElementById('start-recording');
+  const stopBtn = document.getElementById('stop-recording'); // Single stop button
 
   // Function to set button states
   function setButtonStates(isRecording, isPreviewing) {
-    startBtn.disabled = isRecording || isPreviewing;
-    stopBtn.disabled = !isRecording;
-    previewBtn.disabled = isRecording || isPreviewing;
-    stopPreviewBtn.disabled = !isPreviewing;
+      if (startPreviewBtn) startPreviewBtn.disabled = isRecording || isPreviewing;
+      if (startRecordingBtn) startRecordingBtn.disabled = isRecording || isPreviewing;
+      if (stopBtn) stopBtn.disabled = !isRecording && !isPreviewing; // Enable if either is active
   }
 
   // Initial state
   setButtonStates(false, false);
 
-  // Start recording button
-  startBtn.addEventListener('click', () => {
-    const quality = parseInt(document.getElementById('quality').value);
-    const framerate = parseInt(document.getElementById('framerate').value);
-    const aspectRatio = document.getElementById('aspect-ratio').value;
+  // Start Recording button
+  if (startRecordingBtn) {
+    startRecordingBtn.addEventListener('click', () => {
+      const quality = parseInt(document.getElementById('quality').value);
+      const framerate = parseInt(document.getElementById('framerate').value);
+      const aspectRatio = document.getElementById('aspect-ratio').value;
 
-    if (window.KenBurns.capture.startRecording({
-      quality,
-      framerate,
-      aspectRatio
-    })) {
-      setButtonStates(true, false);
-      window.KenBurns.capture.startAnimation(viewer);
-    }
-  });
+      if (window.KenBurns.capture.startRecording({ quality, framerate, aspectRatio })) {
+        setButtonStates(true, false);
+        window.KenBurns.capture.startAnimation(viewer);
+      }
+    });
+  }
 
   // Preview button
-  previewBtn.addEventListener('click', () => {
-    if (window.KenBurns.capture.startPreview()) {
-      setButtonStates(false, true);
-      window.KenBurns.capture.startAnimation(viewer);
-    }
-  });
+  if (startPreviewBtn) {
+    startPreviewBtn.addEventListener('click', () => {
+      if (window.KenBurns.capture.startPreview()) {
+        setButtonStates(false, true);
+        window.KenBurns.capture.startAnimation(viewer);
+      }
+    });
+  }
 
-  // Stop recording button
-  stopBtn.addEventListener('click', () => {
-    window.KenBurns.capture.stopRecording();
-    setButtonStates(false, false);
-    window.KenBurns.visualization.setCurrentPoint(-1);
-    window.KenBurns.visualization.updateVisualizations(viewer);
-  });
-
-  // Stop preview button
-  stopPreviewBtn.addEventListener('click', () => {
-    // We need a function in capture.js to handle only stopping the preview
-    if (window.KenBurns.capture.stopPreview) {
+  // Stop button (handles both recording and preview)
+  if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+      if (window.KenBurns.capture.isCapturing()) {
+        window.KenBurns.capture.stopRecording();
+      } else if (window.KenBurns.capture.isPreviewMode()) {
         window.KenBurns.capture.stopPreview();
-        setButtonStates(false, false);
-        window.KenBurns.visualization.setCurrentPoint(-1);
-        window.KenBurns.visualization.updateVisualizations(viewer);
-    } else {
-        console.error("stopPreview function not found in capture module.");
-        // Fallback to stopRecording if stopPreview doesn't exist yet
-        stopBtn.click(); 
-    }
-  });
+      }
+      setButtonStates(false, false);
+      // Reset visualization only if needed/possible
+      if (window.KenBurns?.visualization?.setCurrentPoint) {
+          window.KenBurns.visualization.setCurrentPoint(-1);
+      }
+      if (window.KenBurns?.visualization?.updateVisualizations) {
+          window.KenBurns.visualization.updateVisualizations(viewer);
+      }
+    });
+  }
 }
 
 // Setup animation settings controls
@@ -434,57 +429,84 @@ function updateAnimationProgress(currentTime, totalTime, currentFrame, totalFram
   }
 }
 
-// Create and display markers on the progress bar for sequence points
+// Create and display markers and time labels on the progress bar
 function createProgressMarkers(sequence = [], totalDurationSeconds = 0) {
   const markersContainer = document.getElementById('progress-markers-container');
-  if (!markersContainer) return;
+  const timeLabelsContainer = document.getElementById('progress-time-labels'); // Get label container
 
-  // Clear existing markers and text
+  if (!markersContainer || !timeLabelsContainer) return;
+
+  // Clear existing markers and labels
   markersContainer.innerHTML = '';
+  timeLabelsContainer.innerHTML = '';
 
   if (!sequence || sequence.length === 0 || totalDurationSeconds <= 0) {
-    return; // Nothing to mark
+    return;
   }
 
-  // Calculate times accurately
-  let times = [0];
-  let cumulativeTime = 0;
   const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
   const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
   const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
 
-  for (let i = 0; i < sequence.length - 1; i++) {
-      const currentPoint = sequence[i];
-      const nextPoint = sequence[i+1];
-      const transition = nextPoint.duration.transition || defaultTransitionDuration;
-      const still = currentPoint.duration.still || defaultStillDuration;
-      cumulativeTime += (transition + still + frameDelay) / 1000;
-      times.push(cumulativeTime - (still + frameDelay) / 1000); // Time is at the START of the transition TO next point
-  }
+  let currentTime = 0;
 
-  // Now create markers and text labels
-  times.forEach((time, index) => {
-      const percentage = (time / totalDurationSeconds) * 100;
-      if (percentage >= 0 && percentage <= 100) {
-          const point = sequence[index];
+  sequence.forEach((point, index) => {
+      let transitionStartTime = 0;
+      let transitionDurationMs = 0;
+
+      if (index > 0) {
+        const prevPoint = sequence[index - 1];
+        transitionDurationMs = point.duration.transition || defaultTransitionDuration;
+        const prevStillDurationMs = prevPoint.duration.still || defaultStillDuration;
+        currentTime += (prevStillDurationMs + frameDelay + transitionDurationMs) / 1000;
+        transitionStartTime = currentTime - (transitionDurationMs / 1000);
+      }
+
+      const percentageStart = (transitionStartTime / totalDurationSeconds) * 100;
+
+      if (percentageStart >= 0 && percentageStart <= 100) {
           const title = point.title || `Point ${index + 1}`;
-          const timeFormatted = formatTime(time);
+          const timeFormatted = formatTime(transitionStartTime);
 
-          // Create marker line div
+          // --- Create Main Marker (Line below bar) --- //
           const marker = document.createElement('div');
           marker.className = 'progress-marker';
-          marker.style.left = `${percentage}%`;
+          marker.style.left = `${percentageStart}%`;
+          markersContainer.appendChild(marker);
 
-          // Create text span
+          // --- Create Text Label (Below marker line) --- //
           const textSpan = document.createElement('span');
           textSpan.className = 'marker-text';
-          textSpan.style.left = `${percentage}%`; // Position text with the marker
-          textSpan.textContent = `${title} (${timeFormatted})`; // Combine title and time
-
-          markersContainer.appendChild(marker);
+          textSpan.style.left = `${percentageStart}%`;
+          textSpan.textContent = `${title} (${timeFormatted})`;
           markersContainer.appendChild(textSpan);
+
+           // --- Create Time Label (MM:SS above bar) --- //
+           const timeLabelSpan = document.createElement('span');
+           timeLabelSpan.className = 'time-label';
+           timeLabelSpan.style.left = `${percentageStart}%`;
+           timeLabelSpan.textContent = timeFormatted;
+           timeLabelsContainer.appendChild(timeLabelSpan); // Add to the dedicated label container
+      }
+
+      // --- Create Still Marker (Icon below bar) --- //
+      const stillStartTime = transitionStartTime + (transitionDurationMs / 1000);
+      const percentageStill = (stillStartTime / totalDurationSeconds) * 100;
+      if (index > 0 && percentageStill > percentageStart && percentageStill <= 100) {
+           const stillMarker = document.createElement('div');
+           stillMarker.className = 'progress-marker still-marker';
+           stillMarker.style.left = `${percentageStill}%`;
+           markersContainer.appendChild(stillMarker);
       }
   });
+
+   // Add final time label at 100%
+   const finalTimeLabel = document.createElement('span');
+   finalTimeLabel.className = 'time-label';
+   finalTimeLabel.style.left = `100%`;
+   finalTimeLabel.textContent = formatTime(totalDurationSeconds);
+   timeLabelsContainer.appendChild(finalTimeLabel);
+
 }
 
 // Export functions

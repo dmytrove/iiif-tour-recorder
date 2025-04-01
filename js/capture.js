@@ -345,7 +345,7 @@ function stopPreview() {
   // Ensure UI state is reset via ui.js listener
 }
 
-// Function to start the animation process (either recording or preview)
+// Function to start the animation process
 function startAnimation(viewer) {
   const sequence = window.KenBurns.sequence.getSequence();
   if (!sequence || sequence.length < 2) {
@@ -410,101 +410,108 @@ function startAnimation(viewer) {
      }
   }
 
-  // Set current point visualization index (should this be 0 here?)
+  // Set initial visualization point index
   window.KenBurns.visualization.setCurrentPoint(0);
 
-  // Trigger the animation sequence starting from the first point
+  // Start the core animation/capture loop *immediately*
+  animationStartTime = performance.now();
+  animate(viewer); // This loop will now capture the first point's still state
+
+  // Calculate initial still duration for the first point
+  const firstPointStillDuration = firstPoint.duration.still || defaultStillDuration;
+
+  // Schedule the *start* of the transition TO the *second* point
+  // after the first point's still duration (+ delay)
   setTimeout(() => {
     // Ensure TWEEN is available
     if (typeof TWEEN === 'undefined') {
       console.error("TWEEN is not loaded!");
       if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast("Error: Animation library not loaded.", "error");
-      // Potentially reset UI state here
       return;
     }
-    console.log("Starting animation sequence...");
-    animateNextPoint(viewer, 0); // Start animating TO the second point (index 1)
-    if (window.KenBurns?.ui?.showToast) {
-        if (isPreview) window.KenBurns.ui.showToast("Preview started.", "info");
-        else if (isCapturing) window.KenBurns.ui.showToast("Recording started...", "info");
-    }
-  }, 50); // Short delay to allow UI to update before intensive work
+    console.log("Starting animation sequence transition...");
+    animateNextPoint(viewer, 0); // Start animation TO point 1 (index 0 handles point 0 -> 1)
+  }, firstPointStillDuration + frameDelay);
 
-  // Start the core animation/capture loop
-  animationStartTime = performance.now();
-  animate(viewer); // Start the TWEEN update/capture loop
+  // Display initial toast
+  if (window.KenBurns?.ui?.showToast) {
+     if (isPreview) window.KenBurns.ui.showToast("Preview started.", "info");
+     else if (isCapturing) window.KenBurns.ui.showToast("Recording started...", "info");
+  }
 
-  return true; // Indicate animation started
+  return true;
 }
 
-// Animate to next point
+// Animate to point index + 1
 function animateNextPoint(viewer, index) {
   const sequence = window.KenBurns.sequence.getSequence();
+  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+  const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
 
+  // Check if we are about to animate the last segment (to the last point)
   if (index >= sequence.length - 1) {
-    if (isCapturing || isPreview) {
-      // At the last point, wait for the still duration and then stop
-      const currentPoint = sequence[index];
-      
-      // Get default still duration from settings
-      const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
-      const stillDuration = currentPoint.duration.still || defaultStillDuration;
-      
-      // Get the frame delay from settings
-      const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
-
-      setTimeout(() => {
-        stopRecording();
-        window.KenBurns.visualization.setCurrentPoint(-1);
-
-        // Signal animation completion
-        document.dispatchEvent(new CustomEvent('animation-complete'));
-      }, stillDuration + frameDelay);
-    }
-    // Keep the last point's text active during final still time
-    const lastPoint = sequence[index];
-    currentSegmentTitle = lastPoint.title || '';
-    currentSegmentDescription = lastPoint.description || '';
+    // This means the animation TO the last point is complete.
+    // The last point's text is already set from the previous call.
+    // The setTimeout in the previous call handles the final still duration.
+    console.log("Reached end of sequence points in animateNextPoint.");
+    // stopRecording() will be called by the setTimeout from the previous iteration
     return;
   }
 
-  // Set current point to next point
-  window.KenBurns.visualization.setCurrentPoint(index + 1);
+  // Get the target point for this animation segment
+  const targetPointIndex = index + 1;
+  const targetPoint = sequence[targetPointIndex];
 
-  const next = sequence[index + 1];
-  
-  // Get default durations from settings
-  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
-  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
-  
-  // Use point-specific durations if available, otherwise use defaults
-  const transitionDuration = next.duration.transition || defaultTransitionDuration;
+  // Set visualization index
+  window.KenBurns.visualization.setCurrentPoint(targetPointIndex);
 
-  // Update the text variables for the upcoming segment (transition + still of nextPoint)
-  currentSegmentTitle = next.title || '';
-  currentSegmentDescription = next.description || '';
+  // Update the text variables for the upcoming segment (transition + still of targetPoint)
+  currentSegmentTitle = targetPoint.title || '';
+  currentSegmentDescription = targetPoint.description || '';
+  console.log(`Segment ${index+1}: Setting text for point ${targetPointIndex} ('${currentSegmentTitle}')`);
 
-  // Animate to the next point with the transition duration
+  // Determine durations for this segment
+  const transitionDuration = targetPoint.duration.transition || defaultTransitionDuration;
+  const stillDuration = targetPoint.duration.still || defaultStillDuration;
+
+  // Animate to the target point
+  console.log(`Segment ${index+1}: Animating to point ${targetPointIndex} over ${transitionDuration}ms`);
   window.KenBurns.viewer.smoothPanZoom(
     viewer,
-    next.zoom,
-    new OpenSeadragon.Point(next.center.x, next.center.y),
+    targetPoint.zoom,
+    new OpenSeadragon.Point(targetPoint.center.x, targetPoint.center.y),
     transitionDuration
   ).start();
 
-  // After transition is done, wait for the still duration
-  const stillDuration = next.duration.still || defaultStillDuration;
-  
-  // Get the frame delay from settings
-  const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
+  // Calculate total duration for this segment (transition + still + delay)
+  const segmentDuration = transitionDuration + stillDuration + frameDelay;
 
-  // Schedule the next animation after transition + still time + frame delay
-  setTimeout(() => {
-    animateNextPoint(viewer, index + 1);
-  }, transitionDuration + stillDuration + frameDelay);
+  // Schedule the next animation *or* the final stop
+  if (targetPointIndex < sequence.length - 1) {
+     // Schedule the start of the *next* transition
+     console.log(`Segment ${index+1}: Scheduling next transition in ${segmentDuration}ms`);
+     setTimeout(() => {
+       animateNextPoint(viewer, targetPointIndex); // targetPointIndex is the 'index' for the next call
+     }, segmentDuration);
+  } else {
+     // This was the transition TO the last point.
+     // Schedule the final stop after its still duration (+ delay)
+     console.log(`Segment ${index+1}: Scheduling final stop in ${segmentDuration}ms`);
+     setTimeout(() => {
+         console.log("Final timer expired, stopping recording/preview.");
+         if (isCapturing) {
+             stopRecording();
+         } else if (isPreview) {
+             stopPreview();
+         }
+         window.KenBurns.visualization.setCurrentPoint(-1); // Redundant? stopAnimation handles this
+         document.dispatchEvent(new CustomEvent('animation-complete'));
+     }, segmentDuration); // Use full segment duration calculated here
+  }
 }
 
-// Animation loop
+// Animation loop (draws frames, including text)
 function animate(viewer) {
   animationRequest = requestAnimationFrame(() => animate(viewer)); // Store the request ID
 
@@ -522,11 +529,10 @@ function animate(viewer) {
       const ctx = canvas.getContext('2d');
 
       // --- START Burn-in Text --- //
-      // Check if options are enabled
       const burnTitles = document.getElementById('burn-titles')?.checked;
       const burnSubtitles = document.getElementById('burn-subtitles')?.checked;
 
-      // Use locally tracked segment text, NOT live visualization text
+      // Use locally tracked segment text
       if (burnTitles && currentSegmentTitle) {
         const fontSize = document.getElementById('overlay-title-font-size')?.value + 'px';
         const color = document.getElementById('overlay-title-color')?.value;
@@ -536,7 +542,6 @@ function animate(viewer) {
         const y = canvas.height * 0.1;
         drawTextWithBackground(ctx, currentSegmentTitle, x, y, font, color);
       }
-
       if (burnSubtitles && currentSegmentDescription) {
         const fontSize = document.getElementById('overlay-subtitle-font-size')?.value + 'px';
         const color = document.getElementById('overlay-subtitle-color')?.value;

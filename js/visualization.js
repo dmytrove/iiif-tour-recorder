@@ -10,9 +10,10 @@ let imageAspectRatio = 1; // Store the actual image aspect ratio
 let baseRectSize = 0.2; // Base size of rectangle in viewport coordinates (0.2 = 20% of image when zoom is 1.0)
 let sequenceLines = [];
 let captureRectDiv = null;
-let pointMarkers = [];
-let currentlyDisplayedTitle = ''; // Added
-let currentlyDisplayedDescription = ''; // Added
+let pointOverlays = {}; // Stores { marker: {element, location}, label: {element, location} }
+let currentlyDisplayedTitle = '';
+let currentlyDisplayedDescription = '';
+let svgOverlayElement = null; // Reference to the SVG overlay
 
 // Function to create visualizations for all points
 function updateVisualizations(viewer) {
@@ -24,63 +25,8 @@ function updateVisualizations(viewer) {
   
   const sequence = window.KenBurns.sequence.getSequence();
   
-  sequence.forEach((point, index) => {
-    const viewportPoint = new OpenSeadragon.Point(point.center.x, point.center.y);
-    const containerPoint = viewer.viewport.viewportToViewerElementCoordinates(viewportPoint);
-    
-    // Create point marker
-    const pointMarker = document.createElement('div');
-    pointMarker.className = 'point-marker';
-    pointMarker.style.left = `${containerPoint.x}px`;
-    pointMarker.style.top = `${containerPoint.y}px`;
-    pointMarker.title = `Point ${index + 1}: ${point.title || ''} - Zoom ${point.zoom}, Duration ${point.duration}ms`;
-    pointMarker.dataset.index = index;
-    
-    document.body.appendChild(pointMarker);
-    
-    // Add sequential number and title
-    const pointLabel = document.createElement('div');
-    pointLabel.className = 'point-number';
-    pointLabel.innerHTML = `${index + 1}${point.title ? '. ' + point.title : ''}`;
-    pointLabel.style.left = containerPoint.x + 'px';
-    pointLabel.style.top = containerPoint.y + 'px';
-    document.body.appendChild(pointLabel);
-    
-    // Create rectangle based on actual image dimensions and aspect ratio
-    const rect = createRectangleWithConsistentSize(viewer, point, containerPoint);
-    document.body.appendChild(rect);
-    
-    // Create connecting line to next point (if not last point)
-    let line = null;
-    if (index < sequence.length - 1) {
-      const nextPoint = sequence[index + 1];
-      const nextViewportPoint = new OpenSeadragon.Point(nextPoint.center.x, nextPoint.center.y);
-      const nextContainerPoint = viewer.viewport.viewportToViewerElementCoordinates(nextViewportPoint);
-      
-      // Calculate distance and angle
-      const dx = nextContainerPoint.x - containerPoint.x;
-      const dy = nextContainerPoint.y - containerPoint.y;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx);
-      
-      line = document.createElement('div');
-      line.className = 'point-line';
-      line.style.left = containerPoint.x + 'px';
-      line.style.top = containerPoint.y + 'px';
-      line.style.width = length + 'px';
-      line.style.transform = `rotate(${angle}rad)`;
-      document.body.appendChild(line);
-    }
-    
-    markers.push({ 
-      point: pointMarker, 
-      rect: rect, 
-      number: pointLabel,
-      line: line
-    });
-  });
-  
-  updateHighlightForCurrentPoint();
+  updatePointOverlays(viewer, sequence);
+  drawSequenceLines(viewer, sequence);
 }
 
 // Update the stored image aspect ratio
@@ -469,6 +415,174 @@ function getCurrentText() {
     };
 }
 
+// --- Initialization ---
+// Initialize necessary visualization components
+function initVisualizations(viewer) {
+    initSvgOverlay(viewer);
+    initCaptureFrame(viewer);
+    // Any other init needed
+}
+
+// Create and add the SVG overlay for lines
+function initSvgOverlay(viewer) {
+    if (svgOverlayElement) {
+        viewer.removeOverlay(svgOverlayElement);
+    }
+    svgOverlayElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgOverlayElement.setAttribute('class', 'osd-svg-overlay');
+    viewer.addOverlay(svgOverlayElement, new OpenSeadragon.Rect(0, 0, 1, 1)); // Cover entire viewport
+    console.log("SVG overlay initialized.");
+}
+
+// Find and store the capture frame element
+function initCaptureFrame(viewer) {
+    captureRectDiv = document.getElementById('capture-frame');
+    if (!captureRectDiv) {
+        console.warn("Capture frame element (#capture-frame) not found.");
+    }
+    // We might need viewer reference later if calculations depend on it
+}
+
+// Create/Update OpenSeadragon overlays for sequence points
+function updatePointOverlays(viewer, sequence) {
+    const existingOverlayIds = Object.keys(pointOverlays);
+    const currentPointIds = sequence.map((_, index) => index.toString());
+
+    // Remove overlays (marker + label) for points that no longer exist
+    existingOverlayIds.forEach(id => {
+        if (!currentPointIds.includes(id)) {
+            const overlayGroup = pointOverlays[id];
+            if (overlayGroup) {
+                if (overlayGroup.marker) viewer.removeOverlay(overlayGroup.marker.element);
+                if (overlayGroup.label) viewer.removeOverlay(overlayGroup.label.element);
+                delete pointOverlays[id];
+                console.log(`Removed overlays for point index ${id}`);
+            }
+        }
+    });
+
+    // Add/Update overlays for current points
+    sequence.forEach((point, index) => {
+        const pointId = index.toString();
+        const pointLocation = new OpenSeadragon.Point(point.center.x, point.center.y);
+        const overlayGroup = pointOverlays[pointId] || {}; // Get existing or create new group
+
+        // --- Marker Overlay --- //
+        if (overlayGroup.marker) {
+            // Update location if needed (simple remove/re-add)
+            if (!overlayGroup.marker.location.equals(pointLocation)) {
+                 console.log(`Updating marker location for overlay ${pointId}`);
+                 viewer.removeOverlay(overlayGroup.marker.element);
+                 overlayGroup.marker = null; // Force re-creation
+            }
+        }
+        if (!overlayGroup.marker) {
+            console.log(`Creating marker overlay for point index ${pointId}`);
+            const markerElement = document.createElement('div');
+            markerElement.className = 'point-marker-overlay';
+            markerElement.innerHTML = `<div class="point-marker-dot"></div><div class="point-marker-rotator"></div>`;
+            markerElement.dataset.pointIndex = pointId;
+            markerElement.addEventListener('click', () => { console.log(`Clicked point ${pointId}:`, point); });
+
+            viewer.addOverlay({
+                element: markerElement,
+                location: pointLocation,
+                placement: OpenSeadragon.Placement.CENTER
+            });
+            overlayGroup.marker = { element: markerElement, location: pointLocation };
+        }
+
+        // --- Label Overlay --- //
+        const labelText = `${index + 1}. ${point.title || 'Point'}`;
+        const labelLocation = pointLocation; // Anchor label to the same point
+
+        if (overlayGroup.label) {
+            // Update text and location if needed
+            const currentLabel = overlayGroup.label;
+            let needsUpdate = false;
+            if (currentLabel.element.textContent !== labelText) {
+                currentLabel.element.textContent = labelText;
+                needsUpdate = true;
+            }
+            if (!currentLabel.location.equals(labelLocation)) {
+                needsUpdate = true; // Location change requires update
+            }
+            if (needsUpdate) {
+                 console.log(`Updating label overlay ${pointId}`);
+                 // OSD provides update method for overlays
+                 viewer.updateOverlay(currentLabel.element, labelLocation);
+                 currentLabel.location = labelLocation; // Update stored location
+            }
+        }
+        if (!overlayGroup.label) {
+             console.log(`Creating label overlay for point index ${pointId}`);
+             const labelElement = document.createElement('div');
+             labelElement.className = 'point-label-overlay';
+             labelElement.textContent = labelText;
+
+             viewer.addOverlay({
+                 element: labelElement,
+                 location: labelLocation,
+                 // Place label slightly above the marker
+                 placement: OpenSeadragon.Placement.TOP_LEFT, // Experiment with placement
+                 checkResize: false // Optimization if label size is fixed
+             });
+             overlayGroup.label = { element: labelElement, location: labelLocation };
+        }
+
+        // Store the updated group
+        pointOverlays[pointId] = overlayGroup;
+    });
+}
+
+// Function to clear all point overlays (marker + label)
+function clearPointOverlays(viewer) {
+     Object.keys(pointOverlays).forEach(id => {
+         const overlayGroup = pointOverlays[id];
+         if (overlayGroup) {
+             if (overlayGroup.marker) viewer.removeOverlay(overlayGroup.marker.element);
+             if (overlayGroup.label) viewer.removeOverlay(overlayGroup.label.element);
+         }
+     });
+     pointOverlays = {};
+     console.log("Cleared all point overlays.");
+}
+
+// Draw sequence lines between points using SVG overlay
+function drawSequenceLines(viewer, sequence) {
+    if (!svgOverlayElement) {
+        console.warn("SVG overlay not initialized for drawing lines.");
+        return;
+    }
+    // Clear previous lines
+    while (svgOverlayElement.firstChild) {
+        svgOverlayElement.removeChild(svgOverlayElement.firstChild);
+    }
+
+    if (sequence.length < 2) return; // Need at least two points for a line
+
+    const ns = "http://www.w3.org/2000/svg";
+
+    for (let i = 0; i < sequence.length - 1; i++) {
+        const p1 = sequence[i];
+        const p2 = sequence[i + 1];
+
+        // Convert viewport coordinates to SVG coordinate system (0,0 top-left)
+        // Note: OSD overlays handle coordinate mapping, but for SVG we need viewer coords
+        const point1Viewer = viewer.viewport.viewportToViewerElementCoordinates(new OpenSeadragon.Point(p1.center.x, p1.center.y));
+        const point2Viewer = viewer.viewport.viewportToViewerElementCoordinates(new OpenSeadragon.Point(p2.center.x, p2.center.y));
+
+        const line = document.createElementNS(ns, "line");
+        line.setAttribute('x1', point1Viewer.x);
+        line.setAttribute('y1', point1Viewer.y);
+        line.setAttribute('x2', point2Viewer.x);
+        line.setAttribute('y2', point2Viewer.y);
+        line.setAttribute('class', 'sequence-line');
+
+        svgOverlayElement.appendChild(line);
+    }
+}
+
 // Export visualization functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.visualization = {
@@ -493,5 +607,10 @@ window.KenBurns.visualization = {
   getZoomPointIndex: () => zoomPointIndex,
   updateCallout,
   updateSubtitleDisplay,
-  getCurrentText
+  getCurrentText,
+  updatePointOverlays,
+  clearPointOverlays,
+  drawSequenceLines,
+  initVisualizations,
+  initSvgOverlay
 };
