@@ -5,19 +5,95 @@
 let currentTour = null;
 let availableTours = [];
 
-// Initialize by loading available tours
+// Function to initialize tour loading and selection
 async function initialize() {
+  const tourSelector = document.getElementById('tour-selector');
+  if (!tourSelector) {
+      console.error("Tour selector element not found.");
+      return; // Don't proceed if selector isn't there
+  }
+
   try {
-    // Scan tours directory for available tours first
-    await scanAvailableTours();
-    
-    // Load default tour (SK-A-2099.json)
-    await loadTour('tours/SK-A-2099.json');
-    
-    return true;
+    // Load the manifest of available tours
+    const response = await fetch('tours/manifest.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    availableTours = await response.json();
+
+    // Clear existing options
+    tourSelector.innerHTML = ''; 
+
+    // Populate the tour selector with cards
+    availableTours.forEach((tour) => {
+      const cardCol = document.createElement('div');
+      cardCol.className = 'col'; // Bootstrap grid column
+
+      const card = document.createElement('div');
+      card.className = 'card h-100 text-white bg-secondary tour-card-selector'; // Use secondary bg, add custom class
+      card.style.cursor = 'pointer';
+      card.dataset.tourUrl = tour.url;
+      
+      let cardBodyContent;
+      if(tour.thumbnail){
+          cardBodyContent = `
+            <img src="${tour.thumbnail}" class="card-img-top" alt="${tour.title || 'Tour thumbnail'}" style="height: 80px; object-fit: cover;">
+            <div class="card-body p-2">
+              <h6 class="card-title small mb-1 text-truncate" title="${tour.title || 'Untitled Tour'}">${tour.title || 'Untitled Tour'}</h6>
+              <p class="card-text small text-muted text-truncate" title="${tour.id}">${tour.id}</p>
+            </div>
+          `;
+      } else {
+          // Fallback if no thumbnail
+          cardBodyContent = `
+            <div class="card-body p-2">
+                <div class="placeholder-thumbnail bg-primary d-flex align-items-center justify-content-center" style="height: 80px;">
+                    <i class="bi bi-image fs-3"></i>
+                </div>
+                <h6 class="card-title small mb-1 mt-2 text-truncate" title="${tour.title || 'Untitled Tour'}">${tour.title || 'Untitled Tour'}</h6>
+                <p class="card-text small text-muted text-truncate" title="${tour.id}">${tour.id}</p>
+            </div>
+          `;
+      }
+
+      card.innerHTML = cardBodyContent;
+
+      // Add click listener to load tour
+      card.addEventListener('click', async () => {
+          await loadTour(tour.url);
+          // Update selection appearance
+          document.querySelectorAll('.tour-card-selector').forEach(c => c.classList.remove('border', 'border-info', 'border-3'));
+          card.classList.add('border', 'border-info', 'border-3');
+          // Optionally collapse available tours and show current info
+          const collapseAvailable = bootstrap.Collapse.getInstance(document.getElementById('collapseAvailableTours'));
+          const collapseCurrent = bootstrap.Collapse.getInstance(document.getElementById('collapseTourInfo'));
+          if(collapseAvailable) collapseAvailable.hide();
+          if(collapseCurrent) collapseCurrent.show();
+
+      });
+
+      cardCol.appendChild(card);
+      tourSelector.appendChild(cardCol);
+    });
+
+    // Load the default tour if specified and available
+    const defaultTour = availableTours.find(t => t.default);
+    if (defaultTour) {
+      await loadTour(defaultTour.url);
+      // Highlight default selection
+      const defaultCard = tourSelector.querySelector(`[data-tour-url="${defaultTour.url}"]`);
+      if (defaultCard) defaultCard.classList.add('border', 'border-info', 'border-3');
+    } else if (availableTours.length > 0) {
+        // Or load the first tour if no default
+        await loadTour(availableTours[0].url);
+        const firstCard = tourSelector.querySelector(`[data-tour-url="${availableTours[0].url}"]`);
+        if (firstCard) firstCard.classList.add('border', 'border-info', 'border-3');
+    }
+
   } catch (error) {
-    console.error('Failed to initialize tours:', error);
-    return false;
+    console.error('Error loading tour manifest:', error);
+    tourSelector.innerHTML = '<p class="text-danger">Could not load tour list.</p>';
+    throw error; // Re-throw to be caught by script.js if needed
   }
 }
 

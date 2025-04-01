@@ -346,18 +346,34 @@
   </div>
   <div class="offcanvas-body">
     <div class="accordion" id="infoAccordion">
+      
+      <!-- Available Tours Section (New Accordion Item) -->
+      <div class="accordion-item bg-dark text-white border-secondary">
+        <h2 class="accordion-header" id="headingAvailableTours">
+          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAvailableTours" aria-expanded="false" aria-controls="collapseAvailableTours">
+             <i class="bi bi-collection me-2"></i> Available Tours
+          </button>
+        </h2>
+        <div id="collapseAvailableTours" class="accordion-collapse collapse" aria-labelledby="headingAvailableTours" data-bs-parent="#infoAccordion">
+          <div class="accordion-body" style="max-height: 250px; overflow-y: auto;">
+             <!-- Tour selector content goes here -->
+             <div id="tour-selector" class="row row-cols-1 row-cols-md-2 g-2">
+                <!-- Cards populated by js/tours.js -->
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tour Information Section (Existing Item) -->
       <div class="accordion-item bg-dark text-white border-secondary">
         <h2 class="accordion-header" id="headingTourInfo">
           <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTourInfo" aria-expanded="true" aria-controls="collapseTourInfo">
-             <i class="bi bi-signpost-split me-2"></i> Tour Information
+             <i class="bi bi-signpost-split me-2"></i> Current Tour Information
           </button>
         </h2>
         <div id="collapseTourInfo" class="accordion-collapse collapse show" aria-labelledby="headingTourInfo" data-bs-parent="#infoAccordion">
           <div class="accordion-body">
-            <!-- Tours tab content goes here -->
-            <h5>Available Tours</h5>
-            <div id="tour-selector" class="list-group mb-3"></div>
-            
+            <!-- Original Tour Info content - Available Tours header removed -->
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h5>Current Tour Information</h5>
               <div>
@@ -394,6 +410,7 @@
         </div>
       </div>
       
+      <!-- JSON Editor Section (Existing Item) -->
       <div class="accordion-item bg-dark text-white border-secondary">
         <h2 class="accordion-header" id="headingJsonEditor">
           <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJsonEditor" aria-expanded="false" aria-controls="collapseJsonEditor">
