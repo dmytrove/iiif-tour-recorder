@@ -60,16 +60,11 @@ async function initialize() {
 
       // Add click listener to load tour
       card.addEventListener('click', async () => {
-          await loadTour(tour.url);
+          await loadTour(tour.url); // Load the tour data
+          
           // Update selection appearance
           document.querySelectorAll('.tour-card-selector').forEach(c => c.classList.remove('border', 'border-info', 'border-3'));
           card.classList.add('border', 'border-info', 'border-3');
-          // Optionally collapse available tours and show current info
-          const collapseAvailable = bootstrap.Collapse.getInstance(document.getElementById('collapseAvailableTours'));
-          const collapseCurrent = bootstrap.Collapse.getInstance(document.getElementById('collapseTourInfo'));
-          if(collapseAvailable) collapseAvailable.hide();
-          if(collapseCurrent) collapseCurrent.show();
-
       });
 
       cardCol.appendChild(card);
