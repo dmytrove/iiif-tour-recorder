@@ -152,8 +152,14 @@ function showPointEditModal(viewerOrIndex, pointIndexMaybe) {
   descriptionInput.value = point.description || '';
   zoomInput.value = point.zoom;
   zoomValue.textContent = point.zoom.toFixed(1);
-  document.getElementById('point-duration-transition').value = point.duration?.transition || 1500;
-  document.getElementById('point-duration-still').value = point.duration?.still || 1500;
+  
+  // Get default durations from settings
+  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+  
+  // Use point-specific durations if available, otherwise use defaults from settings
+  document.getElementById('point-duration-transition').value = point.duration?.transition || defaultTransitionDuration;
+  document.getElementById('point-duration-still').value = point.duration?.still || defaultStillDuration;
   pointIndexInput.value = pointIndex;
   
   // Store the current editing point index

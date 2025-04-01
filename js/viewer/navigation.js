@@ -18,9 +18,14 @@ export function smoothPanZoom(viewer, targetZoom, targetCenter, duration = 4000)
     y: targetCenter.y
   };
 
+  // Get the selected easing function from the settings
+  const easingSelection = document.getElementById('easing-function')?.value || 'Cubic.InOut';
+  const [easingFamily, easingType] = easingSelection.split('.');
+  const easingFunction = TWEEN.Easing[easingFamily]?.[easingType] || TWEEN.Easing.Cubic.InOut;
+
   return new TWEEN.Tween(initial)
     .to(target, duration)
-    .easing(TWEEN.Easing.Cubic.InOut)
+    .easing(easingFunction)
     .onUpdate(obj => {
       viewport.zoomTo(obj.zoom, null, true);
       viewport.panTo(new OpenSeadragon.Point(obj.x, obj.y), true);
