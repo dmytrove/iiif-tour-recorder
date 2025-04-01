@@ -111,12 +111,31 @@ function setupEventListeners(viewer) {
     toursTab.addEventListener('shown.bs.tab', updateTourInfo);
   }
   // document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo); // Old listener removed
+
+  // Setup Tour Info Editing
+  setupTourInfoEditing();
 }
 
 // Setup recording controls
 function setupRecordingControls(viewer) {
+  const startBtn = document.getElementById('start');
+  const stopBtn = document.getElementById('stop');
+  const previewBtn = document.getElementById('preview');
+  const stopPreviewBtn = document.getElementById('stop-preview');
+
+  // Function to set button states
+  function setButtonStates(isRecording, isPreviewing) {
+    startBtn.disabled = isRecording || isPreviewing;
+    stopBtn.disabled = !isRecording;
+    previewBtn.disabled = isRecording || isPreviewing;
+    stopPreviewBtn.disabled = !isPreviewing;
+  }
+
+  // Initial state
+  setButtonStates(false, false);
+
   // Start recording button
-  document.getElementById('start').addEventListener('click', () => {
+  startBtn.addEventListener('click', () => {
     const quality = parseInt(document.getElementById('quality').value);
     const framerate = parseInt(document.getElementById('framerate').value);
     const aspectRatio = document.getElementById('aspect-ratio').value;
@@ -126,35 +145,40 @@ function setupRecordingControls(viewer) {
       framerate,
       aspectRatio
     })) {
-      document.getElementById('start').disabled = true;
-      document.getElementById('stop').disabled = false;
-      document.getElementById('preview').disabled = true;
-
+      setButtonStates(true, false);
       window.KenBurns.capture.startAnimation(viewer);
     }
   });
 
   // Preview button
-  document.getElementById('preview').addEventListener('click', () => {
+  previewBtn.addEventListener('click', () => {
     if (window.KenBurns.capture.startPreview()) {
-      document.getElementById('start').disabled = true;
-      document.getElementById('stop').disabled = false;
-      document.getElementById('preview').disabled = true;
-
+      setButtonStates(false, true);
       window.KenBurns.capture.startAnimation(viewer);
     }
   });
 
-  // Stop button
-  document.getElementById('stop').addEventListener('click', () => {
+  // Stop recording button
+  stopBtn.addEventListener('click', () => {
     window.KenBurns.capture.stopRecording();
-
-    document.getElementById('start').disabled = false;
-    document.getElementById('stop').disabled = true;
-    document.getElementById('preview').disabled = false;
-
+    setButtonStates(false, false);
     window.KenBurns.visualization.setCurrentPoint(-1);
     window.KenBurns.visualization.updateVisualizations(viewer);
+  });
+
+  // Stop preview button
+  stopPreviewBtn.addEventListener('click', () => {
+    // We need a function in capture.js to handle only stopping the preview
+    if (window.KenBurns.capture.stopPreview) {
+        window.KenBurns.capture.stopPreview();
+        setButtonStates(false, false);
+        window.KenBurns.visualization.setCurrentPoint(-1);
+        window.KenBurns.visualization.updateVisualizations(viewer);
+    } else {
+        console.error("stopPreview function not found in capture module.");
+        // Fallback to stopRecording if stopPreview doesn't exist yet
+        stopBtn.click(); 
+    }
   });
 }
 
@@ -234,44 +258,125 @@ function setupQualityControls(viewer) {
   });
 }
 
+// Function to toggle editing state for tour info
+function setTourInfoEditingState(isEditing) {
+    const tourInfoDiv = document.getElementById('tour-info');
+    const editables = tourInfoDiv.querySelectorAll('[data-editable-field]');
+    const editBtn = document.getElementById('edit-tour-info');
+    const saveBtn = document.getElementById('save-tour-info');
+    const cancelBtn = document.getElementById('cancel-tour-info');
+
+    editables.forEach(el => {
+        el.contentEditable = isEditing;
+        el.style.outline = isEditing ? '1px dashed #ccc' : 'none';
+        el.style.cursor = isEditing ? 'text' : 'default';
+    });
+
+    editBtn.classList.toggle('d-none', isEditing);
+    saveBtn.classList.toggle('d-none', !isEditing);
+    cancelBtn.classList.toggle('d-none', !isEditing);
+
+    // Focus the title field when editing starts
+    if (isEditing) {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        if(titleEl) titleEl.focus();
+    }
+}
+
+// Setup listeners for tour info editing buttons
+let originalTourInfo = { title: '', description: '' };
+function setupTourInfoEditing() {
+    const tourInfoDiv = document.getElementById('tour-info');
+
+    document.getElementById('edit-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        originalTourInfo.title = titleEl ? titleEl.textContent : '';
+        originalTourInfo.description = descEl ? descEl.textContent : '';
+        setTourInfoEditingState(true);
+    });
+
+    document.getElementById('cancel-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        if(titleEl) titleEl.textContent = originalTourInfo.title;
+        if(descEl) descEl.textContent = originalTourInfo.description;
+        setTourInfoEditingState(false);
+    });
+
+    document.getElementById('save-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        const newTitle = titleEl ? titleEl.textContent.trim() : '';
+        const newDescription = descEl ? descEl.textContent.trim() : '';
+
+        // Call function to update data (needs to be created in tours.js/sequence.js)
+        if (window.KenBurns.tours && window.KenBurns.tours.updateTourMetadata) {
+             if (window.KenBurns.tours.updateTourMetadata(newTitle, newDescription)) {
+                 setTourInfoEditingState(false);
+                 // Update JSON view
+                 if (window.KenBurns.table && window.KenBurns.table.updateJsonFromSequence) {
+                    window.KenBurns.table.updateJsonFromSequence();
+                 }
+                 window.KenBurns.ui.showToast("Tour info updated.", "success");
+             } else {
+                 window.KenBurns.ui.showToast("Failed to update tour info.", "error");
+                 // Optionally revert changes or keep editing enabled
+             }
+        } else {
+            console.error("updateTourMetadata function not found.");
+            window.KenBurns.ui.showToast("Error: Cannot save tour info.", "error");
+            setTourInfoEditingState(false); // Disable editing on error
+        }
+    });
+}
+
 // Update tour information in the tour tab
 function updateTourInfo() {
-  const tourInfo = document.getElementById('tour-info');
+  const tourInfoDiv = document.getElementById('tour-info');
   const tour = window.KenBurns.tours.getCurrentTour();
+  const editBtn = document.getElementById('edit-tour-info');
+
+  if (!tourInfoDiv) return; // Exit if element doesn't exist
 
   if (!tour) {
-    tourInfo.innerHTML = '<p>No tour loaded.</p>';
+    tourInfoDiv.innerHTML = '<p class="text-muted">No tour loaded.</p>';
+    if (editBtn) editBtn.disabled = true; // Disable edit if no tour
     return;
   }
 
+  if (editBtn) editBtn.disabled = false; // Enable edit if tour loaded
+
   let thumbnailHTML = '';
   if (tour.thumbnail) {
-    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="tour-preview">`;
+    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="tour-preview img-fluid rounded mb-2">`; // Added BS classes
   }
 
+  // Use data attributes for editable fields
   let infoHTML = `
     <div class="tour-preview-container">
       ${thumbnailHTML}
     </div>
-    <h4>${tour.title}</h4>
-    <p>${tour.description}</p>
-    <div class="tour-details">
+    <h4 data-editable-field="title" style="min-height: 1.5em;">${tour.title || 'Untitled Tour'}</h4> 
+    <p data-editable-field="description" class="small text-muted" style="min-height: 3em;">${tour.description || 'No description provided.'}</p>
+    <div class="tour-details mt-3 pt-2 border-top border-secondary"> <!-- Added BS classes -->
       <div class="detail-item">
-        <span class="detail-label">ID:</span>
-        <span class="detail-value">${tour.id}</span>
+        <strong class="detail-label me-2">ID:</strong>
+        <span class="detail-value text-break">${tour.id}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Points of interest:</span>
-        <span class="detail-value">${tour.pointsOfInterest.length}</span>
+        <strong class="detail-label me-2">Points:</strong>
+        <span class="detail-value">${tour.pointsOfInterest?.length || 0}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Image URL:</span>
-        <span class="detail-value">${tour.tiles}</span>
+        <strong class="detail-label me-2">Image:</strong>
+        <span class="detail-value text-break">${tour.tiles}</span>
       </div>
     </div>
   `;
 
-  tourInfo.innerHTML = infoHTML;
+  tourInfoDiv.innerHTML = infoHTML;
+  setTourInfoEditingState(false); // Ensure editing is off when info updates
 }
 
 // Export functions

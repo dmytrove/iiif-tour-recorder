@@ -1,9 +1,11 @@
 // Recording and animation capture functionality
 let capturer = null;
-let capturing = false;
-let previewMode = false;
-let frameCount = 0;
-let framesDirectory = 'frames';
+let isCapturing = false;
+let isPreview = false;
+let currentFrame = 0;
+let totalFrames = 0;
+let animationStartTime = 0;
+let animationRequest = null;
 
 // Start recording process
 function startRecording(options = {}) {
@@ -12,7 +14,7 @@ function startRecording(options = {}) {
   const aspectRatio = options.aspectRatio || '0';
 
   // Reset frame counter
-  frameCount = 0;
+  currentFrame = 0;
 
   // Allow setting a custom frames directory
   if (options.framesDirectory) {
@@ -79,8 +81,8 @@ function startRecording(options = {}) {
     });
   }
 
-  capturing = true;
-  previewMode = false;
+  isCapturing = true;
+  isPreview = false;
 
   try {
     capturer.start();
@@ -93,15 +95,16 @@ function startRecording(options = {}) {
 
 // Start preview mode
 function startPreview() {
-  capturing = false;
-  previewMode = true;
+  isCapturing = false;
+  isPreview = true;
   return true;
 }
 
 // Stop recording/preview and save if recording
 function stopRecording() {
-  if (capturing) {
-    capturing = false;
+  if (isCapturing) {
+    stopAnimation();
+    isCapturing = false;
     capturer.stop();
 
     // Use the callback version of save to get direct access to the blob
@@ -210,8 +213,34 @@ function stopRecording() {
     });
   }
 
-  previewMode = false;
+  isPreview = false;
   return true;
+}
+
+// Function to stop the animation loop and TWEEN updates
+function stopAnimation() {
+  console.log("Stopping animation loop.");
+  if (animationRequest) {
+    cancelAnimationFrame(animationRequest);
+    animationRequest = null;
+  }
+  TWEEN.removeAll(); // Stop all tweens
+  // Reset visualization state if needed
+  if (window.KenBurns && window.KenBurns.visualization && window.KenBurns.visualization.setCurrentPoint) {
+    window.KenBurns.visualization.setCurrentPoint(-1);
+  }
+}
+
+// Function to stop the preview process
+function stopPreview() {
+  if (!isPreview) return;
+  
+  stopAnimation(); // Stop the TWEEN loop
+  
+  isPreview = false;
+  isCapturing = false; // Ensure this is also false
+  console.log("Preview stopped.");
+  if (window.KenBurns && window.KenBurns.ui && window.KenBurns.ui.showToast) window.KenBurns.ui.showToast("Preview stopped.", "info");
 }
 
 // Start the animation sequence
@@ -244,7 +273,7 @@ function animateNextPoint(viewer, index) {
   const sequence = window.KenBurns.sequence.getSequence();
 
   if (index >= sequence.length - 1) {
-    if (capturing || previewMode) {
+    if (isCapturing || isPreview) {
       // At the last point, wait for the still duration and then stop
       const currentPoint = sequence[index];
       
@@ -306,7 +335,7 @@ function animate(viewer) {
   TWEEN.update();
 
   // Capture frame if recording
-  if (capturing && capturer) {
+  if (isCapturing && capturer) {
     viewer.forceRedraw();
 
     // Get the canvas from the viewer
@@ -367,6 +396,7 @@ window.KenBurns.capture = {
   stopRecording,
   startAnimation,
   animate,
-  isCapturing: () => capturing,
-  isPreviewMode: () => previewMode
+  isCapturing: () => isCapturing,
+  isPreviewMode: () => isPreview,
+  stopPreview
 };

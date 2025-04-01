@@ -346,7 +346,41 @@ legend {
   font-size: 13px;
 }
 
-/* .setting-group { ... } removed */
+/* Ensure dark theme for inputs/selects within dark containers */
+.text-bg-dark .form-control,
+.text-bg-dark .form-select,
+.modal-content.bg-dark .form-control, /* Target modal specifically too */
+.modal-content.bg-dark .form-select {
+  background-color: rgba(50, 50, 55, 0.9); /* Dark background */
+  color: #fff; /* Light text */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Lighter border for contrast */
+}
+
+/* Override Bootstrap focus glow with a more subtle border color */
+.text-bg-dark .form-control:focus,
+.text-bg-dark .form-select:focus,
+.modal-content.bg-dark .form-control:focus,
+.modal-content.bg-dark .form-select:focus {
+  background-color: rgba(60, 60, 65, 0.9);
+  color: #fff;
+  border-color: #86b7fe; /* Standard Bootstrap focus blue */
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .2); /* Muted focus shadow */
+}
+
+/* Style range input thumb/track for dark theme (basic example) */
+.form-range::-webkit-slider-thumb {
+    background-color: #adb5bd;
+}
+.form-range::-moz-range-thumb {
+    background-color: #adb5bd;
+}
+.form-range::-webkit-slider-runnable-track {
+    background-color: #495057;
+}
+.form-range::-moz-range-track {
+    background-color: #495057;
+}
 
 select, input[type="number"], input[type="text"] {
   background: rgba(30, 30, 35, 0.8);

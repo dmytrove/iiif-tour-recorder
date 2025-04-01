@@ -219,6 +219,25 @@ function downloadSRT() {
   URL.revokeObjectURL(url);
 }
 
+// Function to update the current tour's metadata
+function updateTourMetadata(newTitle, newDescription) {
+    if (!currentTour) {
+        console.error("Cannot update metadata: No tour loaded.");
+        return false;
+    }
+    try {
+        currentTour.title = newTitle;
+        currentTour.description = newDescription;
+        console.log("Tour metadata updated locally:", currentTour);
+        // No need to re-save to file here, just update in memory
+        // The updated info will be included if the user updates/exports JSON
+        return true;
+    } catch (error) {
+        console.error("Error updating tour metadata:", error);
+        return false;
+    }
+}
+
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.tours = {
@@ -226,5 +245,6 @@ window.KenBurns.tours = {
   loadTour,
   getCurrentTour,
   generateSRT,
-  downloadSRT
+  downloadSRT,
+  updateTourMetadata
 };
