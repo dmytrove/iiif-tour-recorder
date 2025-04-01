@@ -358,7 +358,7 @@ function updateTourInfo() {
       ${thumbnailHTML}
     </div>
     <h4 data-editable-field="title" style="min-height: 1.5em;">${tour.title || 'Untitled Tour'}</h4> 
-    <p data-editable-field="description" class="small text-muted" style="min-height: 3em;">${tour.description || 'No description provided.'}</p>
+    <p data-editable-field="description" class="small" style="min-height: 3em;">${tour.description || 'No description provided.'}</p>
     <div class="tour-details mt-3 pt-2 border-top border-secondary"> <!-- Added BS classes -->
       <div class="detail-item">
         <strong class="detail-label me-2">ID:</strong>
