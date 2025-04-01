@@ -367,6 +367,13 @@ kbd {
     color: #e9ecef !important; /* Use the standard light text color, forced */
 }
 
+/* Ensure accordion body content in right panel has light text */
+#offcanvasRight .accordion-body,
+#offcanvasRight .accordion-body ul,
+#offcanvasRight .accordion-body li {
+    color: #ced4da; /* Use a standard light gray for body text */
+}
+
 /* Specific styling for tour selector cards */
 .tour-card-selector {
   cursor: pointer;
