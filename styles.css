@@ -65,7 +65,6 @@ body {
   word-break: break-all;
 }
 
-
 /* Text areas */
 textarea {
   width: 100%;
@@ -76,15 +75,16 @@ textarea {
   font-family: monospace;
 }
 
-/* Style the JSON textarea for dark theme */
+/* Style the JSON/SRT textareas for dark theme */
 #sequence-json,
-#srt-output { /* Apply to both textareas */
+#srt-output {
   background-color: #343a40; /* Darker background */
   color: #e9ecef;          /* Light text */
   border-color: #495057;   /* Matching border */
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   min-height: 150px; /* Adjusted min-height */
   resize: vertical;
+  outline: none;
 }
 
 /* Point markers and visualization */
@@ -254,43 +254,6 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   outline: none;
 }
 
-/* Custom Checkbox Styling adapted for Bootstrap */
-.form-check-input[type="checkbox"] { /* Target Bootstrap class */
-  cursor: pointer;
-  position: relative;
-  width: 1em; /* Use em for better scaling */
-  height: 1em;
-  -webkit-appearance: none;
-  appearance: none; /* Standard property */
-  background-color: rgba(50, 50, 55, 0.8); /* Slightly adjusted background */
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.25em; /* Use em */
-  vertical-align: middle; /* Align better with label */
-  margin-right: 0.5em; /* Add space */
-}
-
-.form-check-input[type="checkbox"]:checked {
-  background-color: #4a6fa5;
-  border-color: #4a6fa5;
-}
-
-.form-check-input[type="checkbox"]:checked:after {
-  content: '✓';
-  position: absolute;
-  color: white;
-  font-size: 0.8em; /* Scale checkmark */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Center checkmark */
-  line-height: 1;
-}
-
-.form-check-input[type="checkbox"]:focus {
-    border-color: #86b7fe; /* Bootstrap focus color */
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25); /* Bootstrap focus shadow */
-}
-
 /* Title callout styling */
 #title-callout {
   position: absolute;
@@ -397,6 +360,11 @@ kbd {
 /* Make muted text in JSON editor more visible */
 #collapseJsonEditor .text-muted {
   color: #adb5bd !important; /* Lighter gray */
+}
+
+/* Ensure accordion buttons in right panel have light text */
+#offcanvasRight .accordion-button {
+    color: #e9ecef !important; /* Use the standard light text color, forced */
 }
 
 /* Specific styling for tour selector cards */
