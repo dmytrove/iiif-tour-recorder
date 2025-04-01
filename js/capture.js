@@ -229,18 +229,24 @@ function stopAnimation() {
   if (window.KenBurns && window.KenBurns.visualization && window.KenBurns.visualization.setCurrentPoint) {
     window.KenBurns.visualization.setCurrentPoint(-1);
   }
+  // Reset progress bar
+  updateProgressBar(0);
 }
 
 // Function to stop the preview process
 function stopPreview() {
-  if (!isPreview) return;
-  
-  stopAnimation(); // Stop the TWEEN loop
-  
+  if (!isPreview) {
+    console.log("Not previewing.");
+    return;
+  }
+  console.log("Stopping preview...");
+  stopAnimation(); // Stops TWEEN and resets progress bar
+
   isPreview = false;
-  isCapturing = false; // Ensure this is also false
+  isCapturing = false;
   console.log("Preview stopped.");
-  if (window.KenBurns && window.KenBurns.ui && window.KenBurns.ui.showToast) window.KenBurns.ui.showToast("Preview stopped.", "info");
+  if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast("Preview stopped.", "info");
+  // Ensure UI state is reset via ui.js listener
 }
 
 // Start the animation sequence
@@ -386,6 +392,32 @@ function animate(viewer) {
     const aspectRatio = document.getElementById('aspect-ratio').value;
     window.KenBurns.visualization.updateCaptureFrame(viewer, aspectRatio);
   }
+
+  // Update progress bar during animation
+  if ((isCapturing || isPreview) && totalFrames > 0) {
+    const progress = Math.min(100, Math.max(0, (currentFrame / totalFrames) * 100));
+    updateProgressBar(progress);
+  }
+}
+
+// Helper function to update the progress bar UI
+function updateProgressBar(percentage) {
+    const progressBar = document.getElementById('animation-progress-bar');
+    if (progressBar) {
+        const clampedPercentage = Math.min(100, Math.max(0, percentage));
+        progressBar.style.width = `${clampedPercentage}%`;
+        progressBar.setAttribute('aria-valuenow', clampedPercentage.toFixed(0));
+        // Change color based on state?
+        if (isCapturing) {
+            progressBar.classList.remove('bg-info');
+            progressBar.classList.add('bg-danger');
+        } else if (isPreview) {
+            progressBar.classList.remove('bg-danger');
+            progressBar.classList.add('bg-info');
+        } else {
+            progressBar.classList.remove('bg-danger', 'bg-info'); // Reset if neither
+        }
+    }
 }
 
 // Export functions

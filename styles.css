@@ -18,9 +18,6 @@ body {
   height: 100vh; 
 }
 
-/* Tour selector styling */
-/* .tour-selector { ... } */
-
 /* Tour info display */
 #tour-info {
   background: rgba(0, 0, 0, 0.2);
@@ -63,41 +60,6 @@ body {
   word-break: break-all;
 }
 
-/* Controls header with tab buttons and collapse button */
-/* .controls-header { ... } removed */
-
-/* Form layout */
-/* .form-row { ... } removed */
-
-/* .form-col { ... } removed */
-
-/* .form-col.expand { ... } removed */
-
-/* .form-col.shrink { ... } removed */
-
-/* .checkbox-group { ... } removed */
-
-/* .checkbox-label { ... } removed */
-
-/* .url-input-group { ... } removed */
-
-/* #controls { ... } styles specific to the old panel are now obsolete */
-/* Old #controls positioning, background, size, border, shadow, transition removed */
-
-/* Collapsed state for controls - obsolete */
-/* #controls.collapsed { ... } removed */
-
-/* #collapse-controls - obsolete */
-/* #collapse-controls { ... } removed */
-/* #collapse-controls:hover { ... } removed */
-/* #controls.collapsed #collapse-controls { ... } removed */
-
-/* Tab styling - already removed */
-/* .tab { ... } removed */
-/* .tab.active { ... } removed */
-/* .tab-buttons { ... } removed */
-/* .tab-button { ... } removed */
-/* .tab-button.active { ... } removed */
 
 /* Text areas */
 textarea {
@@ -114,21 +76,6 @@ textarea {
   height: calc(100vh - 250px);
   resize: vertical;
 }
-
-/* Table styling - Replaced by DataTables Bootstrap theme */
-/* table { ... } removed */
-/* th { ... } removed */
-/* td { ... } removed */
-/* td.description { ... } removed */
-/* tr:hover td { ... } removed */
-/* tr:last-child td { ... } removed */
-
-/* Style for read-only table cells - Obsolete */
-/* .readonly-cell { ... } removed */
-
-/* Edit/Delete Action links - Replaced by Buttons */
-/* .edit-action { ... } removed */
-/* .delete-action { ... } removed */
 
 /* Point markers and visualization */
 .point-marker {
@@ -190,17 +137,6 @@ textarea {
   user-select: none;
   z-index: 101;
 }
-
-/* Button styling */
-/* .btn-group { ... } removed */
-
-/* button { ... } removed */
-
-/* button:hover:not(:disabled) { ... } removed */
-
-/* button:active:not(:disabled) { ... } removed */
-
-/* button:disabled { ... } removed */
 
 /* Button variations */
 .btn-primary {
@@ -390,17 +326,3 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-/* ---- Obsolete Modal Styles Removed Below ---- */
-/* .modal { ... } removed */
-/* .modal.active { ... } removed */
-/* .modal-content { ... } removed */
-/* .modal-content h3 { ... } removed */
-/* .form-group { ... } removed */
-/* .form-group label { ... } removed */
-/* .form-group input[type="text"], .form-group textarea { ... } removed */
-/* .form-group textarea { ... } removed */
-/* .form-group input[type="range"] { ... } removed */
-/* .form-buttons { ... } removed */
-/* .form-buttons button { ... } removed */
-/* #save-point { ... } removed */
-/* #cancel-edit { ... } removed */
