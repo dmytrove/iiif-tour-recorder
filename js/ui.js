@@ -66,11 +66,6 @@ function setupEventListeners(viewer) {
     window.KenBurns.table.updateJsonFromSequence();
   });
 
-  // "Update Visualization" button
-  document.getElementById('update-table').addEventListener('click', () => {
-    window.KenBurns.visualization.updateVisualizations(viewer);
-  });
-
   // "Apply URL" button
   document.getElementById('apply-url').addEventListener('click', () => {
     const newUrl = document.getElementById('iiif-url').value.trim();

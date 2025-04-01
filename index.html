@@ -249,26 +249,9 @@
          </div>
 
          <div id="table-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="table-tab-btn">
-           <div class="table-responsive">
-             <table id="sequence-table" class="table table-sm table-bordered table-hover">
-               <thead>
-                 <tr>
-                   <th>Title</th>
-                   <th class="property-column">Zoom</th>
-                   <th class="property-column">Center X</th>
-                   <th class="property-column">Center Y</th>
-                   <th class="property-column">Transition (ms)</th>
-                   <th class="property-column">Still (ms)</th>
-                   <th>Actions</th>
-                 </tr>
-               </thead>
-               <tbody></tbody>
-             </table>
-           </div>
-           <div class="btn-group mt-2">
-             <button id="add-point" class="btn btn-primary">Add Point</button>
-             <button id="update-table" class="btn btn-secondary">Update Visualization</button>
-           </div>
+             <!-- Table structure removed from here -->
+             <p class="text-muted">Sequence table is now in the bottom editor panel.</p> 
+             <!-- Button group removed as well -->
          </div>
 
          <div id="tours-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="tours-tab-btn">
@@ -325,6 +308,45 @@
 <!-- Toast Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <!-- Toast template will be added here by JavaScript -->
+</div>
+
+<!-- Bottom Sequence Table Offcanvas Trigger -->
+<button class="btn btn-secondary position-fixed bottom-0 start-50 translate-middle-x mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sequenceOffcanvas" aria-controls="sequenceOffcanvas" style="z-index: 1050;">
+  <i class="bi bi-table"></i> Show Sequence Editor
+</button>
+
+<!-- Bottom Sequence Table Offcanvas -->
+<div class="offcanvas offcanvas-bottom text-bg-dark" tabindex="-1" id="sequenceOffcanvas" aria-labelledby="sequenceOffcanvasLabel" style="height: 40vh;" data-bs-scroll="true" data-bs-backdrop="false">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title" id="sequenceOffcanvasLabel"><i class="bi bi-list-ol"></i> Sequence Points</h5>
+    <div class="ms-auto">
+      <!-- Add Point button moved here -->
+      <button id="add-point" class="btn btn-sm btn-success me-2"><i class="bi bi-plus-circle"></i> Add Point at Current View</button>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Table will be moved here -->
+    <div class="table-responsive h-100">
+       <table id="sequence-table" class="table table-sm table-bordered table-hover" style="width:100%">
+         <thead>
+           <!-- Header content remains -->
+            <tr>
+              <th>Title</th>
+              <th class="property-column">Zoom</th>
+              <th class="property-column">Center X</th>
+              <th class="property-column">Center Y</th>
+              <th class="property-column">Transition (ms)</th>
+              <th class="property-column">Still (ms)</th>
+              <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+           <!-- Body content will be populated by DataTables -->
+         </tbody>
+       </table>
+    </div>
+  </div>
 </div>
 </body>
 </html>

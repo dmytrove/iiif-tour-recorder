@@ -42,9 +42,9 @@ function initializeDataTable() {
         search: "_INPUT_", // Use Bootstrap input group styling
         searchPlaceholder: "Search table..."
     },
-    // Make table vertically scrollable if needed
-    // scrollY: 'calc(100vh - 350px)', 
-    // scrollCollapse: true,
+    // Make table vertically scrollable within the bottom offcanvas
+    scrollY: 'calc(40vh - 140px)', // Adjust height based on offcanvas height and header/footer
+    scrollCollapse: true,
   });
 
   // --- Event Delegation for Actions ---
