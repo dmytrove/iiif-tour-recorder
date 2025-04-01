@@ -326,3 +326,49 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
+/* Panel Transparency */
+.offcanvas,
+.modal-content {
+    background-color: rgba(21, 25, 29, 0.8); /* Bootstrap dark color with 80% alpha */
+    color: #fff; /* Ensure text is light */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Add a subtle border */
+}
+
+/* Adjust accordion items within transparent offcanvas */
+.offcanvas .accordion-item {
+    background-color: transparent; /* Let offcanvas background show through */
+    border-color: rgba(255, 255, 255, 0.15); /* Match border style */
+}
+
+.offcanvas .accordion-button {
+    background-color: rgba(255, 255, 255, 0.05); /* Slight contrast for button */
+    color: #fff;
+}
+
+.offcanvas .accordion-button:not(.collapsed) {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    box-shadow: none;
+}
+
+.offcanvas .accordion-button:focus {
+    box-shadow: none; /* Remove default focus shadow */
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.offcanvas .accordion-button::after {
+    filter: brightness(0) invert(1); /* Make default icon white */
+}
+
+/* Adjust DataTables elements for transparent background */
+.offcanvas .dt-search input {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.offcanvas .dt-search label {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ccc;
+}
+
