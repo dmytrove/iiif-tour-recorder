@@ -1,21 +1,21 @@
 [
   {
     "id": "SK-A-2099",
-    "title": "SK-A-2099",
+    "title": "Still Life with Asparagus",
     "url": "tours/SK-A-2099.json",
     "thumbnail": "https://iiif.micr.io/OHDPD/full/!200,/0/default.webp",
     "default": true
   },
   {
     "id": "SK-A-2344",
-    "title": "SK-A-2344",
+    "title": "The Milkmaid",
     "url": "tours/SK-A-2344.json",
     "thumbnail": "https://iiif.micr.io/QkOGy/full/!200,/0/default.webp",
     "default": false
   },
   {
     "id": "SK-A-3262",
-    "title": "SK-A-3262",
+    "title": "Self-Portrait with Grey Felt Hat",
     "url": "tours/SK-A-3262.json",
     "thumbnail": null,
     "default": false
