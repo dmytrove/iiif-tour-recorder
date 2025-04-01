@@ -3,8 +3,8 @@
 
 // Setup event listeners for the UI controls
 function setupEventListeners(viewer) {
-  // Setup collapse button
-  document.getElementById('collapse-controls').addEventListener('click', function() {
+  // Setup collapse button (Removed - Now using Bootstrap Offcanvas)
+  /* document.getElementById('collapse-controls').addEventListener('click', function() {
     document.getElementById('controls').classList.toggle('collapsed');
 
     // Update the button text/icon based on state
@@ -15,7 +15,7 @@ function setupEventListeners(viewer) {
       this.innerHTML = '&#9664;'; // Left arrow
       this.title = 'Collapse panel';
     }
-  });
+  }); */
 
   // Tab navigation (Handled by Bootstrap via data-bs-* attributes)
   /*  document.querySelectorAll('.tab-button').forEach(button => {

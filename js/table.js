@@ -11,30 +11,13 @@ function showPointEditModal(index) {
   window.KenBurns.interactions.showPointEditModal(index);
 }
 
-// Setup table properties toggle
-function setupTablePropertiesToggle() {
-  const showPropertiesCheckbox = document.getElementById('show-properties');
-  const sequenceTable = document.getElementById('sequence-table');
-  
-  showPropertiesCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      sequenceTable.classList.add('show-properties');
-    } else {
-      sequenceTable.classList.remove('show-properties');
-    }
-  });
-  
-  // Initialize to hidden (default state)
-  sequenceTable.classList.remove('show-properties');
-  showPropertiesCheckbox.checked = false;
-}
-
-// Function to update the table from the sequence
+// Update the table display based on the current sequence
 function updateTable() {
-  const tbody = document.querySelector('#sequence-table tbody');
-  tbody.innerHTML = '';
-  
+  const sequenceTable = document.getElementById('sequence-table');
+  const sequenceBody = sequenceTable.querySelector('tbody');
   const sequence = window.KenBurns.sequence.getSequence();
+
+  sequenceBody.innerHTML = ''; // Clear existing rows
   
   sequence.forEach((point, index) => {
     const row = document.createElement('tr');
@@ -88,7 +71,7 @@ function updateTable() {
     // Removed description cell to save space
     row.appendChild(actionsCell);
     
-    tbody.appendChild(row);
+    sequenceBody.appendChild(row);
   });
   
   // Add event listeners for edit and delete actions
@@ -147,5 +130,5 @@ window.KenBurns.table = {
   updateTable,
   updateSequenceFromInput,
   updateJsonFromSequence,
-  setupTablePropertiesToggle
+  // setupTablePropertiesToggle // Removed
 };

@@ -13,13 +13,22 @@
 </head>
 <body>
 <div id="viewer"></div>
+
+<!-- Offcanvas Trigger Button -->
+<button class="btn btn-primary position-fixed top-0 start-0 m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas" style="z-index: 1050;">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1-.872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+  </svg>
+  Controls
+</button>
+
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
-<div id="point-edit-modal" class="modal fade" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true" style="display: none;">
+<div id="point-edit-modal" class="modal fade" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true" style="display: none;" data-bs-backdrop="false">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header border-secondary">
         <h5 class="modal-title" id="pointEditModalLabel">Edit Point Properties</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="cancel-edit-x"></button>
       </div>
@@ -57,225 +66,232 @@
     </div>
   </div>
 </div>
-<div id="controls" class="card position-absolute top-0 end-0 m-3" style="width: 400px; z-index: 10;">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <ul class="nav nav-tabs card-header-tabs" id="controlsTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="settings-tab-btn" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="settings-tab-pane" aria-selected="true">Settings</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="json-tab-btn" data-bs-toggle="tab" data-bs-target="#json-tab-pane" type="button" role="tab" aria-controls="json-tab-pane" aria-selected="false">JSON</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="table-tab-btn" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false">Table</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tours-tab-btn" data-bs-toggle="tab" data-bs-target="#tours-tab-pane" type="button" role="tab" aria-controls="tours-tab-pane" aria-selected="false">Tours</button>
-      </li>
-    </ul>
-    <button id="collapse-controls" title="Collapse panel" class="btn btn-sm btn-outline-secondary">◀</button>
-  </div>
 
-  <div class="card-body tab-content" id="controlsTabContent">
-    <div id="settings-tab-pane" class="tab-pane fade show active" role="tabpanel" aria-labelledby="settings-tab-btn">
-      <fieldset class="mb-3">
-        <legend class="h6">Capture Settings</legend>
-        <div class="row mb-3">
-          <div class="col">
-            <label for="quality" class="form-label">Quality:</label>
-            <input type="number" class="form-control" id="quality" value="100" min="1" max="100">
-          </div>
-          <div class="col">
-            <label for="framerate" class="form-label">Framerate:</label>
-            <input type="number" class="form-control" id="framerate" value="60" min="1" max="120">
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <label for="aspect-ratio" class="form-label">Aspect Ratio:</label>
-          <select class="form-select" id="aspect-ratio">
-            <option value="0" selected>Viewport (Full Screen)</option>
-            <option value="16:9">16:9 (Landscape HD)</option>
-            <option value="4:3">4:3 (Standard)</option>
-            <option value="1:1">1:1 (Square)</option>
-            <option value="9:16">9:16 (Portrait)</option>
-            <option value="custom">Custom...</option>
-          </select>
-          <div id="custom-aspect-ratio" style="display: none;" class="mt-2 row gx-2 align-items-center">
-            <div class="col">
-             <input type="number" class="form-control" id="custom-width" placeholder="Width" min="1" step="1" value="1920">
-            </div>
-             <div class="col-auto">:</div>
-            <div class="col">
-             <input type="number" class="form-control" id="custom-height" placeholder="Height" min="1" step="1" value="1080">
-            </div>
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <div class="row">
-            <div class="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="show-capture-frame" checked>
-                <label class="form-check-label" for="show-capture-frame">Show capture frame</label>
-              </div>
-            </div>
-            <div class="col">
-              <div class="form-check">
-                 <input class="form-check-input" type="checkbox" id="show-callouts" checked>
-                 <label class="form-check-label" for="show-callouts">Show title callouts</label>
-              </div>
-            </div>
-          </div>
-           <div class="row">
-             <div class="col">
-               <div class="form-check">
-                 <input class="form-check-input" type="checkbox" id="show-subtitles" checked>
-                 <label class="form-check-label" for="show-subtitles">Show description subtitles</label>
+<!-- Controls Offcanvas -->
+<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="controlsOffcanvas" aria-labelledby="controlsOffcanvasLabel" style="width: 420px;" data-bs-scroll="true" data-bs-backdrop="false"> 
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title" id="controlsOffcanvasLabel">Tour Recorder Controls</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <!-- Existing Controls Content -->
+    <div id="controls" class="h-100">
+      <div class="card-header d-flex justify-content-between align-items-center bg-dark border-0 pt-2 pb-0 ps-2 pe-2"> 
+        <ul class="nav nav-tabs card-header-tabs flex-nowrap" id="controlsTab" role="tablist" style="border-bottom: none;">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active text-white bg-transparent" id="settings-tab-btn" data-bs-toggle="tab" data-bs-target="#settings-tab-pane" type="button" role="tab" aria-controls="settings-tab-pane" aria-selected="true">Settings</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-white bg-transparent" id="json-tab-btn" data-bs-toggle="tab" data-bs-target="#json-tab-pane" type="button" role="tab" aria-controls="json-tab-pane" aria-selected="false">JSON</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-white bg-transparent" id="table-tab-btn" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false">Table</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-white bg-transparent" id="tours-tab-btn" data-bs-toggle="tab" data-bs-target="#tours-tab-pane" type="button" role="tab" aria-controls="tours-tab-pane" aria-selected="false">Tours</button>
+          </li>
+        </ul>
+        <!-- Old Collapse Button Removed -->
+      </div>
+
+      <div class="card-body tab-content p-3" id="controlsTabContent" style="overflow-y: auto; height: calc(100% - 58px);">
+         <!-- Tab panes go here -->
+         <div id="settings-tab-pane" class="tab-pane fade show active" role="tabpanel" aria-labelledby="settings-tab-btn">
+             <fieldset class="mb-3">
+               <legend class="h6">Capture Settings</legend>
+               <div class="row mb-3">
+                 <div class="col">
+                   <label for="quality" class="form-label">Quality:</label>
+                   <input type="number" class="form-control" id="quality" value="100" min="1" max="100">
+                 </div>
+                 <div class="col">
+                   <label for="framerate" class="form-label">Framerate:</label>
+                   <input type="number" class="form-control" id="framerate" value="60" min="1" max="120">
+                 </div>
+               </div>
+               
+               <div class="mb-3">
+                 <label for="aspect-ratio" class="form-label">Aspect Ratio:</label>
+                 <select class="form-select" id="aspect-ratio">
+                   <option value="0" selected>Viewport (Full Screen)</option>
+                   <option value="16:9">16:9 (Landscape HD)</option>
+                   <option value="4:3">4:3 (Standard)</option>
+                   <option value="1:1">1:1 (Square)</option>
+                   <option value="9:16">9:16 (Portrait)</option>
+                   <option value="custom">Custom...</option>
+                 </select>
+                 <div id="custom-aspect-ratio" style="display: none;" class="mt-2 row gx-2 align-items-center">
+                   <div class="col">
+                    <input type="number" class="form-control" id="custom-width" placeholder="Width" min="1" step="1" value="1920">
+                   </div>
+                    <div class="col-auto">:</div>
+                   <div class="col">
+                    <input type="number" class="form-control" id="custom-height" placeholder="Height" min="1" step="1" value="1080">
+                   </div>
+                 </div>
+               </div>
+               
+               <div class="mb-3">
+                 <div class="row">
+                   <div class="col">
+                     <div class="form-check">
+                       <input class="form-check-input" type="checkbox" id="show-capture-frame" checked>
+                       <label class="form-check-label" for="show-capture-frame">Show capture frame</label>
+                     </div>
+                   </div>
+                   <div class="col">
+                     <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show-callouts" checked>
+                        <label class="form-check-label" for="show-callouts">Show title callouts</label>
+                     </div>
+                   </div>
+                 </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="show-subtitles" checked>
+                        <label class="form-check-label" for="show-subtitles">Show description subtitles</label>
+                      </div>
+                    </div>
+                    <div class="col"></div>
+                  </div>
+               </div>
+             </fieldset>
+             
+             <fieldset class="mb-3">
+               <legend class="h6">Performance & Quality</legend>
+               <div class="mb-3">
+                 <div class="row">
+                   <div class="col">
+                     <div class="form-check">
+                       <input class="form-check-input" type="checkbox" id="subpixel-rendering" checked>
+                       <label class="form-check-label" for="subpixel-rendering">Subpixel rendering</label>
+                     </div>
+                   </div>
+                   <div class="col">
+                     <div class="form-check">
+                       <input class="form-check-input" type="checkbox" id="smooth-animation" checked>
+                       <label class="form-check-label" for="smooth-animation">High quality animation</label>
+                     </div>
+                   </div>
+                 </div>
+                 <div class="row">
+                   <div class="col">
+                     <div class="form-check">
+                       <input class="form-check-input" type="checkbox" id="optimize-memory" checked>
+                       <label class="form-check-label" for="optimize-memory">Optimize memory usage</label>
+                     </div>
+                   </div>
+                   <div class="col">
+                     <label for="render-quality" class="form-label visually-hidden">Render quality:</label>
+                     <select class="form-select form-select-sm" id="render-quality">
+                       <option value="high">High Quality Render</option>
+                       <option value="medium" selected>Medium Quality Render</option>
+                       <option value="low">Low Quality Render</option>
+                     </select>
+                   </div>
+                 </div>
+               </div>
+             </fieldset>
+
+             <fieldset class="mb-3">
+               <legend class="h6">Animation Settings</legend>
+               <div class="row mb-2">
+                 <div class="col">
+                   <label for="default-transition-duration" class="form-label">Default Transition (ms):</label>
+                   <input type="number" class="form-control" id="default-transition-duration" value="1500" min="100" step="100">
+                 </div>
+                 <div class="col">
+                   <label for="default-still-duration" class="form-label">Default Still (ms):</label>
+                   <input type="number" class="form-control" id="default-still-duration" value="1500" min="100" step="100">
+                 </div>
+               </div>
+               <div class="row">
+                 <div class="col">
+                   <label for="frame-delay" class="form-label">Frame Delay (ms):</label>
+                   <input type="number" class="form-control" id="frame-delay" value="100" min="0" step="10">
+                 </div>
+                 <div class="col">
+                   <label for="easing-function" class="form-label">Easing Function:</label>
+                   <select class="form-select" id="easing-function">
+                     <option value="Linear.None">Linear</option>
+                     <option value="Quadratic.InOut">Quadratic</option>
+                     <option value="Cubic.InOut" selected>Cubic</option>
+                     <option value="Quartic.InOut">Quartic</option>
+                     <option value="Quintic.InOut">Quintic</option>
+                     <option value="Sinusoidal.InOut">Sinusoidal</option>
+                     <option value="Exponential.InOut">Exponential</option>
+                     <option value="Circular.InOut">Circular</option>
+                     <option value="Elastic.InOut">Elastic</option>
+                     <option value="Back.InOut">Back</option>
+                     <option value="Bounce.InOut">Bounce</option>
+                   </select>
+                 </div>
+               </div>
+             </fieldset>
+             
+             <div class="btn-group d-flex mb-3" role="group" aria-label="Recording Controls">
+               <button id="start" class="btn btn-success flex-fill">Start Recording</button>
+               <button id="stop" class="btn btn-danger flex-fill" disabled>Stop Recording</button>
+               <button id="preview" class="btn btn-info flex-fill">Preview</button>
+             </div>
+         </div>
+
+         <div id="json-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="json-tab-btn">
+           <p>Edit animation sequence in JSON format (includes complete tour info):</p>
+           <textarea id="sequence-json" class="form-control"></textarea>
+           <div class="btn-group mt-2">
+             <button id="apply-json" class="btn btn-primary">Apply JSON</button>
+             <button id="update-json" class="btn btn-secondary">Update from Table</button>
+           </div>
+         </div>
+
+         <div id="table-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="table-tab-btn">
+           <div class="table-responsive">
+             <table id="sequence-table" class="table table-sm table-bordered table-hover">
+               <thead>
+                 <tr>
+                   <th>Title</th>
+                   <th class="property-column">Zoom</th>
+                   <th class="property-column">Center X</th>
+                   <th class="property-column">Center Y</th>
+                   <th class="property-column">Transition (ms)</th>
+                   <th class="property-column">Still (ms)</th>
+                   <th>Actions</th>
+                 </tr>
+               </thead>
+               <tbody></tbody>
+             </table>
+           </div>
+           <div class="btn-group mt-2">
+             <button id="add-point" class="btn btn-primary">Add Point</button>
+             <button id="update-table" class="btn btn-secondary">Update Visualization</button>
+           </div>
+         </div>
+
+         <div id="tours-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="tours-tab-btn">
+           <h3>Available Tours</h3>
+           <div id="tour-selector" class="list-group mb-3"></div>
+           <h3>Current Tour Information</h3>
+           <div id="tour-info"></div>
+           <div class="btn-group mt-3">
+             <button id="generate-srt" class="btn btn-secondary">Generate SRT Subtitles</button>
+           </div>
+           
+           <fieldset class="mt-4">
+             <legend class="h6">Image Source</legend>
+             <div class="mb-3">
+               <label for="iiif-url" class="form-label">IIIF Image URL:</label>
+               <div class="input-group">
+                 <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+                 <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
                </div>
              </div>
-             <div class="col"></div>
-           </div>
-        </div>
-      </fieldset>
-      
-      <fieldset class="mb-3">
-        <legend class="h6">Performance & Quality</legend>
-        <div class="mb-3">
-          <div class="row">
-            <div class="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="subpixel-rendering" checked>
-                <label class="form-check-label" for="subpixel-rendering">Subpixel rendering</label>
-              </div>
-            </div>
-            <div class="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="smooth-animation" checked>
-                <label class="form-check-label" for="smooth-animation">High quality animation</label>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="optimize-memory" checked>
-                <label class="form-check-label" for="optimize-memory">Optimize memory usage</label>
-              </div>
-            </div>
-            <div class="col">
-              <label for="render-quality" class="form-label visually-hidden">Render quality:</label>
-              <select class="form-select form-select-sm" id="render-quality">
-                <option value="high">High Quality Render</option>
-                <option value="medium" selected>Medium Quality Render</option>
-                <option value="low">Low Quality Render</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset class="mb-3">
-        <legend class="h6">Animation Settings</legend>
-        <div class="row mb-2">
-          <div class="col">
-            <label for="default-transition-duration" class="form-label">Default Transition (ms):</label>
-            <input type="number" class="form-control" id="default-transition-duration" value="1500" min="100" step="100">
-          </div>
-          <div class="col">
-            <label for="default-still-duration" class="form-label">Default Still (ms):</label>
-            <input type="number" class="form-control" id="default-still-duration" value="1500" min="100" step="100">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="frame-delay" class="form-label">Frame Delay (ms):</label>
-            <input type="number" class="form-control" id="frame-delay" value="100" min="0" step="10">
-          </div>
-          <div class="col">
-            <label for="easing-function" class="form-label">Easing Function:</label>
-            <select class="form-select" id="easing-function">
-              <option value="Linear.None">Linear</option>
-              <option value="Quadratic.InOut">Quadratic</option>
-              <option value="Cubic.InOut" selected>Cubic</option>
-              <option value="Quartic.InOut">Quartic</option>
-              <option value="Quintic.InOut">Quintic</option>
-              <option value="Sinusoidal.InOut">Sinusoidal</option>
-              <option value="Exponential.InOut">Exponential</option>
-              <option value="Circular.InOut">Circular</option>
-              <option value="Elastic.InOut">Elastic</option>
-              <option value="Back.InOut">Back</option>
-              <option value="Bounce.InOut">Bounce</option>
-            </select>
-          </div>
-        </div>
-      </fieldset>
-      
-      <div class="btn-group d-flex mb-3" role="group" aria-label="Recording Controls">
-        <button id="start" class="btn btn-success flex-fill">Start Recording</button>
-        <button id="stop" class="btn btn-danger flex-fill" disabled>Stop Recording</button>
-        <button id="preview" class="btn btn-info flex-fill">Preview</button>
-      </div>
-      
-      <fieldset>
-        <legend class="h6">Image Source</legend>
-        <div class="mb-3">
-          <label for="iiif-url" class="form-label">IIIF Image URL:</label>
-          <div class="input-group">
-            <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
-            <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
-          </div>
-        </div>
-      </fieldset>
-    </div>
-
-    <div id="json-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="json-tab-btn">
-      <p>Edit animation sequence in JSON format (includes complete tour info):</p>
-      <textarea id="sequence-json" class="form-control"></textarea>
-      <div class="btn-group mt-2">
-        <button id="apply-json" class="btn btn-primary">Apply JSON</button>
-        <button id="update-json" class="btn btn-secondary">Update from Table</button>
+           </fieldset>
+         </div>
       </div>
     </div>
-
-    <div id="table-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="table-tab-btn">
-      <div class="table-options form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="show-properties">
-        <label class="form-check-label" for="show-properties">
-          Show Properties
-        </label>
-      </div>
-      <div class="table-responsive">
-        <table id="sequence-table" class="table table-sm table-bordered table-hover">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th class="property-column">Zoom</th>
-              <th class="property-column">Center X</th>
-              <th class="property-column">Center Y</th>
-              <th class="property-column">Transition (ms)</th>
-              <th class="property-column">Still (ms)</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="btn-group mt-2">
-        <button id="add-point" class="btn btn-primary">Add Point</button>
-        <button id="update-table" class="btn btn-secondary">Update Visualization</button>
-      </div>
-    </div>
-
-    <div id="tours-tab-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="tours-tab-btn">
-      <h3>Available Tours</h3>
-      <div id="tour-selector" class="list-group mb-3"></div>
-      <h3>Current Tour Information</h3>
-      <div id="tour-info"></div>
-      <div class="btn-group mt-3">
-        <button id="generate-srt" class="btn btn-secondary">Generate SRT Subtitles</button>
-      </div>
-    </div>
+    <!-- End Existing Controls Content -->
   </div>
 </div>
 
