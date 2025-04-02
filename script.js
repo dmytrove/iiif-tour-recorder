@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup event listeners for UI interaction
   window.KenBurns.ui.setupEventListeners(viewer);
   
-  // Setup table properties toggle
-  window.KenBurns.table.setupTablePropertiesToggle();
+  // Setup table properties toggle (Removed - Feature no longer exists)
+  // window.KenBurns.table.setupTablePropertiesToggle();
   
   // Set up aspect ratio handling
   window.KenBurns.interactions.setupAspectRatioHandling(viewer);
@@ -59,12 +59,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     resetUIAfterDownload();
   });
   
-  // Function to reset UI after download is complete
+  // Reset UI elements after download/workflow completion
   function resetUIAfterDownload() {
-    // Reset UI elements
-    document.getElementById('start').disabled = false;
-    document.getElementById('stop').disabled = true;
-    document.getElementById('preview').disabled = false;
+    console.log("Resetting UI after download/workflow.");
+    // Use new button IDs and logic
+    const startPreviewBtn = document.getElementById('start-preview');
+    const startRecordingBtn = document.getElementById('start-recording');
+    const stopBtn = document.getElementById('stop-recording');
+
+    if (startPreviewBtn) startPreviewBtn.disabled = false;
+    if (startRecordingBtn) startRecordingBtn.disabled = false;
+    if (stopBtn) stopBtn.disabled = true; // Stop button should be disabled when idle
+
+    // Reset progress bar visually (optional, stopAnimation might handle it)
+    if (window.KenBurns?.ui?.updateAnimationProgress) {
+       // window.KenBurns.ui.updateAnimationProgress(0, 0, 0, 0, 'idle');
+    }
     
     // Clean up any remaining resources
     if (window.animationInterval) {

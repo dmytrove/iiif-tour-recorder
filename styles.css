@@ -8,112 +8,27 @@
 /* Basic layout */
 body { 
   margin: 0; 
-  background: #000; 
-  overflow: hidden; 
+  background-color: #f8f9fa; /* Light background for the page */
+  color: #212529;
+  overflow: hidden; /* Prevent scrolling on the body */
   font-family: Arial, sans-serif; 
 }
 
 #viewer { 
   width: 100vw; 
   height: 100vh; 
-}
-
-/* Tour selector styling */
-.tour-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding: 5px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-}
-
-.tour-card {
-  width: calc(50% - 5px);
-  height: 70px;
-  background: rgba(40, 40, 45, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-}
-
-.tour-card:hover {
-  background: rgba(50, 50, 55, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.tour-card.selected {
-  background: rgba(74, 111, 165, 0.4);
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 1px #4a6fa5;
-}
-
-.tour-thumbnail-container {
-  width: 70px;
-  height: 70px;
-  overflow: hidden;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tour-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tour-thumbnail.placeholder {
-  background: #4a6fa5;
-  color: white;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.tour-info {
-  padding: 5px 10px;
-  overflow: hidden;
-}
-
-.tour-info h5 {
-  margin: 0 0 5px 0;
-  font-size: 14px;
-  color: white;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tour-info .tour-id {
-  margin: 0;
-  font-size: 12px;
-  color: #aaa;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000;
 }
 
 /* Tour info display */
 #tour-info {
   background: rgba(0, 0, 0, 0.2);
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  max-height: calc(100vh - 450px);
-  overflow-y: auto;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 
 .tour-preview-container {
@@ -150,158 +65,6 @@ body {
   word-break: break-all;
 }
 
-/* Table options */
-.table-options {
-  margin-bottom: 10px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-/* Property columns in table */
-.property-column {
-  display: none;
-}
-
-/* When properties are shown */
-.show-properties .property-column {
-  display: table-cell;
-}
-
-/* Controls header with tab buttons and collapse button */
-.controls-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-/* Form layout */
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.form-col {
-  flex: 1;
-}
-
-.form-col.expand {
-  flex: 3;
-}
-
-.form-col.shrink {
-  flex: 0 0 auto;
-}
-
-.checkbox-group {
-  margin: 12px 0;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.url-input-group {
-  margin-top: 5px;
-}
-
-#controls {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: rgba(20, 20, 22, 0.85);
-  padding: 12px;
-  color: white;
-  z-index: 999;
-  overflow-y: auto;
-  width: 360px;
-  height: 100vh;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Collapsed state for controls */
-#controls.collapsed {
-  transform: translateX(-340px);
-}
-
-#collapse-controls {
-  position: absolute;
-  right: -12px;
-  top: 10px;
-  background: #333;
-  border: none;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  padding: 0;
-  margin: 0;
-  z-index: 1000;
-}
-
-#collapse-controls:hover {
-  background: #555;
-  transform: scale(1.1);
-}
-
-#controls.collapsed #collapse-controls {
-  transform: rotate(180deg);
-  right: -12px;
-  background: rgba(30, 30, 35, 0.9);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* Tab styling */
-.tab {
-  display: none;
-}
-
-.tab.active {
-  display: block;
-}
-
-.tab-buttons {
-  display: flex;
-  margin-bottom: 12px;
-  gap: 2px;
-  width: 100%;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 8px 5px;
-  background: #333;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 12px;
-  transition: all 0.15s ease;
-}
-
-.tab-button:hover {
-  background: #444;
-}
-
-.tab-button.active {
-  background: #4a6fa5;
-  font-weight: bold;
-  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.3);
-}
-
 /* Text areas */
 textarea {
   width: 100%;
@@ -312,85 +75,16 @@ textarea {
   font-family: monospace;
 }
 
-#sequence-json {
-  min-height: 300px;
-  height: calc(100vh - 250px);
+/* Style the JSON/SRT textareas for dark theme */
+#sequence-json,
+#srt-output {
+  background-color: #343a40; /* Darker background */
+  color: #e9ecef;          /* Light text */
+  border-color: #495057;   /* Matching border */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  min-height: 150px; /* Adjusted min-height */
   resize: vertical;
-}
-
-/* Table styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 15px 0;
-  background: rgba(20, 20, 22, 0.7);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-th {
-  background: rgba(30, 30, 40, 0.8);
-  padding: 8px;
-  font-size: 13px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ccc;
-  font-weight: bold;
-}
-
-td {
-  padding: 8px;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: middle;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-td.description {
-  white-space: normal;
-  max-width: 200px;
-}
-
-tr:hover td {
-  background: rgba(74, 111, 165, 0.1);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-/* Style for read-only table cells */
-.readonly-cell {
-  padding: 4px 8px;
-  min-height: 20px;
-  color: white;
-  background: transparent;
-  border-radius: 3px;
-}
-
-.edit-action {
-  cursor: pointer;
-  color: #4a6fa5;
-  text-decoration: underline;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(74, 111, 165, 0.1);
-  border-radius: 3px;
-  margin-right: 4px;
-}
-
-.delete-action {
-  cursor: pointer;
-  color: #f44336;
-  text-decoration: underline;
-  margin-left: 4px;
-  padding: 4px 8px;
-  display: inline-block;
-  background-color: rgba(244, 67, 54, 0.1);
-  border-radius: 3px;
+  outline: none;
 }
 
 /* Point markers and visualization */
@@ -454,39 +148,6 @@ tr:last-child td {
   z-index: 101;
 }
 
-/* Button styling */
-.btn-group {
-  display: flex;
-  gap: 8px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 8px 12px;
-  background: #333;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 13px;
-  transition: all 0.2s ease;
-}
-
-button:hover:not(:disabled) {
-  background: #444;
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 /* Button variations */
 .btn-primary {
   background: #4a6fa5;
@@ -514,22 +175,14 @@ button:disabled {
   background: #7ba346;
 }
 
-
-
-
-
 /* Capture frame for aspect ratio visualization */
 #capture-frame {
   position: absolute;
-  border: 2px dashed rgba(0, 170, 255, 0.7);
-  background: rgba(0, 170, 255, 0.05);
-  pointer-events: none;
-  z-index: 90;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-  transition: width 0.3s, height 0.3s;
+  border: 2px dashed rgba(255, 0, 0, 0.7);
+  box-sizing: border-box;
+  pointer-events: none; /* Allow clicks through */
+  display: none; /* Hidden by default */
+  z-index: 9;
 }
 
 /* Enhanced form controls */
@@ -548,8 +201,40 @@ legend {
   font-size: 13px;
 }
 
-.setting-group {
-  margin: 12px 0;
+/* Ensure dark theme for inputs/selects within dark containers */
+.text-bg-dark .form-control,
+.text-bg-dark .form-select,
+.modal-content.bg-dark .form-control, /* Target modal specifically too */
+.modal-content.bg-dark .form-select {
+  background-color: rgba(50, 50, 55, 0.9); /* Dark background */
+  color: #fff; /* Light text */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Lighter border for contrast */
+}
+
+/* Override Bootstrap focus glow with a more subtle border color */
+.text-bg-dark .form-control:focus,
+.text-bg-dark .form-select:focus,
+.modal-content.bg-dark .form-control:focus,
+.modal-content.bg-dark .form-select:focus {
+  background-color: rgba(60, 60, 65, 0.9);
+  color: #fff;
+  border-color: #86b7fe; /* Standard Bootstrap focus blue */
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .2); /* Muted focus shadow */
+}
+
+/* Style range input thumb/track for dark theme (basic example) */
+.form-range::-webkit-slider-thumb {
+    background-color: #adb5bd;
+}
+.form-range::-moz-range-thumb {
+    background-color: #adb5bd;
+}
+.form-range::-webkit-slider-runnable-track {
+    background-color: #495057;
+}
+.form-range::-moz-range-track {
+    background-color: #495057;
 }
 
 select, input[type="number"], input[type="text"] {
@@ -569,44 +254,10 @@ select:focus, input[type="number"]:focus, input[type="text"]:focus {
   outline: none;
 }
 
-input[type="checkbox"] {
-  margin-right: 5px;
-  cursor: pointer;
-  position: relative;
-  width: 16px;
-  height: 16px;
-  -webkit-appearance: none;
-  background: rgba(30, 30, 35, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-input[type="checkbox"]:checked {
-  background: #4a6fa5;
-  border-color: #4a6fa5;
-}
-
-input[type="checkbox"]:checked:after {
-  content: '✓';
-  position: absolute;
-  color: white;
-  font-size: 10px;
-  top: 0;
-  left: 3px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-
-
 /* Title callout styling */
 #title-callout {
   position: absolute;
-  top: 30px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.7);
@@ -627,7 +278,7 @@ label {
 /* Subtitle styling */
 #subtitle-display {
   position: absolute;
-  bottom: 30px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.7);
@@ -644,98 +295,271 @@ label {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-/* Modal styling */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
+/* Styling for KBD elements */
+kbd {
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    border: 1px solid #6c757d;
+    background-color: #495057;
+    color: #e9ecef;
+    font-family: monospace;
+    font-size: 0.9em;
+    margin: 0 0.1em;
+    display: inline-block;
+    line-height: 1.2;
 }
 
-.modal.active {
-  display: flex !important;
-}
-
+/* Panel Transparency */
+.offcanvas,
 .modal-content {
-  background-color: #222;
-  padding: 20px;
-  border-radius: 5px;
-  min-width: 350px;
-  max-width: 500px;
-  color: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background-color: rgba(33, 37, 41, 0.95); /* Darker semi-transparent */
+    color: #e9ecef; /* Light text for offcanvas content */
+    border: 1px solid #495057 !important; /* Darker border */
 }
 
-.modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #444;
-  padding-bottom: 10px;
+/* Adjust accordion items within transparent offcanvas */
+.offcanvas .accordion-item {
+    background-color: transparent; /* Let offcanvas background show through */
+    border-color: rgba(255, 255, 255, 0.15); /* Match border style */
 }
 
-.form-group {
-  margin-bottom: 15px;
+.offcanvas .accordion-button {
+    background-color: rgba(255, 255, 255, 0.05); /* Slight contrast for button */
+    color: #e9ecef; /* Light text */
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+.offcanvas .accordion-button:not(.collapsed) {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    box-shadow: none;
 }
 
-.form-group input[type="text"],
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  background-color: #333;
-  border: 1px solid #444;
-  color: white;
-  border-radius: 3px;
+.offcanvas .accordion-button:focus {
+    box-shadow: none; /* Remove default focus shadow */
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.form-group textarea {
-  min-height: 80px;
-  resize: vertical;
+.offcanvas .accordion-button::after {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Make default icon white */
 }
 
-.form-group input[type="range"] {
-  width: 100%;
-  margin-top: 5px;
+/* Adjust DataTables elements for transparent background */
+.offcanvas .dt-search input {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.offcanvas .dt-search label {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ccc;
 }
 
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+/* --- Right Info/JSON/Tours Offcanvas --- */
+
+/* Make muted text in JSON editor more visible */
+#collapseJsonEditor .text-muted {
+  color: #adb5bd !important; /* Lighter gray */
 }
 
-.form-buttons button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 3px;
+/* Ensure accordion buttons in right panel have light text */
+#offcanvasRight .accordion-button {
+    color: #e9ecef !important; /* Use the standard light text color, forced */
+}
+
+/* Ensure accordion body content in right panel has light text */
+#offcanvasRight .accordion-body,
+#offcanvasRight .accordion-body ul,
+#offcanvasRight .accordion-body li {
+    color: #ced4da; /* Use a standard light gray for body text */
+}
+
+/* Specific styling for tour selector cards */
+.tour-card-selector {
   cursor: pointer;
-  color: white;
-  font-weight: bold;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-#save-point {
-  background-color: #4CAF50;
+.tour-card-selector:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-#save-point:hover {
-  background-color: #3e8e41;
+.tour-card-selector .card-img-top {
+  height: 100px; /* Fixed height for consistency */
+  object-fit: cover; /* Crop image nicely */
 }
 
-#cancel-edit {
-  background-color: #f44336;
+/* --- Top Playback/Capture Offcanvas --- */
+#offcanvasPlayback {
+  border-bottom: 1px solid #495057; /* Keep bottom border */
 }
 
-#cancel-edit:hover {
-  background-color: #d32f2f;
+#offcanvasPlayback .offcanvas-header {
+  border-bottom: 1px solid #495057;
 }
+
+/* Style progress info text */
+#offcanvasPlayback .progress-info {
+    color: #adb5bd !important; /* Lighter gray */
+    font-size: 0.8rem; /* Slightly smaller */
+}
+
+/* Reduce vertical padding in playback offcanvas body */
+#offcanvasPlayback .offcanvas-body {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Progress Bar Markers */
+#progress-markers-container .progress-marker {
+    position: absolute;
+    top: -4px; /* Position slightly above the progress bar */
+    height: 12px; /* Adjust height to fit text below */
+    width: 2px;
+    background-color: rgba(255, 255, 255, 0.6); /* White for main point markers */
+    transform: translateX(-50%); /* Center the line on the percentage */
+    pointer-events: none; /* Disable pointer events on marker line itself */
+    /* cursor: help; REMOVED - No longer using tooltip */
+}
+
+/* Style for markers indicating the start of a STILL period */
+#progress-markers-container .still-marker {
+    /* Remove line styles */
+    /* background-color: rgba(108, 117, 125, 0.7); */
+    /* height: 8px; */
+    /* top: -2px; */
+    width: auto; /* Allow icon to size naturally */
+    background-color: transparent !important; /* Ensure no background line */
+    top: -7px; /* Adjust vertical position for icon */
+}
+
+/* Use pseudo-element to display icon */
+#progress-markers-container .still-marker::before {
+    content: "\f4c4"; /* Bootstrap Icons pause-fill */
+    font-family: "bootstrap-icons";
+    font-size: 0.8rem; /* Adjust icon size */
+    color: rgba(255, 255, 255, 0.6); /* Icon color (semi-transparent white) */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Disable pointer events on icon */
+}
+
+#progress-markers-container .marker-text {
+    position: absolute;
+    top: 14px; /* Position text below the marker */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #adb5bd; /* Light gray text */
+    font-size: 0.65rem; /* Smaller font size */
+    white-space: nowrap;
+    pointer-events: none; /* Disable pointer events on text */
+}
+
+/* Style for time labels ABOVE progress bar */
+#progress-time-labels .time-label {
+    position: absolute;
+    bottom: 0; /* Align to bottom of container */
+    transform: translateX(-50%); /* Center on position */
+    color: #adb5bd;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* --- Right Info/JSON/Tours Offcanvas --- */
+#offcanvasRight {
+  /* Inherits general offcanvas styles */
+}
+
+/* --- Accordion Styling (General Dark Theme) --- */
+.accordion-item {
+    background-color: transparent; /* Use offcanvas background */
+    border: 1px solid #495057; /* Darker border */
+    margin-bottom: -1px; /* Prevent double borders */
+}
+
+.accordion-button {
+    background-color: rgba(255, 255, 255, 0.05); /* Slightly lighter background for button */
+    color: #e9ecef; /* Light text */
+    border: none;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter when open */
+    color: #fff; /* White text when open */
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.accordion-button::after {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Make chevron white */
+}
+
+.accordion-body {
+    background-color: transparent; /* Use offcanvas background */
+    padding: 1rem;
+}
+
+/* --- Specific Controls Accordion Styling (#settingsAccordion) --- */
+#settingsAccordion .form-label {
+    color: #ced4da; /* Ensure labels are light gray */
+    margin-bottom: 0.25rem;
+}
+
+#settingsAccordion .form-control,
+#settingsAccordion .form-select {
+    background-color: #495057; /* Dark input background */
+    color: #e9ecef; /* Light text in inputs */
+    border-color: #6c757d; /* Slightly lighter border */
+}
+
+#settingsAccordion .form-control:focus,
+#settingsAccordion .form-select:focus {
+    background-color: #495057;
+    color: #e9ecef;
+    border-color: #86b7fe; /* Standard Bootstrap focus blue */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Standard Bootstrap focus shadow */
+}
+
+#settingsAccordion .form-control::placeholder {
+    color: #adb5bd; /* Lighter placeholder text */
+}
+
+#settingsAccordion .form-control-color {
+    padding: 0.1rem 0.2rem; /* Adjust padding for color input */
+    max-width: 100px; /* Limit color input width */
+}
+
+#settingsAccordion .form-check-label {
+    color: #ced4da; /* Light label for switches */
+}
+
+/* --- Visualization Elements (Callouts, Subtitles, Capture Frame) --- */
+.visualization-overlay {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    display: none; /* Hidden by default */
+    z-index: 10;
+}
+
+/* Utility Classes (Keep if needed elsewhere) */
+.draggable {
+  cursor: move;
+}
+
+.handle {
+  cursor: grab;
+}
+

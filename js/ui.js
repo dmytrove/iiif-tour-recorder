@@ -3,8 +3,8 @@
 
 // Setup event listeners for the UI controls
 function setupEventListeners(viewer) {
-  // Setup collapse button
-  document.getElementById('collapse-controls').addEventListener('click', function() {
+  // Setup collapse button (Removed - Now using Bootstrap Offcanvas)
+  /* document.getElementById('collapse-controls').addEventListener('click', function() {
     document.getElementById('controls').classList.toggle('collapsed');
 
     // Update the button text/icon based on state
@@ -15,10 +15,10 @@ function setupEventListeners(viewer) {
       this.innerHTML = '&#9664;'; // Left arrow
       this.title = 'Collapse panel';
     }
-  });
+  }); */
 
-  // Tab navigation
-  document.querySelectorAll('.tab-button').forEach(button => {
+  // Tab navigation (Handled by Bootstrap via data-bs-* attributes)
+  /*  document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
       const tabId = button.dataset.tab;
 
@@ -34,7 +34,7 @@ function setupEventListeners(viewer) {
       document.getElementById(`${tabId}-tab`).classList.add('active');
       button.classList.add('active');
     });
-  });
+  }); */
 
   // "Add Point" button
   document.getElementById('add-point').addEventListener('click', () => {
@@ -46,6 +46,7 @@ function setupEventListeners(viewer) {
     window.KenBurns.table.updateTable();
     window.KenBurns.table.updateJsonFromSequence();
     window.KenBurns.visualization.updateVisualizations(viewer);
+    window.KenBurns.ui.showToast('Point added at current view.', 'success');
   });
 
   // "Apply JSON" button
@@ -54,17 +55,15 @@ function setupEventListeners(viewer) {
     if (window.KenBurns.sequence.updateSequenceFromJson(jsonText)) {
       window.KenBurns.table.updateTable();
       window.KenBurns.visualization.updateVisualizations(viewer);
+      window.KenBurns.ui.showToast('JSON sequence applied successfully.', 'success');
+    } else {
+      window.KenBurns.ui.showToast('Failed to apply JSON. Check format.', 'error');
     }
   });
 
   // "Update from Table" button
   document.getElementById('update-json').addEventListener('click', () => {
     window.KenBurns.table.updateJsonFromSequence();
-  });
-
-  // "Update Visualization" button
-  document.getElementById('update-table').addEventListener('click', () => {
-    window.KenBurns.visualization.updateVisualizations(viewer);
   });
 
   // "Apply URL" button
@@ -106,53 +105,83 @@ function setupEventListeners(viewer) {
   setupQualityControls(viewer);
   setupAnimationControls();
 
-  // Update tour info when the tours tab is activated
-  document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo);
+  // Update tour info when the tours tab is shown
+  const toursTab = document.getElementById('tours-tab-btn');
+  if (toursTab) { // Check if the element exists
+    toursTab.addEventListener('shown.bs.tab', updateTourInfo);
+  }
+  // document.querySelector('.tab-button[data-tab="tours"]').addEventListener('click', updateTourInfo); // Old listener removed
+
+  // Setup Tour Info Editing
+  setupTourInfoEditing();
+  
+  // Setup SRT Button Listeners (Added call)
+  if (window.KenBurns.tours && window.KenBurns.tours.setupSrtButtonListeners) {
+    window.KenBurns.tours.setupSrtButtonListeners();
+  } else {
+    console.error("setupSrtButtonListeners function not found in tours module.");
+  }
 }
 
 // Setup recording controls
 function setupRecordingControls(viewer) {
-  // Start recording button
-  document.getElementById('start').addEventListener('click', () => {
-    const quality = parseInt(document.getElementById('quality').value);
-    const framerate = parseInt(document.getElementById('framerate').value);
-    const aspectRatio = document.getElementById('aspect-ratio').value;
+  // Use new button IDs
+  const startPreviewBtn = document.getElementById('start-preview');
+  const startRecordingBtn = document.getElementById('start-recording');
+  const stopBtn = document.getElementById('stop-recording'); // Single stop button
 
-    if (window.KenBurns.capture.startRecording({
-      quality,
-      framerate,
-      aspectRatio
-    })) {
-      document.getElementById('start').disabled = true;
-      document.getElementById('stop').disabled = false;
-      document.getElementById('preview').disabled = true;
+  // Function to set button states
+  function setButtonStates(isRecording, isPreviewing) {
+      if (startPreviewBtn) startPreviewBtn.disabled = isRecording || isPreviewing;
+      if (startRecordingBtn) startRecordingBtn.disabled = isRecording || isPreviewing;
+      if (stopBtn) stopBtn.disabled = !isRecording && !isPreviewing; // Enable if either is active
+  }
 
-      window.KenBurns.capture.startAnimation(viewer);
-    }
-  });
+  // Initial state
+  setButtonStates(false, false);
+
+  // Start Recording button
+  if (startRecordingBtn) {
+    startRecordingBtn.addEventListener('click', () => {
+      const quality = parseInt(document.getElementById('quality').value);
+      const framerate = parseInt(document.getElementById('framerate').value);
+      const aspectRatio = document.getElementById('aspect-ratio').value;
+
+      if (window.KenBurns.capture.startRecording({ quality, framerate, aspectRatio })) {
+        setButtonStates(true, false);
+        window.KenBurns.capture.startAnimation(viewer);
+      }
+    });
+  }
 
   // Preview button
-  document.getElementById('preview').addEventListener('click', () => {
-    if (window.KenBurns.capture.startPreview()) {
-      document.getElementById('start').disabled = true;
-      document.getElementById('stop').disabled = false;
-      document.getElementById('preview').disabled = true;
+  if (startPreviewBtn) {
+    startPreviewBtn.addEventListener('click', () => {
+      if (window.KenBurns.capture.startPreview()) {
+        setButtonStates(false, true);
+        window.KenBurns.capture.startAnimation(viewer);
+      }
+    });
+  }
 
-      window.KenBurns.capture.startAnimation(viewer);
-    }
-  });
-
-  // Stop button
-  document.getElementById('stop').addEventListener('click', () => {
-    window.KenBurns.capture.stopRecording();
-
-    document.getElementById('start').disabled = false;
-    document.getElementById('stop').disabled = true;
-    document.getElementById('preview').disabled = false;
-
-    window.KenBurns.visualization.setCurrentPoint(-1);
-    window.KenBurns.visualization.updateVisualizations(viewer);
-  });
+  // Stop button (handles both recording and preview)
+  if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+      if (window.KenBurns.capture.isCapturing()) {
+        window.KenBurns.capture.stopRecording();
+      } else if (window.KenBurns.capture.isPreviewMode()) {
+        window.KenBurns.capture.stopPreview();
+      }
+      setButtonStates(false, false);
+      // Reset visualization only if needed/possible
+      if (window.KenBurns?.visualization?.setCurrentPoint) {
+          window.KenBurns.visualization.setCurrentPoint(-1);
+      }
+      if (window.KenBurns?.visualization?.updateVisualizations) {
+          window.KenBurns.visualization.updateVisualizations(viewer);
+      }
+    });
+  }
 }
 
 // Setup animation settings controls
@@ -231,49 +260,297 @@ function setupQualityControls(viewer) {
   });
 }
 
+// Function to toggle editing state for tour info
+function setTourInfoEditingState(isEditing) {
+    const tourInfoDiv = document.getElementById('tour-info');
+    const editables = tourInfoDiv.querySelectorAll('[data-editable-field]');
+    const editBtn = document.getElementById('edit-tour-info');
+    const saveBtn = document.getElementById('save-tour-info');
+    const cancelBtn = document.getElementById('cancel-tour-info');
+
+    editables.forEach(el => {
+        el.contentEditable = isEditing;
+        el.style.outline = isEditing ? '1px dashed #ccc' : 'none';
+        el.style.cursor = isEditing ? 'text' : 'default';
+    });
+
+    editBtn.classList.toggle('d-none', isEditing);
+    saveBtn.classList.toggle('d-none', !isEditing);
+    cancelBtn.classList.toggle('d-none', !isEditing);
+
+    // Focus the title field when editing starts
+    if (isEditing) {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        if(titleEl) titleEl.focus();
+    }
+}
+
+// Setup listeners for tour info editing buttons
+let originalTourInfo = { title: '', description: '' };
+function setupTourInfoEditing() {
+    const tourInfoDiv = document.getElementById('tour-info');
+
+    document.getElementById('edit-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        originalTourInfo.title = titleEl ? titleEl.textContent : '';
+        originalTourInfo.description = descEl ? descEl.textContent : '';
+        setTourInfoEditingState(true);
+    });
+
+    document.getElementById('cancel-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        if(titleEl) titleEl.textContent = originalTourInfo.title;
+        if(descEl) descEl.textContent = originalTourInfo.description;
+        setTourInfoEditingState(false);
+    });
+
+    document.getElementById('save-tour-info')?.addEventListener('click', () => {
+        const titleEl = tourInfoDiv.querySelector('[data-editable-field="title"]');
+        const descEl = tourInfoDiv.querySelector('[data-editable-field="description"]');
+        const newTitle = titleEl ? titleEl.textContent.trim() : '';
+        const newDescription = descEl ? descEl.textContent.trim() : '';
+
+        // Call function to update data (needs to be created in tours.js/sequence.js)
+        if (window.KenBurns.tours && window.KenBurns.tours.updateTourMetadata) {
+             if (window.KenBurns.tours.updateTourMetadata(newTitle, newDescription)) {
+                 setTourInfoEditingState(false);
+                 // Update JSON view
+                 if (window.KenBurns.table && window.KenBurns.table.updateJsonFromSequence) {
+                    window.KenBurns.table.updateJsonFromSequence();
+                 }
+                 window.KenBurns.ui.showToast("Tour info updated.", "success");
+             } else {
+                 window.KenBurns.ui.showToast("Failed to update tour info.", "error");
+                 // Optionally revert changes or keep editing enabled
+             }
+        } else {
+            console.error("updateTourMetadata function not found.");
+            window.KenBurns.ui.showToast("Error: Cannot save tour info.", "error");
+            setTourInfoEditingState(false); // Disable editing on error
+        }
+    });
+}
+
 // Update tour information in the tour tab
 function updateTourInfo() {
-  const tourInfo = document.getElementById('tour-info');
+  const tourInfoDiv = document.getElementById('tour-info');
   const tour = window.KenBurns.tours.getCurrentTour();
+  const editBtn = document.getElementById('edit-tour-info');
+
+  if (!tourInfoDiv) return; // Exit if element doesn't exist
 
   if (!tour) {
-    tourInfo.innerHTML = '<p>No tour loaded.</p>';
+    tourInfoDiv.innerHTML = '<p class="text-muted">No tour loaded.</p>';
+    if (editBtn) editBtn.disabled = true; // Disable edit if no tour
     return;
   }
 
+  if (editBtn) editBtn.disabled = false; // Enable edit if tour loaded
+
   let thumbnailHTML = '';
   if (tour.thumbnail) {
-    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="tour-preview">`;
+    thumbnailHTML = `<img src="${tour.thumbnail}" alt="${tour.title}" class="tour-preview img-fluid rounded mb-2">`; // Added BS classes
   }
 
+  // Use data attributes for editable fields
   let infoHTML = `
     <div class="tour-preview-container">
       ${thumbnailHTML}
     </div>
-    <h4>${tour.title}</h4>
-    <p>${tour.description}</p>
-    <div class="tour-details">
+    <h4 data-editable-field="title" style="min-height: 1.5em;">${tour.title || 'Untitled Tour'}</h4> 
+    <p data-editable-field="description" class="small" style="min-height: 3em;">${tour.description || 'No description provided.'}</p>
+    <div class="tour-details mt-3 pt-2 border-top border-secondary"> <!-- Added BS classes -->
       <div class="detail-item">
-        <span class="detail-label">ID:</span>
-        <span class="detail-value">${tour.id}</span>
+        <strong class="detail-label me-2">ID:</strong>
+        <span class="detail-value text-break">${tour.id}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Points of interest:</span>
-        <span class="detail-value">${tour.pointsOfInterest.length}</span>
+        <strong class="detail-label me-2">Points:</strong>
+        <span class="detail-value">${tour.pointsOfInterest?.length || 0}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Image URL:</span>
-        <span class="detail-value">${tour.tiles}</span>
+        <strong class="detail-label me-2">Image:</strong>
+        <span class="detail-value text-break">${tour.tiles}</span>
       </div>
     </div>
   `;
 
-  tourInfo.innerHTML = infoHTML;
+  tourInfoDiv.innerHTML = infoHTML;
+  setTourInfoEditingState(false); // Ensure editing is off when info updates
+}
+
+// Helper function to format time in seconds to MM:SS
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  const paddedSeconds = String(remainingSeconds).padStart(2, '0');
+  return `${minutes}:${paddedSeconds}`;
+}
+
+// Update the animation progress display (bar, time, frames)
+function updateAnimationProgress(currentTime, totalTime, currentFrame, totalFrames, state) {
+  const progressBar = document.getElementById('animation-progress-bar');
+  const timeInfo = document.getElementById('progress-time-info');
+  const frameInfo = document.getElementById('progress-frame-info');
+
+  if (progressBar) {
+    const percentage = totalTime > 0 ? (currentTime / totalTime) * 100 : 0;
+    const clampedPercentage = Math.min(100, Math.max(0, percentage));
+    progressBar.style.width = `${clampedPercentage}%`;
+    progressBar.setAttribute('aria-valuenow', clampedPercentage.toFixed(0));
+
+    progressBar.classList.remove('bg-info', 'bg-danger', 'bg-success', 'bg-secondary'); // Clear existing states
+    if (state === 'recording') {
+      progressBar.classList.add('bg-danger');
+    } else if (state === 'previewing') {
+      progressBar.classList.add('bg-info');
+    } else if (state === 'complete') {
+       progressBar.classList.add('bg-success');
+    } else { // Idle or stopped
+       progressBar.classList.add('bg-secondary');
+    }
+  }
+
+  if (timeInfo) {
+    timeInfo.textContent = `Time: ${formatTime(currentTime)} / ${formatTime(totalTime)}`;
+  }
+
+  if (frameInfo) {
+    // Only show frame info if totalFrames is calculated (i.e., during recording)
+    if (totalFrames > 0 && state === 'recording') {
+      frameInfo.textContent = `Frame: ${currentFrame} / ${totalFrames}`;
+      frameInfo.style.display = ''; // Make sure it's visible
+    } else {
+      frameInfo.textContent = 'Frame: - / -'; // Placeholder when not recording
+      // Optionally hide frame info during preview: frameInfo.style.display = 'none';
+    }
+  }
+}
+
+// Create and display markers and time labels on the progress bar
+function createProgressMarkers(sequence = [], totalDurationSeconds = 0) {
+  const markersContainer = document.getElementById('progress-markers-container');
+  const timeLabelsContainer = document.getElementById('progress-time-labels'); // Get label container
+
+  if (!markersContainer || !timeLabelsContainer) return;
+
+  // Clear existing markers and labels
+  markersContainer.innerHTML = '';
+  timeLabelsContainer.innerHTML = '';
+
+  if (!sequence || sequence.length === 0 || totalDurationSeconds <= 0) {
+    return;
+  }
+
+  const defaultTransitionDuration = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStillDuration = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+  const frameDelay = parseInt(document.getElementById('frame-delay')?.value || 100);
+
+  let currentTime = 0;
+
+  sequence.forEach((point, index) => {
+      let transitionStartTime = 0;
+      let transitionDurationMs = 0;
+
+      if (index > 0) {
+        const prevPoint = sequence[index - 1];
+        transitionDurationMs = point.duration.transition || defaultTransitionDuration;
+        const prevStillDurationMs = prevPoint.duration.still || defaultStillDuration;
+        currentTime += (prevStillDurationMs + frameDelay + transitionDurationMs) / 1000;
+        transitionStartTime = currentTime - (transitionDurationMs / 1000);
+      }
+
+      const percentageStart = (transitionStartTime / totalDurationSeconds) * 100;
+
+      if (percentageStart >= 0 && percentageStart <= 100) {
+          const title = point.title || `Point ${index + 1}`;
+          const timeFormatted = formatTime(transitionStartTime);
+
+          // --- Create Main Marker (Line below bar) --- //
+          const marker = document.createElement('div');
+          marker.className = 'progress-marker';
+          marker.style.left = `${percentageStart}%`;
+          markersContainer.appendChild(marker);
+
+          // --- Create Text Label (Below marker line) --- //
+          const textSpan = document.createElement('span');
+          textSpan.className = 'marker-text';
+          textSpan.style.left = `${percentageStart}%`;
+          textSpan.textContent = `${title} (${timeFormatted})`;
+          markersContainer.appendChild(textSpan);
+
+           // --- Create Time Label (MM:SS above bar) --- //
+           const timeLabelSpan = document.createElement('span');
+           timeLabelSpan.className = 'time-label';
+           timeLabelSpan.style.left = `${percentageStart}%`;
+           timeLabelSpan.textContent = timeFormatted;
+           timeLabelsContainer.appendChild(timeLabelSpan); // Add to the dedicated label container
+      }
+
+      // --- Create Still Marker (Icon below bar) --- //
+      const stillStartTime = transitionStartTime + (transitionDurationMs / 1000);
+      const percentageStill = (stillStartTime / totalDurationSeconds) * 100;
+      if (index > 0 && percentageStill > percentageStart && percentageStill <= 100) {
+           const stillMarker = document.createElement('div');
+           stillMarker.className = 'progress-marker still-marker';
+           stillMarker.style.left = `${percentageStill}%`;
+           markersContainer.appendChild(stillMarker);
+      }
+  });
+
+   // Add final time label at 100%
+   const finalTimeLabel = document.createElement('span');
+   finalTimeLabel.className = 'time-label';
+   finalTimeLabel.style.left = `100%`;
+   finalTimeLabel.textContent = formatTime(totalDurationSeconds);
+   timeLabelsContainer.appendChild(finalTimeLabel);
+
 }
 
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.ui = {
   setupEventListeners,
-  updateTourInfo
+  updateTourInfo,
+  updateAnimationProgress,
+  createProgressMarkers
 };
+
+// Helper function to show Bootstrap Toasts
+function showToast(message, type = 'info') {
+  const toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) return;
+
+  const toastId = `toast-${Date.now()}`;
+  const toastBgClass = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-primary');
+
+  const toastHTML = `
+    <div id="${toastId}" class="toast align-items-center text-white ${toastBgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  `;
+
+  toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+  const toastElement = document.getElementById(toastId);
+  const toastInstance = new bootstrap.Toast(toastElement, {
+    delay: 3000 // Auto-hide after 3 seconds
+  });
+
+  toastInstance.show();
+
+  // Remove the toast element from DOM after it's hidden
+  toastElement.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+  });
+}
+
+// Add showToast to the KenBurns.ui namespace
+window.KenBurns.ui.showToast = showToast;

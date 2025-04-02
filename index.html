@@ -7,75 +7,142 @@
   <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@21.0.0/dist/tween.umd.js"></script>
   <script src="js/CCapture.all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Bootstrap Icons CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- DataTables Core CSS -->
+  <link rel="stylesheet" href="//cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="viewer"></div>
+
+<!-- Offcanvas Trigger Button -->
+<button class="btn btn-primary position-fixed top-0 start-0 m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#controlsOffcanvas" aria-controls="controlsOffcanvas" style="z-index: 1050;">
+  <i class="bi bi-gear-fill"></i>
+  Controls
+</button>
+
+<!-- Right Offcanvas Trigger Button -->
+<button class="btn btn-info position-fixed top-0 end-0 m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#infoOffcanvas" aria-controls="infoOffcanvas" style="z-index: 1050;">
+  <i class="bi bi-info-circle-fill"></i> Info / JSON
+</button>
+
+<!-- Top Playback Offcanvas Trigger Button -->
+<button class="btn btn-light position-fixed top-0 start-50 translate-middle-x mt-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPlayback" aria-controls="offcanvasPlayback" style="z-index: 1050;">
+  <i class="bi bi-play-btn-fill"></i> Playback Controls
+</button>
+
+<!-- Playback Controls Offcanvas -->
+<div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasPlayback" aria-labelledby="offcanvasPlaybackLabel">
+  <div class="offcanvas-header pb-1">
+    <h5 class="offcanvas-title" id="offcanvasPlaybackLabel"><i class="bi bi-play-circle-fill me-2"></i> Playback</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body pt-2 pb-2">
+    <div class="d-flex justify-content-center align-items-center mb-2">
+        <button id="start-preview" class="btn btn-sm btn-info me-2"><i class="bi bi-eye-fill me-1"></i> Preview</button>
+        <button id="start-recording" class="btn btn-sm btn-danger me-2"><i class="bi bi-record-circle-fill me-1"></i> Record</button>
+        <button id="stop-recording" class="btn btn-sm btn-secondary" disabled><i class="bi bi-stop-circle-fill me-1"></i> Stop</button>
+    </div>
+
+    <div id="progress-section">
+        <div id="progress-time-labels" style="position: relative; height: 15px; margin-bottom: 1px; overflow: hidden;">
+          <!-- Time labels added by JS -->
+        </div>
+        <div id="progress-container" style="position: relative; margin-bottom: 1.2rem;">
+            <div class="progress" style="height: 5px;">
+              <div id="animation-progress-bar" class="progress-bar bg-secondary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div id="progress-markers-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+              <!-- Point markers added by JS -->
+            </div>
+        </div>
+        <div class="d-flex justify-content-between small progress-info">
+            <span id="progress-time-info">Time: 0:00 / 0:00</span>
+            <span id="progress-frame-info">Frame: 0 / 0</span>
+        </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="capture-frame"></div>
 <div id="title-callout"></div>
 <div id="subtitle-display"></div>
-<div id="point-edit-modal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>Edit Point Properties</h3>
-    <form id="point-edit-form">
-      <div class="form-group">
-        <label for="point-title">Title:</label>
-        <input type="text" id="point-title" placeholder="Enter title">
+<div id="point-edit-modal" class="modal fade" tabindex="-1" aria-labelledby="pointEditModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content text-white">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title" id="pointEditModalLabel">Edit Point Properties</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="cancel-edit-x"></button>
       </div>
-      <div class="form-group">
-        <label for="point-description">Description:</label>
-        <textarea id="point-description" placeholder="Enter description"></textarea>
+      <div class="modal-body">
+        <form id="point-edit-form">
+          <div class="mb-3">
+            <label for="point-title" class="form-label">Title:</label>
+            <input type="text" class="form-control" id="point-title" placeholder="Enter title">
+          </div>
+          <div class="mb-3">
+            <label for="point-description" class="form-label">Description:</label>
+            <textarea class="form-control" id="point-description" placeholder="Enter description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="point-zoom" class="form-label">Zoom: <span id="zoom-value">1.0</span></label>
+            <input type="range" class="form-range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="point-duration-transition" class="form-label">Transition Duration (ms):</label>
+              <input type="number" class="form-control" id="point-duration-transition" min="100" step="100" value="1500">
+            </div>
+            <div class="col">
+              <label for="point-duration-still" class="form-label">Still Duration (ms):</label>
+              <input type="number" class="form-control" id="point-duration-still" min="100" step="100" value="1500">
       </div>
-      <div class="form-group">
-        <label for="point-zoom">Zoom: <span id="zoom-value">1.0</span></label>
-        <input type="range" id="point-zoom" min="0.1" max="10" step="0.1" value="1">
       </div>
-      <div class="form-group">
-        <label for="point-duration-transition">Transition Duration (ms):</label>
-        <input type="number" id="point-duration-transition" min="100" step="100" value="1500">
+          <input type="hidden" id="point-index">
+        </form>
       </div>
-      <div class="form-group">
-        <label for="point-duration-still">Still Duration (ms):</label>
-        <input type="number" id="point-duration-still" min="100" step="100" value="1500">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel-edit">Cancel</button>
+        <button type="button" class="btn btn-primary" id="save-point">Save</button>
       </div>
-      <input type="hidden" id="point-index">
-      <div class="form-buttons">
-        <button type="button" id="save-point">Save</button>
-        <button type="button" id="cancel-edit">Cancel</button>
       </div>
-    </form>
   </div>
 </div>
-<div id="controls">
-  <div class="controls-header">
-    <div class="tab-buttons">
-    <button class="tab-button active" data-tab="settings">Settings</button>
-    <button class="tab-button" data-tab="json">JSON</button>
-    <button class="tab-button" data-tab="table">Table</button>
-    <button class="tab-button" data-tab="tours">Tours</button>
-    </div>
-    <button id="collapse-controls" title="Collapse panel">◀</button>
-  </div>
 
-  <div id="settings-tab" class="tab active">
-    <fieldset>
-      <legend>Capture Settings</legend>
-      <div class="form-row">
-        <div class="form-col">
-          <label>Quality:
-            <input type="number" id="quality" value="100" min="1" max="100">
-          </label>
+<!-- Controls Offcanvas -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="controlsOffcanvas" aria-labelledby="controlsOffcanvasLabel" style="width: 420px;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title" id="controlsOffcanvasLabel"><i class="bi bi-gear-fill me-2"></i> Settings</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-3">
+    <div id="controls" class="h-100">
+        <div class="accordion" id="settingsAccordion">
+
+          <!-- 1. Capture Settings Accordion Item -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCaptureSettings">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCaptureSettings" aria-expanded="true" aria-controls="collapseCaptureSettings">
+                <i class="bi bi-camera-video me-2"></i> Capture Settings
+              </button>
+            </h2>
+            <div id="collapseCaptureSettings" class="accordion-collapse collapse show" aria-labelledby="headingCaptureSettings" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                 <div class="mb-3">
+                   <label for="quality" class="form-label form-label-sm">Quality:</label>
+                   <input type="number" class="form-control form-control-sm" id="quality" value="100" min="1" max="100">
         </div>
-        <div class="form-col">
-          <label>Framerate:
-            <input type="number" id="framerate" value="60" min="1" max="120">
-          </label>
+                 <div class="mb-3">
+                   <label for="framerate" class="form-label form-label-sm">Framerate:</label>
+                   <input type="number" class="form-control form-control-sm" id="framerate" value="60" min="1" max="120">
         </div>
-      </div>
-      
-      <div class="setting-group">
-        <label>Aspect Ratio:</label>
-        <select id="aspect-ratio">
+                 <div class="mb-3">
+                   <label for="aspect-ratio" class="form-label form-label-sm">Aspect Ratio:</label>
+                   <select class="form-select form-select-sm" id="aspect-ratio">
           <option value="0" selected>Viewport (Full Screen)</option>
           <option value="16:9">16:9 (Landscape HD)</option>
           <option value="4:3">4:3 (Standard)</option>
@@ -83,100 +150,136 @@
           <option value="9:16">9:16 (Portrait)</option>
           <option value="custom">Custom...</option>
         </select>
-        <div id="custom-aspect-ratio" style="display: none; margin-top: 8px;">
-          <input type="number" id="custom-width" placeholder="Width" min="1" step="1" value="1920" style="width: 70px">
-          <span>:</span>
-          <input type="number" id="custom-height" placeholder="Height" min="1" step="1" value="1080" style="width: 70px">
+                   <div id="custom-aspect-ratio" style="display: none;" class="mt-2 row gx-2 align-items-center">
+                     <div class="col">
+                      <input type="number" class="form-control form-control-sm" id="custom-width" placeholder="Width" min="1" step="1" value="1920">
+                     </div>
+                      <div class="col-auto">:</div>
+                     <div class="col">
+                      <input type="number" class="form-control form-control-sm" id="custom-height" placeholder="Height" min="1" step="1" value="1080">
         </div>
       </div>
-      
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-capture-frame" checked>
-              <span>Show capture frame</span>
-            </label>
           </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-callouts" checked>
-              <span>Show title callouts</span>
-            </label>
+                 <div class="mb-2">
+                    <div class="form-check form-switch mb-1">
+                      <input class="form-check-input" type="checkbox" role="switch" id="show-capture-frame" checked>
+                      <label class="form-check-label small" for="show-capture-frame">Show capture frame</label>
+          </div>
+                    <div class="form-check form-switch mb-1">
+                       <input class="form-check-input" type="checkbox" role="switch" id="show-callouts" checked>
+                       <label class="form-check-label small" for="show-callouts">Show title callouts</label>
+        </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" role="switch" id="show-subtitles" checked>
+                      <label class="form-check-label small" for="show-subtitles">Show description subtitles</label>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="show-subtitles" checked>
-              <span>Show description subtitles</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-    
-    <fieldset>
-      <legend>Performance & Quality</legend>
-      <div class="checkbox-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="subpixel-rendering" checked>
-              <span>Subpixel rendering</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="smooth-animation" checked>
-              <span>High quality animation</span>
-            </label>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label class="checkbox-label">
-              <input type="checkbox" id="optimize-memory" checked>
-              <span>Optimize memory usage</span>
-            </label>
-          </div>
-          <div class="form-col">
-            <label>Render quality:
-              <select id="render-quality">
-                <option value="high">High</option>
-                <option value="medium" selected>Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-    </fieldset>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseCaptureSettings -->
+          </div> <!-- End accordion-item -->
 
-    <fieldset>
-      <legend>Animation Settings</legend>
-      <div class="setting-group">
-        <div class="form-row">
-          <div class="form-col">
-            <label>Default Transition (ms):
-              <input type="number" id="default-transition-duration" value="1500" min="100" step="100">
-            </label>
+          <!-- 2. Burn-in Overlays Accordion Item (New) -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingBurnIn">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBurnIn" aria-expanded="false" aria-controls="collapseBurnIn">
+                <i class="bi bi-fonts me-2"></i> Burn-in Overlays
+              </button>
+            </h2>
+            <div id="collapseBurnIn" class="accordion-collapse collapse" aria-labelledby="headingBurnIn" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                 <div class="mb-3">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="burn-titles">
+                        <label class="form-check-label small" for="burn-titles">Burn titles into video</label>
           </div>
-          <div class="form-col">
-            <label>Default Still (ms):
-              <input type="number" id="default-still-duration" value="1500" min="100" step="100">
-            </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="burn-subtitles">
+                        <label class="form-check-label small" for="burn-subtitles">Burn subtitles into video</label>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-col">
-            <label>Frame Delay (ms):
-              <input type="number" id="frame-delay" value="100" min="0" step="10">
-            </label>
+                 <div class="mb-2">
+                    <label for="overlay-title-font-size" class="form-label form-label-sm mb-0">Title Size (px)</label>
+                    <input type="number" class="form-control form-control-sm" id="overlay-title-font-size" value="24" min="8">
+                 </div>
+                 <div class="mb-2">
+                    <label for="overlay-title-color" class="form-label form-label-sm mb-0">Title Color</label>
+                    <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-title-color" value="#FFFFFF" title="Choose title color">
           </div>
-          <div class="form-col">
-            <label>Easing Function:
-              <select id="easing-function">
+                 <div class="mb-2">
+                    <label for="overlay-subtitle-font-size" class="form-label form-label-sm mb-0">Subtitle Size (px)</label>
+                    <input type="number" class="form-control form-control-sm" id="overlay-subtitle-font-size" value="18" min="8">
+          </div>
+                 <div class="mb-2">
+                    <label for="overlay-subtitle-color" class="form-label form-label-sm mb-0">Subtitle Color</label>
+                    <input type="color" class="form-control form-control-sm form-control-color w-100" id="overlay-subtitle-color" value="#FFFFFF" title="Choose subtitle color">
+        </div>
+                 <div class="mb-3">
+                     <label for="overlay-font-family" class="form-label form-label-sm mb-0">Font Family</label>
+                     <input type="text" class="form-control form-control-sm" id="overlay-font-family" value="Arial, sans-serif" placeholder="e.g., Arial, sans-serif">
+      </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseBurnIn -->
+          </div> <!-- End accordion-item -->
+
+          <!-- 3. Performance & Quality Accordion Item -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPerformance">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerformance" aria-expanded="false" aria-controls="collapsePerformance">
+                <i class="bi bi-sliders me-2"></i> Performance & Quality
+              </button>
+            </h2>
+            <div id="collapsePerformance" class="accordion-collapse collapse" aria-labelledby="headingPerformance" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                 <div class="mb-3">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="subpixel-rendering" checked>
+                        <label class="form-check-label small" for="subpixel-rendering">Subpixel rendering</label>
+                    </div>
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="smooth-animation" checked>
+                        <label class="form-check-label small" for="smooth-animation">High quality animation</label>
+          </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="optimize-memory" checked>
+                        <label class="form-check-label small" for="optimize-memory">Optimize memory</label>
+          </div>
+        </div>
+                 <div class="mb-3">
+                    <label for="render-quality" class="form-label form-label-sm">Render quality:</label>
+                    <select class="form-select form-select-sm" id="render-quality">
+                        <option value="high">High Render Quality</option>
+                        <option value="medium" selected>Medium Render Quality</option>
+                        <option value="low">Low Render Quality</option>
+                    </select>
+                 </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapsePerformance -->
+          </div> <!-- End accordion-item -->
+
+          <!-- 4. Animation Settings Accordion Item -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAnimation">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAnimation" aria-expanded="false" aria-controls="collapseAnimation">
+                <i class="bi bi-film me-2"></i> Animation Settings
+              </button>
+            </h2>
+            <div id="collapseAnimation" class="accordion-collapse collapse" aria-labelledby="headingAnimation" data-bs-parent="#settingsAccordion">
+              <div class="accordion-body">
+                 <div class="mb-3">
+                   <label for="default-transition-duration" class="form-label form-label-sm">Default Transition (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="default-transition-duration" value="1500" min="100" step="100">
+                 </div>
+                 <div class="mb-3">
+                   <label for="default-still-duration" class="form-label form-label-sm">Default Still (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="default-still-duration" value="1500" min="100" step="100">
+                 </div>
+                 <div class="mb-3">
+                   <label for="frame-delay" class="form-label form-label-sm">Frame Delay (ms):</label>
+                   <input type="number" class="form-control form-control-sm" id="frame-delay" value="100" min="0" step="10">
+          </div>
+                 <div class="mb-3">
+                   <label for="easing-function" class="form-label form-label-sm">Easing Function:</label>
+                   <select class="form-select form-select-sm" id="easing-function">
                 <option value="Linear.None">Linear</option>
                 <option value="Quadratic.InOut">Quadratic</option>
                 <option value="Cubic.InOut" selected>Cubic</option>
@@ -189,79 +292,13 @@
                 <option value="Back.InOut">Back</option>
                 <option value="Bounce.InOut">Bounce</option>
               </select>
-            </label>
           </div>
-        </div>
-      </div>
-    </fieldset>
-    
-    <div class="btn-group">
-      <button id="start" class="btn-primary">Start Recording</button>
-      <button id="stop" class="btn-secondary" disabled>Stop Recording</button>
-      <button id="preview" class="btn-secondary">Preview</button>
-    </div>
-    
-    <fieldset>
-      <legend>Image Source</legend>
-      <div class="url-input-group">
-        <label for="iiif-url">IIIF Image URL:</label>
-        <div class="form-row">
-          <div class="form-col expand">
-            <input type="text" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
-          </div>
-          <div class="form-col shrink">
-            <button id="apply-url" class="btn-accent">Apply</button>
-          </div>
-        </div>
-      </div>
-    </fieldset>
-  </div>
+              </div> <!-- End accordion-body -->
+            </div> <!-- End collapseAnimation -->
+          </div> <!-- End accordion-item -->
 
-  <div id="json-tab" class="tab">
-    <p>Edit animation sequence in JSON format (includes complete tour info):</p>
-    <textarea id="sequence-json"></textarea>
-    <div class="btn-group">
-      <button id="apply-json" class="btn-primary">Apply JSON</button>
-      <button id="update-json" class="btn-secondary">Update from Table</button>
-    </div>
-  </div>
+        </div> <!-- End Settings Accordion -->
 
-  <div id="table-tab" class="tab">
-    <div class="table-options">
-      <label class="checkbox-label">
-        <input type="checkbox" id="show-properties"> 
-        <span>Show Properties</span>
-      </label>
-    </div>
-    <table id="sequence-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th class="property-column">Zoom</th>
-          <th class="property-column">Center X</th>
-          <th class="property-column">Center Y</th>
-          <th class="property-column">Transition (ms)</th>
-          <th class="property-column">Still (ms)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="btn-group">
-      <button id="add-point" class="btn-primary">Add Point</button>
-      <button id="update-table" class="btn-secondary">Update Visualization</button>
-    </div>
-  </div>
-  
-
-  
-  <div id="tours-tab" class="tab">
-    <h3>Available Tours</h3>
-    <div id="tour-selector" class="tour-selector"></div>
-    <h3>Current Tour Information</h3>
-    <div id="tour-info"></div>
-    <div class="btn-group" style="margin-top: 10px;">
-      <button id="generate-srt" class="btn-secondary">Generate SRT Subtitles</button>
     </div>
   </div>
 </div>
@@ -277,11 +314,185 @@
 <script src="js/tours.js"></script>
 <script src="script.js"></script>
 
-<!-- Keyboard shortcuts help -->
-<div id="keyboard-shortcuts" style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.5); font-size: 12px; font-family: Arial, sans-serif;">
-  <div>Ctrl+Click: Add point at current location</div>
-  <div>Shift+Click on point: Edit point properties</div>
-  <div>Click and drag points: Reposition points</div>
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<!-- jQuery (required by DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- DataTables Core JS -->
+<script src="//cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <!-- Toast template will be added here by JavaScript -->
+</div>
+
+<!-- Bottom Sequence Table Offcanvas Trigger -->
+<button class="btn btn-secondary position-fixed bottom-0 start-50 translate-middle-x mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sequenceOffcanvas" aria-controls="sequenceOffcanvas" style="z-index: 1050;">
+  <i class="bi bi-table"></i> Show Sequence Editor
+</button>
+
+<!-- Bottom Sequence Table Offcanvas -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="sequenceOffcanvas" aria-labelledby="sequenceOffcanvasLabel" style="height: 40vh;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title" id="sequenceOffcanvasLabel"><i class="bi bi-list-ol"></i> Sequence Points</h5>
+    <div class="ms-auto">
+      <!-- Add Point button moved here -->
+      <button id="add-point" class="btn btn-sm btn-success me-2"><i class="bi bi-plus-circle"></i> Add Point at Current View</button>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Table will be moved here -->
+    <div class="table-responsive h-100">
+       <table id="sequence-table" class="display stripe hover compact" style="width:100%">
+         <thead>
+           <!-- Header content remains -->
+            <tr>
+              <th>Title</th>
+              <th class="property-column">Zoom</th>
+              <th class="property-column">Center X</th>
+              <th class="property-column">Center Y</th>
+              <th class="property-column">Transition (ms)</th>
+              <th class="property-column">Still (ms)</th>
+              <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+           <!-- Body content will be populated by DataTables -->
+         </tbody>
+       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Right Info/JSON/Tours Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="infoOffcanvas" aria-labelledby="infoOffcanvasLabel" style="width: 450px;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title" id="infoOffcanvasLabel"><i class="bi bi-list-task"></i> Tour Info & JSON</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="accordion" id="rightPanelAccordion">
+
+              <!-- 1. Current Tour Info -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTourInfo">
+                  <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTourInfo" aria-expanded="true" aria-controls="collapseTourInfo">
+                     <i class="bi bi-signpost-split me-2"></i> Current Tour Information
+                  </button>
+                </h2>
+                <div id="collapseTourInfo" class="accordion-collapse collapse show" aria-labelledby="headingTourInfo" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                    <!-- Original Tour Info content - Available Tours header removed -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h5>Current Tour Information</h5>
+                      <div>
+                         <button id="edit-tour-info" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</button>
+                         <button id="save-tour-info" class="btn btn-sm btn-success d-none"><i class="bi bi-check-lg"></i> Save</button>
+                         <button id="cancel-tour-info" class="btn btn-sm btn-danger d-none"><i class="bi bi-x-lg"></i> Cancel</button>
+                      </div>
+                    </div>
+                    <div id="tour-info" class="border border-secondary rounded p-2 mb-3" style="min-height: 100px;">
+                        <!-- Content populated by js/ui.js -> updateTourInfo -->
+                        <!-- Structure will be like:
+                        <div class="tour-preview-container">...</div>
+                        <h4 data-editable-field="title">Tour Title</h4>
+                        <p data-editable-field="description">Tour Description</p>
+                        <div class="tour-details">...</div> 
+                        -->
+                    </div>
+                    
+                    <fieldset class="mt-4">
+                      <legend class="h6">Image Source</legend>
+                      <div class="mb-3">
+                        <label for="iiif-url" class="form-label">IIIF Image URL:</label>
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control" id="iiif-url" value="https://i.micr.io/vjYfT/info.json" placeholder="Enter IIIF URL...">
+                          <button id="apply-url" class="btn btn-outline-secondary">Apply</button>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Tours List -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingToursList">
+                  <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseToursList" aria-expanded="false" aria-controls="collapseToursList">
+                     <i class="bi bi-collection me-2"></i> Available Tours
+                  </button>
+                </h2>
+                <div id="collapseToursList" class="accordion-collapse collapse" aria-labelledby="headingToursList" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body" style="max-height: 250px; overflow-y: auto;">
+                     <!-- Tour selector content goes here -->
+                     <div id="tour-selector" class="row row-cols-1 row-cols-md-2 g-2">
+                        <!-- Cards populated by js/tours.js -->
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. JSON Editor -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingJsonEditor">
+                 <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJsonEditor" aria-expanded="false" aria-controls="collapseJsonEditor">
+                    <i class="bi bi-filetype-json me-2"></i> JSON Editor
+                 </button>
+                </h2>
+                <div id="collapseJsonEditor" class="accordion-collapse collapse" aria-labelledby="headingJsonEditor" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                    <!-- JSON tab content goes here -->
+                    <p class="small text-muted">Edit animation sequence in JSON format (includes complete tour info):</p>
+                    <textarea id="sequence-json" class="form-control form-control-sm mb-2" style="height: calc(100vh - 300px); font-size: 0.8em;"></textarea>
+                    <div class="btn-group">
+                      <button id="apply-json" class="btn btn-sm btn-primary">Apply JSON</button>
+                      <button id="update-json" class="btn btn-sm btn-secondary">Update from Sequence</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. SRT Subtitles -->
+              <div class="accordion-item" id="accordionItemSrt">
+                <h2 class="accordion-header" id="headingSrt">
+                  <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSrt" aria-expanded="false" aria-controls="collapseSrt">
+                     <i class="bi bi-file-earmark-text me-2"></i> SRT Subtitles
+                  </button>
+                </h2>
+                <div id="collapseSrt" class="accordion-collapse collapse" aria-labelledby="headingSrt" data-bs-parent="#rightPanelAccordion">
+                  <div class="accordion-body">
+                     <p class="small text-muted">Generate SRT format subtitles based on the current sequence points and durations.</p>
+                     <div class="mb-2">
+                        <button id="generate-srt" class="btn btn-sm btn-primary"><i class="bi bi-gear"></i> Generate SRT</button>
+                        <button id="download-srt" class="btn btn-sm btn-success ms-2" disabled><i class="bi bi-download"></i> Download SRT</button>
+                     </div>
+                     <textarea id="srt-output" class="form-control form-control-sm" rows="10" readonly placeholder="Generated SRT content will appear here..."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. Keyboard Shortcuts (Moved to last) -->
+              <div class="accordion-item" id="accordionItemShortcuts">
+                 <h2 class="accordion-header" id="headingShortcuts">
+                   <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShortcuts" aria-expanded="false" aria-controls="collapseShortcuts">
+                      <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
+                   </button>
+                 </h2>
+                 <div id="collapseShortcuts" class="accordion-collapse collapse" aria-labelledby="headingShortcuts" data-bs-parent="#rightPanelAccordion">
+                   <div class="accordion-body">
+                     <!-- Keyboard Shortcuts Content Moved Here -->
+                      <ul class="list-unstyled small">
+                        <li><kbd>Ctrl</kbd> + <kbd>Click</kbd>: Add point at current location</li>
+                        <li><kbd>Shift</kbd> + <kbd>Click</kbd> on point: Edit point properties</li>
+                        <li>Click and drag points: Reposition points</li>
+                      </ul>
+                   </div>
+                 </div>
+               </div>
+
+            </div> <!-- End Accordion -->
+  </div>
 </div>
 </body>
 </html>

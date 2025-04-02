@@ -8,6 +8,11 @@ let zoomPointIndex = -1;
 let currentAspectRatio = '0'; // Store the current aspect ratio
 let imageAspectRatio = 1; // Store the actual image aspect ratio
 let baseRectSize = 0.2; // Base size of rectangle in viewport coordinates (0.2 = 20% of image when zoom is 1.0)
+let sequenceLines = [];
+let captureRectDiv = null;
+let pointMarkers = [];
+let currentlyDisplayedTitle = ''; // Added
+let currentlyDisplayedDescription = ''; // Added
 
 // Function to create visualizations for all points
 function updateVisualizations(viewer) {
@@ -424,7 +429,47 @@ function updateCaptureFrame(viewer, aspectRatio) {
   }
 }
 
-// Export functions
+// Function called by updateCallout and updateSubtitleDisplay
+function setCurrentText(title, description) {
+    currentlyDisplayedTitle = title || '';
+    currentlyDisplayedDescription = description || '';
+}
+
+// Function to show title callout
+function updateCallout(title) {
+    const callout = document.getElementById('title-callout');
+    const showCallouts = document.getElementById('show-callouts')?.checked ?? true;
+    if (callout && showCallouts) {
+        callout.textContent = title || '';
+        callout.style.display = title ? 'block' : 'none';
+    } else if (callout) {
+        callout.style.display = 'none';
+    }
+    setCurrentText(title, currentlyDisplayedDescription); // Update shared state
+}
+
+// Function to show description as subtitle
+function updateSubtitleDisplay(description) {
+    const subtitle = document.getElementById('subtitle-display');
+    const showSubtitles = document.getElementById('show-subtitles')?.checked ?? true;
+    if (subtitle && showSubtitles) {
+        subtitle.textContent = description || '';
+        subtitle.style.display = description ? 'block' : 'none';
+    } else if (subtitle) {
+        subtitle.style.display = 'none';
+    }
+    setCurrentText(currentlyDisplayedTitle, description); // Update shared state
+}
+
+// Function for capture module to get current text
+function getCurrentText() {
+    return {
+        currentTitle: currentlyDisplayedTitle,
+        currentDescription: currentlyDisplayedDescription
+    };
+}
+
+// Export visualization functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.visualization = {
   updateVisualizations,
@@ -445,5 +490,8 @@ window.KenBurns.visualization = {
     zoomingPoint = state;
     zoomPointIndex = index;
   },
-  getZoomPointIndex: () => zoomPointIndex
+  getZoomPointIndex: () => zoomPointIndex,
+  updateCallout,
+  updateSubtitleDisplay,
+  getCurrentText
 };

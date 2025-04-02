@@ -1,142 +1,113 @@
 // filepath: c:\tools\KB\ken-burns-effect\js\table.js
-// Table management for the sequence data
+// Table management for the sequence data using DataTables.js
 
-function showPointEditModal(index) {
-  // Call the interactions module's function to show the edit modal
-  const viewer = window.KenBurns.viewer.getViewer();
-  
-  console.log('Calling interactions.showPointEditModal with index:', index, 'Viewer object exists:', !!viewer);
-  
-  // Just pass the index directly - we've fixed the interactions.js function to handle this
-  window.KenBurns.interactions.showPointEditModal(index);
-}
+let sequenceDataTable = null;
+const tableElementId = '#sequence-table';
 
-// Setup table properties toggle
-function setupTablePropertiesToggle() {
-  const showPropertiesCheckbox = document.getElementById('show-properties');
-  const sequenceTable = document.getElementById('sequence-table');
-  
-  showPropertiesCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      sequenceTable.classList.add('show-properties');
-    } else {
-      sequenceTable.classList.remove('show-properties');
+function initializeDataTable() {
+  // Define columns for DataTables
+  const columns = [
+    { data: 'title', title: 'Title', defaultContent: '(No title)', className: 'text-nowrap' },
+    { data: 'zoom', title: 'Zoom', render: data => data ? data.toFixed(1) : '', className: 'text-end property-column' },
+    { data: 'center.x', title: 'Center X', render: data => data ? data.toFixed(3) : '', className: 'text-end property-column' },
+    { data: 'center.y', title: 'Center Y', render: data => data ? data.toFixed(3) : '', className: 'text-end property-column' },
+    { data: 'duration.transition', title: 'Transition (ms)', defaultContent: '', className: 'text-end property-column' },
+    { data: 'duration.still', title: 'Still (ms)', defaultContent: '', className: 'text-end property-column' },
+    {
+      data: 'originalIndex',
+      title: 'Actions',
+      orderable: false,
+      searchable: false,
+      className: 'text-center actions-column',
+      render: (data, type, row) => `
+        <button class="btn btn-sm btn-outline-primary edit-action me-1" data-index="${data}" title="Edit Point">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger delete-action" data-index="${data}" title="Delete Point">
+          <i class="bi bi-trash"></i>
+        </button>
+      `
     }
-  });
-  
-  // Initialize to hidden (default state)
-  sequenceTable.classList.remove('show-properties');
-  showPropertiesCheckbox.checked = false;
-}
+  ];
 
-// Function to update the table from the sequence
-function updateTable() {
-  const tbody = document.querySelector('#sequence-table tbody');
-  tbody.innerHTML = '';
-  
-  const sequence = window.KenBurns.sequence.getSequence();
-  
-  sequence.forEach((point, index) => {
-    const row = document.createElement('tr');
-    
-    // Title cell
-    const titleCell = document.createElement('td');
-    titleCell.className = 'readonly-cell';
-    titleCell.textContent = point.title || '(No title)';
-    
-    // Zoom cell
-    const zoomCell = document.createElement('td');
-    zoomCell.className = 'readonly-cell property-column';
-    zoomCell.textContent = point.zoom.toFixed(1);
-    
-    // Center X cell
-    const centerXCell = document.createElement('td');
-    centerXCell.className = 'readonly-cell property-column';
-    centerXCell.textContent = point.center.x.toFixed(3);
-    
-    // Center Y cell
-    const centerYCell = document.createElement('td');
-    centerYCell.className = 'readonly-cell property-column';
-    centerYCell.textContent = point.center.y.toFixed(3);
-    
-    // Duration Transition cell
-    const durationTransitionCell = document.createElement('td');
-    durationTransitionCell.className = 'readonly-cell property-column';
-    durationTransitionCell.textContent = (point.duration.transition || 0) + ' ms';
-    
-    // Duration Still cell
-    const durationStillCell = document.createElement('td');
-    durationStillCell.className = 'readonly-cell property-column';
-    durationStillCell.textContent = (point.duration.still || 0) + ' ms';
-    
-    // Description cell - removed from table display but still generated for future use if needed
-    const descriptionCell = document.createElement('td');
-    descriptionCell.className = 'readonly-cell description';
-    descriptionCell.textContent = point.description || '(No description)';
-    descriptionCell.style.display = 'none'; // Hide this cell
-    
-    // Actions cell
-    const actionsCell = document.createElement('td');
-    actionsCell.innerHTML = '<span class="edit-action" data-index="' + index + '">Edit</span><span class="delete-action" data-index="' + index + '">Delete</span>';
-    
-    row.appendChild(titleCell);
-    row.appendChild(zoomCell);
-    row.appendChild(centerXCell);
-    row.appendChild(centerYCell);
-    row.appendChild(durationTransitionCell);
-    row.appendChild(durationStillCell);
-    // Removed description cell to save space
-    row.appendChild(actionsCell);
-    
-    tbody.appendChild(row);
+  sequenceDataTable = new DataTable(tableElementId, {
+    columns: columns,
+    data: [], // Initially empty, will be populated by updateTable
+    paging: false, // Keep it simple for now
+    searching: true,
+    info: true,
+    autoWidth: false,
+    language: {
+        emptyTable: "No sequence points defined yet.",
+        search: "_INPUT_", // Use Bootstrap input group styling
+        searchPlaceholder: "Search table..."
+    },
+    // Make table vertically scrollable within the bottom offcanvas
+    scrollY: 'calc(40vh - 140px)', // Adjust height based on offcanvas height and header/footer
+    scrollCollapse: true,
   });
-  
-  // Add event listeners for edit and delete actions
-  document.querySelectorAll('.edit-action').forEach(editBtn => {
-    editBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const index = parseInt(e.target.dataset.index);
-      console.log('Edit button clicked for index:', index);
-      showPointEditModal(index);
-    });
-  });
-  
-  document.querySelectorAll('.delete-action').forEach(deleteBtn => {
-    deleteBtn.addEventListener('click', (e) => {
-      const index = parseInt(e.target.dataset.index);
-      if (confirm('Are you sure you want to delete this point?')) {
-        window.KenBurns.sequence.deletePoint(index);
-        updateTable();
-        updateJsonFromSequence();
-        
-        const viewer = window.KenBurns.viewer.getViewer();
-        window.KenBurns.visualization.updateVisualizations(viewer);
-      }
-    });
-  });
-}
 
-// Function to update sequence from input changes
-function updateSequenceFromInput(e) {
-  const index = parseInt(e.target.dataset.index);
-  const property = e.target.dataset.property;
-  let value = e.target.value;
+  // --- Event Delegation for Actions ---
+  const tableBody = document.querySelector(`${tableElementId} tbody`);
   
-  if (property === 'zoom' || property === 'centerX' || property === 'centerY' || property === 'duration') {
-    value = parseFloat(value);
+  if(tableBody){
+      tableBody.addEventListener('click', (e) => {
+          const editButton = e.target.closest('.edit-action');
+          const deleteButton = e.target.closest('.delete-action');
+          
+          if (editButton) {
+              e.preventDefault();
+              const index = parseInt(editButton.dataset.index);
+              console.log('Edit button clicked via delegation for index:', index);
+              // Call the interactions module's function to show the edit modal
+              window.KenBurns.interactions.showPointEditModal(index);
+          } else if (deleteButton) {
+              e.preventDefault();
+              const index = parseInt(deleteButton.dataset.index);
+              if (confirm(`Are you sure you want to delete point ${index + 1}?`)) {
+                  console.log('Delete button clicked via delegation for index:', index);
+                  window.KenBurns.sequence.deletePoint(index);
+                  updateTable(); // Refresh the DataTable
+                  updateJsonFromSequence(); // Update the JSON view
+                  
+                  // Update visualization
+                  const viewer = window.KenBurns.viewer.getViewer();
+                  window.KenBurns.visualization.updateVisualizations(viewer);
+                  window.KenBurns.ui.showToast(`Point ${index + 1} deleted.`, 'success');
+              }
+          }
+      });
+  } else {
+      console.error("Table body not found for event delegation.");
   }
-  
-  window.KenBurns.sequence.updatePoint(index, property, value);
-  updateJsonFromSequence();
-  
-  const viewer = window.KenBurns.viewer.getViewer();
-  window.KenBurns.visualization.updateVisualizations(viewer);
 }
 
-// Function to update JSON from sequence
+// Update the table display using DataTables API
+function updateTable() {
+  // Initialize DataTable if it hasn't been already
+  if (!sequenceDataTable) {
+    initializeDataTable();
+    // Check if initialization was successful before proceeding
+    if (!sequenceDataTable) {
+        console.error("DataTable failed to initialize. Cannot update table.");
+        return; 
+    }
+  }
+
+  // Now, clear the table and add the current sequence data
+  const sequence = window.KenBurns.sequence.getSequence();
+  // Map sequence data and add original index for actions
+  const mappedData = sequence.map((point, index) => ({
+    ...point,
+    originalIndex: index // Add index for button data attributes
+  }));
+
+  // Clear existing data, add new data, and redraw the table
+  sequenceDataTable.clear().rows.add(mappedData).draw();
+}
+
+// Function to update JSON from sequence (Keep as is)
 function updateJsonFromSequence() {
-  // Get the full tour info, with updated sequence
   const fullTourInfo = window.KenBurns.sequence.getTourInfo();
   document.getElementById('sequence-json').value = JSON.stringify(fullTourInfo, null, 2);
 }
@@ -144,8 +115,7 @@ function updateJsonFromSequence() {
 // Export functions
 window.KenBurns = window.KenBurns || {};
 window.KenBurns.table = {
-  updateTable,
-  updateSequenceFromInput,
-  updateJsonFromSequence,
-  setupTablePropertiesToggle
+  updateTable,          // Expose the updated function
+  // updateSequenceFromInput, // Removed - obsolete
+  updateJsonFromSequence
 };

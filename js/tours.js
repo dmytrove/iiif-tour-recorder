@@ -5,19 +5,90 @@
 let currentTour = null;
 let availableTours = [];
 
-// Initialize by loading available tours
+// Function to initialize tour loading and selection
 async function initialize() {
+  const tourSelector = document.getElementById('tour-selector');
+  if (!tourSelector) {
+      console.error("Tour selector element not found.");
+      return; // Don't proceed if selector isn't there
+  }
+
   try {
-    // Scan tours directory for available tours first
-    await scanAvailableTours();
-    
-    // Load default tour (SK-A-2099.json)
-    await loadTour('tours/SK-A-2099.json');
-    
-    return true;
+    // Load the manifest of available tours
+    const response = await fetch('tours/manifest.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    availableTours = await response.json();
+
+    // Clear existing options
+    tourSelector.innerHTML = ''; 
+
+    // Populate the tour selector with cards
+    availableTours.forEach((tour) => {
+      const cardCol = document.createElement('div');
+      cardCol.className = 'col'; // Bootstrap grid column
+
+      const card = document.createElement('div');
+      card.className = 'card h-100 text-white bg-secondary tour-card-selector'; // Use secondary bg, add custom class
+      card.style.cursor = 'pointer';
+      card.dataset.tourUrl = tour.url;
+      
+      let cardBodyContent;
+      if(tour.thumbnail){
+          cardBodyContent = `
+            <img src="${tour.thumbnail}" class="card-img-top" alt="${tour.title || 'Tour thumbnail'}" style="height: 80px; object-fit: cover;">
+            <div class="card-body p-2">
+              <h6 class="card-title small mb-1 text-truncate" title="${tour.title || 'Untitled Tour'}">${tour.title || 'Untitled Tour'}</h6>
+              <p class="card-text small text-muted text-truncate" title="${tour.id}">${tour.id}</p>
+            </div>
+          `;
+      } else {
+          // Fallback if no thumbnail
+          cardBodyContent = `
+            <div class="card-body p-2">
+                <div class="placeholder-thumbnail bg-primary d-flex align-items-center justify-content-center" style="height: 80px;">
+                    <i class="bi bi-image fs-3"></i>
+                </div>
+                <h6 class="card-title small mb-1 mt-2 text-truncate" title="${tour.title || 'Untitled Tour'}">${tour.title || 'Untitled Tour'}</h6>
+                <p class="card-text small text-muted text-truncate" title="${tour.id}">${tour.id}</p>
+            </div>
+          `;
+      }
+
+      card.innerHTML = cardBodyContent;
+
+      // Add click listener to load tour
+      card.addEventListener('click', async () => {
+          await loadTour(tour.url); // Load the tour data
+          
+          // Update selection appearance
+          document.querySelectorAll('.tour-card-selector').forEach(c => c.classList.remove('border', 'border-info', 'border-3'));
+          card.classList.add('border', 'border-info', 'border-3');
+      });
+
+      cardCol.appendChild(card);
+      tourSelector.appendChild(cardCol);
+    });
+
+    // Load the default tour if specified and available
+    const defaultTour = availableTours.find(t => t.default);
+    if (defaultTour) {
+      await loadTour(defaultTour.url);
+      // Highlight default selection
+      const defaultCard = tourSelector.querySelector(`[data-tour-url="${defaultTour.url}"]`);
+      if (defaultCard) defaultCard.classList.add('border', 'border-info', 'border-3');
+    } else if (availableTours.length > 0) {
+        // Or load the first tour if no default
+        await loadTour(availableTours[0].url);
+        const firstCard = tourSelector.querySelector(`[data-tour-url="${availableTours[0].url}"]`);
+        if (firstCard) firstCard.classList.add('border', 'border-info', 'border-3');
+    }
+
   } catch (error) {
-    console.error('Failed to initialize tours:', error);
-    return false;
+    console.error('Error loading tour manifest:', error);
+    tourSelector.innerHTML = '<p class="text-danger">Could not load tour list.</p>';
+    throw error; // Re-throw to be caught by script.js if needed
   }
 }
 
@@ -127,6 +198,7 @@ async function loadTour(tourPath) {
       currentTour = window.KenBurns.sequence.setTourInfo(tourData);
     } else {
       currentTour = tourData;
+      console.warn("Sequence module not found, setting tour data directly.");
     }
     
     // Update IIIF URL if provided in tour
@@ -150,14 +222,20 @@ async function loadTour(tourPath) {
     // Update visualizations if viewer is ready
     if (window.KenBurns.viewer && window.KenBurns.visualization) {
       const viewer = window.KenBurns.viewer.getViewer();
-      if (viewer) {
+      if (viewer && viewer.world) {
         window.KenBurns.visualization.updateVisualizations(viewer);
       }
+    }
+
+    // --- Trigger UI update for Current Tour Info ---
+    if (window.KenBurns.ui && window.KenBurns.ui.updateTourInfo) {
+        window.KenBurns.ui.updateTourInfo();
     }
     
     return currentTour;
   } catch (error) {
     console.error('Error loading tour:', error);
+    if (window.KenBurns?.ui?.showToast) window.KenBurns.ui.showToast(`Error loading tour: ${error.message}`, "error");
     throw error;
   }
 }
@@ -171,52 +249,132 @@ function getCurrentTour() {
   return currentTour;
 }
 
-// Generate SRT subtitles from sequence descriptions
+// Function to generate SRT content from the current tour
 function generateSRT() {
-  const sequence = window.KenBurns.sequence.getSequence();
-  let srtContent = '';
-  let totalTime = 0;
-  
-  sequence.forEach((point, index) => {
-    // Calculate start and end times
-    const startTime = totalTime;
-    totalTime += point.duration;
-    const endTime = totalTime;
+  if (!currentTour || !currentTour.pointsOfInterest) {
+    console.error("Cannot generate SRT: No tour or points loaded.");
+    return null; // Return null or empty string to indicate failure
+  }
+
+  let srtContent = "";
+  let sequenceNumber = 1;
+  let currentTimeMs = 0;
+  const defaultTransition = parseInt(document.getElementById('default-transition-duration')?.value || 1500);
+  const defaultStill = parseInt(document.getElementById('default-still-duration')?.value || 1500);
+
+  // Sort points by order just in case
+  const sortedPoints = [...currentTour.pointsOfInterest].sort((a, b) => a.order - b.order);
+
+  sortedPoints.forEach((point) => {
+    const transitionMs = point.duration?.transition ?? defaultTransition;
+    const stillMs = point.duration?.still ?? defaultStill;
     
-    // Format times as SRT format (HH:MM:SS,mmm)
-    const formatTime = (ms) => {
-      const totalSec = Math.floor(ms / 1000);
-      const hours = Math.floor(totalSec / 3600);
-      const minutes = Math.floor((totalSec % 3600) / 60);
-      const seconds = totalSec % 60;
-      const milliseconds = ms % 1000;
-      
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
-    };
+    // Time when the subtitle should appear (after transition)
+    const startTimeMs = currentTimeMs + transitionMs;
+    // Time when the subtitle should disappear (after transition + still)
+    const endTimeMs = startTimeMs + stillMs;
+
+    // Only add subtitle if there's a description and still duration > 0
+    if (point.description && stillMs > 0) {
+        srtContent += sequenceNumber + "\n";
+        srtContent += formatSrtTime(startTimeMs) + " --> " + formatSrtTime(endTimeMs) + "\n";
+        srtContent += point.description.trim() + "\n\n";
+        sequenceNumber++;
+    }
     
-    // Add entry to SRT content
-    srtContent += `${index + 1}\n`;
-    srtContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-    srtContent += `${point.description || ''}\n\n`;
+    // Update current time for the next point
+    currentTimeMs += transitionMs + stillMs;
   });
-  
+
   return srtContent;
 }
 
-// Download SRT file
-function downloadSRT() {
-  const srtContent = generateSRT();
-  const blob = new Blob([srtContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  
-  // Create a temporary link and trigger download
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = currentTour ? `${currentTour.id}_subtitles.srt` : 'subtitles.srt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+// Function to download the generated SRT content
+function downloadSRT(srtContent) {
+    if (!srtContent || srtContent.trim() === "") {
+        window.KenBurns.ui.showToast("No SRT content generated to download.", "warning");
+        return;
+    }
+
+    const filename = `${currentTour?.id || 'tour'}_subtitles.srt`;
+    const blob = new Blob([srtContent], { type: 'text/plain;charset=utf-8' });
+
+    try {
+        if (window.saveAs) {
+            window.saveAs(blob, filename);
+            window.KenBurns.ui.showToast("SRT file download started.", "success");
+        } else {
+            console.error("FileSaver.js not found.");
+            window.KenBurns.ui.showToast("Download failed: FileSaver not found.", "error");
+        }
+    } catch (error) {
+        console.error("Error triggering SRT download:", error);
+        window.KenBurns.ui.showToast("Download error. See console.", "error");
+    }
+}
+
+// Helper function to format milliseconds into SRT time format (HH:MM:SS,ms)
+function formatSrtTime(totalMilliseconds) {
+    const totalSeconds = Math.floor(totalMilliseconds / 1000);
+    const milliseconds = Math.floor(totalMilliseconds % 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60);
+
+    const pad = (num, size = 2) => num.toString().padStart(size, '0');
+
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)},${pad(milliseconds, 3)}`;
+}
+
+// Event Listeners (Should be set up in ui.js or script.js ideally)
+// Placeholder here - Move to ui.js setupEventListeners if possible
+function setupSrtButtonListeners() {
+    const generateBtn = document.getElementById('generate-srt');
+    const downloadBtn = document.getElementById('download-srt');
+    const outputArea = document.getElementById('srt-output');
+
+    if (generateBtn && downloadBtn && outputArea) {
+        generateBtn.addEventListener('click', () => {
+            const srtText = generateSRT();
+            if (srtText !== null) {
+                outputArea.value = srtText;
+                downloadBtn.disabled = srtText.trim() === ""; // Enable download if content exists
+                if (!downloadBtn.disabled) {
+                   window.KenBurns.ui.showToast("SRT content generated.", "info");
+                }
+            } else {
+                outputArea.value = "Failed to generate SRT. Check console.";
+                downloadBtn.disabled = true;
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            downloadSRT(outputArea.value);
+        });
+    }
+}
+
+// Call setup function (Ideally called from main script/DOMContentLoaded)
+// setupSrtButtonListeners(); 
+
+// Function to update the current tour's metadata
+function updateTourMetadata(newTitle, newDescription) {
+    if (!currentTour) {
+        console.error("Cannot update metadata: No tour loaded.");
+        return false;
+    }
+    try {
+        currentTour.title = newTitle;
+        currentTour.description = newDescription;
+        console.log("Tour metadata updated locally:", currentTour);
+        // No need to re-save to file here, just update in memory
+        // The updated info will be included if the user updates/exports JSON
+        return true;
+    } catch (error) {
+        console.error("Error updating tour metadata:", error);
+        return false;
+    }
 }
 
 // Export functions
@@ -226,5 +384,7 @@ window.KenBurns.tours = {
   loadTour,
   getCurrentTour,
   generateSRT,
-  downloadSRT
+  downloadSRT,
+  updateTourMetadata,
+  setupSrtButtonListeners
 };

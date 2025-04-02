@@ -5,6 +5,9 @@
 let pointDragging = false;
 let editingPointIndex = -1;
 
+// Keep track of the Bootstrap modal instance
+let pointEditModalInstance = null;
+
 // Setup viewer interactions
 function setupViewerInteractions(viewer) {
   const viewerElement = document.getElementById('viewer');
@@ -24,6 +27,7 @@ function setupViewerInteractions(viewer) {
       window.KenBurns.table.updateTable();
       window.KenBurns.table.updateJsonFromSequence();
       window.KenBurns.visualization.updateVisualizations(viewer);
+      window.KenBurns.ui.showToast('Point added at click location.', 'success');
     }
   });
   
@@ -165,25 +169,27 @@ function showPointEditModal(viewerOrIndex, pointIndexMaybe) {
   // Store the current editing point index
   editingPointIndex = pointIndex;
   
-  // Show the modal - ensure it's visible
-  console.log('Activating modal');
-  modal.style.display = 'flex';
-  modal.classList.add('active');
-  
-  // Set focus on the title input
-  setTimeout(() => {
+  // Show the modal using Bootstrap API
+  console.log('Showing Bootstrap modal');
+  if (pointEditModalInstance) {
+    pointEditModalInstance.show();
+  } else {
+    console.error('Modal instance not initialized!');
+  }
+
+  // Set focus after modal is shown (Bootstrap handles this, but we can ensure it)
+  const modalElement = document.getElementById('point-edit-modal');
+  modalElement.addEventListener('shown.bs.modal', () => {
     titleInput.focus();
-    console.log('Modal display:', window.getComputedStyle(modal).display);
-  }, 100);
+  }, { once: true });
 }
 
 // Function to hide the point edit modal
 function hidePointEditModal() {
-  const modal = document.getElementById('point-edit-modal');
-  modal.classList.remove('active');
-  setTimeout(() => {
-    modal.style.display = 'none';
-  }, 300); // Wait for transition if any
+  console.log('Hiding Bootstrap modal');
+  if (pointEditModalInstance) {
+    pointEditModalInstance.hide();
+  }
   editingPointIndex = -1;
 }
 
@@ -196,10 +202,12 @@ function setupPointEditModal(viewer) {
     return;
   }
   
+  // Initialize the Bootstrap Modal instance
+  pointEditModalInstance = new bootstrap.Modal(modalElement);
+  
   console.log('Initial modal display style:', window.getComputedStyle(modalElement).display);
   
   const saveButton = document.getElementById('save-point');
-  const cancelButton = document.getElementById('cancel-edit');
   const zoomInput = document.getElementById('point-zoom');
   const zoomValue = document.getElementById('zoom-value');
   
@@ -232,30 +240,22 @@ function setupPointEditModal(viewer) {
     
     // Hide the modal
     hidePointEditModal();
+    window.KenBurns.ui.showToast(`Point ${pointIndex + 1} updated successfully.`, 'success');
   });
   
-  // Cancel button handler
-  cancelButton.addEventListener('click', () => {
-    hidePointEditModal();
-  });
-  
-  // Close modal if clicking outside the content
-  modalElement.addEventListener('click', (e) => {
-    if (e.target === modalElement) {
-      hidePointEditModal();
-    }
-  });
-  
-  // Add keyboard handlers for the modal
+  // Add keyboard handlers for the modal (Escape is handled by Bootstrap)
   document.addEventListener('keydown', (e) => {
-    if (!modalElement.classList.contains('active')) return;
-    
-    if (e.key === 'Escape') {
-      // Close on Escape key
-      hidePointEditModal();
-    } else if (e.key === 'Enter' && e.ctrlKey) {
-      // Save on Ctrl+Enter
-      saveButton.click();
+    // Check if modal is visible using Bootstrap's method is probably better,
+    // but checking the class might still work if Bootstrap adds/removes one.
+    // For now, let's assume the old check is okay, or rely on Bootstrap's handling.
+    // if (!modalElement.classList.contains('show')) return; // Bootstrap uses 'show'
+
+    if (pointEditModalInstance && modalElement.classList.contains('show')) { // Check if modal is shown
+       if (e.key === 'Enter' && e.ctrlKey) {
+        // Save on Ctrl+Enter
+        saveButton.click();
+      }
+      // Escape is handled by Bootstrap automatically
     }
   });
 }
